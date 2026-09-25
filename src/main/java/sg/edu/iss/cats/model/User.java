@@ -24,5 +24,6 @@ public class User {
     private boolean isActive;
     private boolean isAdmin;
     private String email;
-    private Optional<Integer> reportsToId;
+    // private Optional<Integer> reportsToId; // this doesn't work
+    private int reportsToId; // points to himself/herself if he/she is CEO
 }

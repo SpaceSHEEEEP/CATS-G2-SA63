@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/staff") // for employee's stuff
-public class StaffController {
+public class EmployeeController {
 
     
 }
