@@ -1,0 +1,113 @@
+name: Bug report
+description: Report a reproducible defect with enough context to diagnose and verify it.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please include the smallest reproducible case you can.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Bug summary
+      description: What is broken, and where does it happen?
+      placeholder: A concise description of the defect.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: List the exact steps, request, route, data, or user flow that triggers the problem.
+      placeholder: |
+        1. Start the application with ...
+        2. Sign in as ...
+        3. Open ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      placeholder: What happened instead?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: Choose the impact of the defect.
+      options:
+        - Blocking - prevents normal development, testing, or use
+        - Major - important functionality is broken with no good workaround
+        - Minor - limited impact or a reasonable workaround exists
+        - Cosmetic - visual, wording, or low-impact behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Backend / MVC / API
+        - Persistence / database
+        - Security / authentication / authorization
+        - Thymeleaf / UI
+        - Build / Gradle / CI
+        - Tests
+        - Other / unknown
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Branch, commit, or version
+      description: Prefer a commit SHA when possible.
+      placeholder: main @ abc1234
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, JDK, browser (if relevant), and MySQL version.
+      placeholder: Windows 11, Temurin JDK 21, Chrome 140, MySQL 8.4
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, stack traces, or screenshots
+      description: Remove passwords, tokens, personal data, and other secrets before posting.
+      render: shell
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Add suspected cause, workaround, related issues/PRs, or anything else that may help.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Reporter checklist
+      options:
+        - label: I searched existing issues for the same problem.
+          required: true
+        - label: I can reproduce this on the latest relevant branch/commit, or I explained why I cannot.
+          required: true
+        - label: I removed secrets and sensitive data from logs and screenshots.
+          required: true
