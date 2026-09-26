@@ -37,6 +37,12 @@ build/
 # ==========================================
 .gradle/
 build/
+bin/
+target/
 out/
 .gradletasknamecache
+
+#### OS files
+.DS_Store
+Thumbs.db
 
