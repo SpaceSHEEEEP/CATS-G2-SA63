@@ -1,0 +1,132 @@
+name: Manual cross-platform build and test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/cats?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Start MySQL on Ubuntu
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo systemctl start mysql.service
+          echo 'SPRING_DATASOURCE_PASSWORD=root' >> "$GITHUB_ENV"
+
+          for attempt in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; then
+              break
+            fi
+            sleep 2
+          done
+
+          mysqladmin ping -h 127.0.0.1 -uroot -proot --silent
+          mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS cats;"
+
+      - name: Install and start MySQL on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install mysql --version=8.4.6 -y --no-progress
+          if ($LASTEXITCODE -notin @(0, 1641, 3010)) {
+            throw "Chocolatey failed with exit code $LASTEXITCODE"
+          }
+
+          "SPRING_DATASOURCE_PASSWORD=" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          $ready = $false
+          for ($attempt = 0; $attempt -lt 60; $attempt++) {
+            mysqladmin.exe ping -h 127.0.0.1 -uroot --silent | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+              $ready = $true
+              break
+            }
+            Start-Sleep -Seconds 2
+          }
+
+          if (-not $ready) {
+            throw "MySQL did not become ready on Windows."
+          }
+
+          mysql.exe -h 127.0.0.1 -uroot -e "CREATE DATABASE IF NOT EXISTS cats;"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create the test database."
+          }
+
+      - name: Install and start MySQL on macOS
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install mysql@8.4
+          echo "$(brew --prefix mysql@8.4)/bin" >> "$GITHUB_PATH"
+          brew services start mysql@8.4
+          echo 'SPRING_DATASOURCE_PASSWORD=' >> "$GITHUB_ENV"
+
+          MYSQL_BIN="$(brew --prefix mysql@8.4)/bin"
+          for attempt in {1..60}; do
+            if "$MYSQL_BIN/mysqladmin" ping -h 127.0.0.1 -uroot --silent; then
+              break
+            fi
+            sleep 2
+          done
+
+          "$MYSQL_BIN/mysqladmin" ping -h 127.0.0.1 -uroot --silent
+          "$MYSQL_BIN/mysql" -h 127.0.0.1 -uroot -e "CREATE DATABASE IF NOT EXISTS cats;"
+
+      - name: Build and test on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .\gradlew.bat clean build --no-daemon --stacktrace
+
+      - name: Build and test on Linux/macOS
+        if: runner.os != 'Windows'
+        shell: bash
+        run: ./gradlew clean build --no-daemon --stacktrace
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-report-${{ matrix.os }}
+          path: build/reports/tests/test/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload application JAR
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: application-${{ matrix.os }}
+          path: build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 14
