@@ -1,0 +1,110 @@
+name: Task / to-do
+description: Track implementation work, refactoring, tests, documentation, investigations, and other actionable items.
+title: "[Task] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Define the outcome and acceptance criteria so this issue can be picked up without reconstructing the context.
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What needs to be done, and why?
+      placeholder: Describe the desired outcome and relevant context.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task type
+      options:
+        - Feature / enhancement
+        - Bug follow-up
+        - Refactor / cleanup
+        - Test coverage
+        - Documentation
+        - Build / CI / tooling
+        - Investigation / spike
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Backend / MVC / API
+        - Persistence / database
+        - Security / authentication / authorization
+        - Thymeleaf / UI
+        - Build / Gradle / CI
+        - Tests
+        - Documentation
+        - Cross-cutting / other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Use the team convention below unless a milestone or external deadline says otherwise.
+      options:
+        - P0 - blocking / immediate
+        - P1 - high
+        - P2 - normal
+        - P3 - low / backlog
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use concrete, testable conditions. Keep the checkboxes updated as work progresses.
+      placeholder: |
+        - [ ] Required behavior is implemented
+        - [ ] Relevant automated tests pass
+        - [ ] Documentation or UI copy is updated if needed
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation notes
+      description: Suggested approach, files/components involved, constraints, or decisions already made.
+
+  - type: input
+    id: dependencies
+    attributes:
+      label: Dependencies / blockers
+      description: Link issues or PRs using #123 where possible.
+      placeholder: Blocked by #123; depends on #456
+
+  - type: input
+    id: target
+    attributes:
+      label: Target milestone or date
+      placeholder: Milestone name or YYYY-MM-DD
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan
+      description: How will we know the task is complete and has not regressed related behavior?
+      placeholder: Tests, manual checks, routes, roles, data cases, platforms, etc.
+
+  - type: checkboxes
+    id: ready
+    attributes:
+      label: Ready-to-work checklist
+      options:
+        - label: The objective is small enough to complete in one issue, or the subtasks are linked.
+          required: true
+        - label: Acceptance criteria are specific enough for another contributor to verify completion.
+          required: true
