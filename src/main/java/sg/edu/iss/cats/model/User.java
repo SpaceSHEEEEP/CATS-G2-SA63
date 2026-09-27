@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +25,11 @@ public class User {
     private int userId;
     private String name;
     private BigDecimal budget;
+
+    // need usernames to be unique
+    // this is a potential test unit to check when we add the "create 
+    // user" additional additional feature in phase 3
+    @Column(unique = true) 
     private String username;
     private String password;
     private boolean isActive;
