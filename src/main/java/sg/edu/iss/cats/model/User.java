@@ -1,12 +1,17 @@
 package sg.edu.iss.cats.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +29,14 @@ public class User {
     private boolean isActive;
     private boolean isAdmin;
     private String email;
-    // private Optional<Integer> reportsToId; // this doesn't work
-    private int reportsToId; // points to himself/herself if he/she is CEO
+    // private int reportsToId; // using @OneToMany and @ManyToOne now
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) // each application gets mapped to a "user"
+    private List<Application> applications;
+
+    // 'mappedBy = "manager" tells Hibernate: "To find the list of subordinates for a user, look at the manager field on the other side."' ~ Gemini
+    @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
+    private List<User> subordinates = new ArrayList<>(); // each subordinate get mappedBy manager
+    @ManyToOne // the other side
+    private User manager;
 }
