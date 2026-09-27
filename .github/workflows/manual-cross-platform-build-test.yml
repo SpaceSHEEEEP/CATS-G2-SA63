@@ -20,8 +20,8 @@ jobs:
           - macos-latest
 
     env:
-      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/cats?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: root
+      DB_URL: jdbc:mysql://127.0.0.1:3306/cats?createDatabaseIfNotExist=true
+      DB_USERNAME: root
 
     steps:
       - name: Check out repository
@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           sudo systemctl start mysql.service
-          echo 'SPRING_DATASOURCE_PASSWORD=root' >> "$GITHUB_ENV"
+          echo 'DB_PASSWORD=root' >> "$GITHUB_ENV"
 
           for attempt in {1..30}; do
             if mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; then
@@ -62,7 +62,7 @@ jobs:
             throw "Chocolatey failed with exit code $LASTEXITCODE"
           }
 
-          "SPRING_DATASOURCE_PASSWORD=" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DB_PASSWORD=" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
           $ready = $false
           for ($attempt = 0; $attempt -lt 60; $attempt++) {
@@ -90,7 +90,7 @@ jobs:
           brew install mysql@8.4
           echo "$(brew --prefix mysql@8.4)/bin" >> "$GITHUB_PATH"
           brew services start mysql@8.4
-          echo 'SPRING_DATASOURCE_PASSWORD=' >> "$GITHUB_ENV"
+          echo 'DB_PASSWORD=' >> "$GITHUB_ENV"
 
           MYSQL_BIN="$(brew --prefix mysql@8.4)/bin"
           for attempt in {1..60}; do
