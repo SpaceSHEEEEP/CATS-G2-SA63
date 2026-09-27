@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"> 
+
+    <head>
+        <title>Login Page</title>
+    </head>
+    <body>
+
+        <h1>Login to your ISS account</h1>
+
+        <div th:if="${login}" th:object="${login}">
+            <form th:action="@{/}" method="post">
+                <label for="username">Username</label>
+                <input type="text" th:field="*{username}">
+
+                <label for="password">Password</label>
+                <input type="password" th:field="*{password}">
+
+                <input type="submit">
+            </form>
+            <span th:if="${msg}" th:text="${msg}"></span>
+        </div>
+
+    </body>
+</html>
+
