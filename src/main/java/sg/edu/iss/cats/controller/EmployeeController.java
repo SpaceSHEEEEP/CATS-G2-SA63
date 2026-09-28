@@ -33,5 +33,10 @@ public class EmployeeController {
 		
 		return "courselist";
 	}
+
+	@GetMapping("/index")
+	public String showIndex(){
+		return "index";
+	}
     
 }

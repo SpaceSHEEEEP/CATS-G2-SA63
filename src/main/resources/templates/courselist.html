@@ -5,6 +5,7 @@
 	<title>Internal Course</title>
 </head>
 <body>
+	<a th:href="@{/staff/index}">Back to Home</a>
 	<h1>Internal Courses</h1>
 	
 	<p th:if="${#lists.isEmpty(courselist)}">No Internal Courses Available.</p>

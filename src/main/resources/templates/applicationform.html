@@ -8,6 +8,7 @@
     </head>
 
     <body>
+        <a th:href="@{/staff/index}">Back to Home</a>
         <h3>Application Form</h3>
         <form th:action="@{/submitapplication}" th:object="${applicationForm}" method="POST">
             <!-- error summary banner -->
@@ -96,6 +97,4 @@
             </div>
         </form>
     </body>
-
-
 </html>
