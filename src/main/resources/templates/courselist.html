@@ -26,6 +26,11 @@
 				<td th:text="${course.endDate}"></td>
 				<td th:text="${course.trainingProvider}"></td>
 				<td th:text="${course.location}"></td>
+				<td>
+				    <a th:href="@{/employee/apply/{id}(id=${course.courseId})}">
+				        Apply
+				    </a>
+				</td>
 			</tr>
 		</tbody>	
 	</table>
