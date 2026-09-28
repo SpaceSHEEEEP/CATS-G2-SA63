@@ -2,3 +2,15 @@ body {
     margin-top: 20px;
     margin-left: 20px;
 }
+
+.global-error-banner {
+    background:red; 
+    color:white; 
+    padding:10px; 
+    border-radius:5px
+}
+
+.field-error-message{
+    color:red; 
+    font-size:0.85em
+}

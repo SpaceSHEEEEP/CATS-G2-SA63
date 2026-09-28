@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" th:href="@{/style.css}">
         <title>Application Form</title>
     </head>
 
@@ -10,7 +11,7 @@
         <h3>Application Form</h3>
         <form th:action="@{/submitapplication}" th:object="${applicationForm}" method="POST">
             <!-- error summary banner -->
-             <div th:if="${#fields.hasAnyErrors()}" style="background:red; color:white; padding:10px; border-radius:5px">
+             <div class = "global-error-banner" th:if="${#fields.hasAnyErrors()}">
                 <p>Summary of Errors</p>
                 <ul>
                     <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
@@ -27,7 +28,7 @@
                 <label>Course Name:</label>
                 <input type="text" th:field="*{course.courseName}">
                 <!-- localised error message-->
-                 <span th:if="${#fields.hasErrors('course.courseName')}" th:errors="*{course.courseName}" style="color:red; font-size:0.85em"></span>
+                 <span class="field-error-message" th:if="${#fields.hasErrors('course.courseName')}" th:errors="*{course.courseName}"></span>
                 
                  <br>
                  <label>Course Category:</label>
@@ -37,19 +38,19 @@
                     <option value="External">External Course</option>
                     <option value="Professional">Professional Certification</option>
                  <!-- localised error message-->
-                 <span th:if="${#fields.hasErrors('course.courseCategory')}" th:errors="*{course.courseCategory}" style="color:red; font-size:0.85em"></span>
+                 <span class="field-error-message"th:if="${#fields.hasErrors('course.courseCategory')}" th:errors="*{course.courseCategory}"></span>
 
                 <br>
                 <label>Course Start Date:</label>
                 <input type="date" th:field="*{course.startDate}">
                 <!-- localised error message-->
-                <span th:if="${#fields.hasErrors('course.startDate')}" th:errors="*{course.startDate}" style="color:red; font-size:0.85em"></span>
+                <span class="field-error-message" th:if="${#fields.hasErrors('course.startDate')}" th:errors="*{course.startDate}"></span>
 
                 <br>
                 <label>Course End Date:</label>
                 <input type="date" th:field="*{course.endDate}">
                 <!-- localised error message-->
-                <span th:if="${#fields.hasErrors('course.endDate')}" th:errors="*{course.endDate}" style="color:red; font-size:0.85em"></span>
+                <span class="field-error-message" th:if="${#fields.hasErrors('course.endDate')}" th:errors="*{course.endDate}"></span>
 
                 <br>
                 <label>Course Duration:</label>
@@ -62,31 +63,31 @@
                     <option value="5">5 Days</option>
                 </select>
                 <!-- localised error message-->
-                <span th:if="${#fields.hasErrors('course.duration')}" th:errors="*{course.duration}" style="color:red; font-size:0.85em"></span>
+                <span class="field-error-message" th:if="${#fields.hasErrors('course.duration')}" th:errors="*{course.duration}"></span>
 
                 <br>
                 <label>Location:</label>
                 <input type="text" th:field="*{course.location}">
                 <!-- localised error message-->
-                <span th:if="${#fields.hasErrors('course.location')}" th:errors="*{course.location}" style="color:red; font-size:0.85em"></span>
+                <span class="field-error-message" th:if="${#fields.hasErrors('course.location')}" th:errors="*{course.location}"></span>
 
                 <br>
                 <label>Training Provider:</label>
                 <input type="text" th:field="*{course.trainingProvider}">
                 <!-- localised error message-->
-                <span th:if="${#fields.hasErrors('course.trainingProvider')}" th:errors="*{course.trainingProvider}" style="color:red; font-size:0.85em"></span>
+                <span class="field-error-message" th:if="${#fields.hasErrors('course.trainingProvider')}" th:errors="*{course.trainingProvider}"></span>
 
                 <br>
                 <label>Fee:</label>
                 <input type="number" th:field="*{course.fee}" step="0.01">
                 <!-- localised error message-->
-                <span th:if="${#fields.hasErrors('course.fee')}" th:errors="*{course.fee}" style="color:red; font-size:0.85em"></span>
+                <span class="field-error-message" th:if="${#fields.hasErrors('course.fee')}" th:errors="*{course.fee}"></span>
 
                 <br>
                 <label>Reason for Application:</label>
                 <textarea th:field="*{userReason}" rows="5" width="100%"></textarea>
                 <!-- localised error message-->
-                <span th:if="${#fields.hasErrors('userReason')}" th:errors="*{userReason}" style="color:red; font-size:0.85em"></span>
+                <span class="field-error-message" th:if="${#fields.hasErrors('userReason')}" th:errors="*{userReason}"></span>
 
                 <br>
                 <button type="submit">Submit Application</button>
