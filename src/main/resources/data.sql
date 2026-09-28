@@ -22,3 +22,19 @@ INSERT INTO course (course_name, course_type, start_date, end_date, location, tr
     ('SQL Fundam', 'EXTERNAL', '2026-10-06', '2026-10-07','Centre A', 'A Training Provider', 400.00),
 
     ('Java PRO Certification', 'PROFESSIONAL','2026-10-19', '2026-10-20','Centre B', 'B Cert Provider', 600.00);
+
+-- insert dummy data into public holiday table
+INSERT INTO public_holiday_table (holiday_date, holiday_name) VALUES
+    ('2027-01-01', 'New Year''s Day'),
+    ('2027-02-06', 'Chinese New Year Day1'),
+    ('2027-02-07', 'Chinese New Year Day2'),
+    ('2027-02-08', 'Chinese New Year Additional PH'),
+    ('2027-03-10', 'Hari Raya Puasa'),
+    ('2027-03-26', 'Good Friday'),
+    ('2027-05-01', 'Labour Day'),
+    ('2027-05-17', 'Hari Raya Haji'),
+    ('2027-05-20', 'Vesak Day'),
+    ('2027-08-09', 'National Day'),
+    ('2027-10-28', 'Deepavali'),
+    ('2027-12-25', 'Christmas Day');
+ 
