@@ -32,13 +32,14 @@
                 
                  <br>
                  <label>Course Category:</label>
-                 <select th:field="*{course.courseCategory}">
-                    <option value="">--Course Category--</option>
+                 <select th:field="*{course.courseType}">
+                    <option value="">--Course Type--</option>
                     <option value="Internal">Internal Training</option>
                     <option value="External">External Course</option>
                     <option value="Professional">Professional Certification</option>
+                </select>
                  <!-- localised error message-->
-                 <span class="field-error-message"th:if="${#fields.hasErrors('course.courseCategory')}" th:errors="*{course.courseCategory}"></span>
+                 <span class="field-error-message"th:if="${#fields.hasErrors('course.courseType')}" th:errors="*{course.courseCategory}"></span>
 
                 <br>
                 <label>Course Start Date:</label>
