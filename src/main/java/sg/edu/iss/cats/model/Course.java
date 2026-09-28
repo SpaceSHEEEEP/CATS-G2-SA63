@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,6 +14,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,15 +27,32 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int courseId;
+
+    // apply validation annotations for application form checking
+    @NotBlank(message = "Course name is required")
     private String courseName;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Course type is required")
     private CourseType courseType;
+
+    @NotNull(message = "Start date is required")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
+
+    @NotNull(message = "End date is required")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
     private String location;
     private String trainingProvider;
+
+    @NotNull(message = "Please input the course fee")
     private BigDecimal fee;
+
+    // added course duration
+    @Enumerated(EnumType.STRING)
+    @NotNull (message = "Course duration is required")
+    private CourseDuration duration;
 
     // map course to application 
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)

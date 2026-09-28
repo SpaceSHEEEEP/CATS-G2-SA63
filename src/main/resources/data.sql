@@ -18,3 +18,19 @@ INSERT INTO course (course_name, course_type, start_date, end_date, location, tr
     ('Cloud Computing Fundamentals', 'INTERNAL', '2026-11-10', '2026-11-12', 'NUS-ISS', 'NUS-ISS', 1000.00),
     ('Software Quality Assurance', 'INTERNAL', '2026-12-01', '2026-12-04', 'NUS-ISS', 'NUS-ISS', 1100.00),
     ('Enterprise Architecture', 'INTERNAL', '2026-12-10', '2026-12-14', 'NUS-ISS', 'NUS-ISS', 1800.00);
+
+-- insert dummy data into public holiday table
+INSERT INTO public_holiday_table (holiday_date, holiday_name) VALUES
+    ('2027-01-01', 'New Year''s Day'),
+    ('2027-02-06', 'Chinese New Year Day1'),
+    ('2027-02-07', 'Chinese New Year Day2'),
+    ('2027-02-08', 'Chinese New Year Additional PH'),
+    ('2027-03-10', 'Hari Raya Puasa'),
+    ('2027-03-26', 'Good Friday'),
+    ('2027-05-01', 'Labour Day'),
+    ('2027-05-17', 'Hari Raya Haji'),
+    ('2027-05-20', 'Vesak Day'),
+    ('2027-08-09', 'National Day'),
+    ('2027-10-28', 'Deepavali'),
+    ('2027-12-25', 'Christmas Day');
+ 
