@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.Course;
+import sg.edu.iss.cats.repository.CourseRepository;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,20 +20,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequestMapping("/staff")
 public class ApplicationController {
 
-    // Moved to EmployeeController.java
-    /*
-    @PostMapping("/submitapplication")
-    public String submitApplication(@Valid @ModelAttribute("applicationForm") Application applicationForm, BindingResult result, Model model) {
-        // Check for valid annotations in the Application, Course Model.
-        if (result.hasErrors()) {
-            // model.addAttribute("applicationForm", new Application());
-            return "applicationform";
-        }
-        // Apply business validation rules in the service layer.
+    private final CourseRepository courseRepository;
 
-        return "redirect:/staff/index";
+    public ApplicationController(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
     }
-    */
 
 	@GetMapping("/apply")
 	// public String showApplicationForm(@PathVariable int courseId, Model model) {
@@ -53,8 +45,6 @@ public class ApplicationController {
 
 		model.addAttribute("applicationForm", new Application());
 	    return "applicationform";
-	    
-	    // TODO: add invalid id handling too
     }
     
     @PostMapping("/submitapplication")
@@ -68,6 +58,7 @@ public class ApplicationController {
             return "applicationform";
         }
         // Apply business validation rules in the service layer.
+	    // TODO: add invalid id handling too, do it in service class
 
         return "redirect:/staff/index";
     }
