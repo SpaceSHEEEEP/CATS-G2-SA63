@@ -11,7 +11,7 @@ import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.repository.ApplicationRepository;
 
 @Service
-public class EmployeeService {
+public class ApplicationService {
 
     @Autowired
     private ApplicationRepository applicationRepository;

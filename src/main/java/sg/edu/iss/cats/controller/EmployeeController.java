@@ -41,49 +41,5 @@ public class EmployeeController {
 		return "courselist";
 	}
 	
-	@GetMapping("/apply")
-	// public String showApplicationForm(@PathVariable int courseId, Model model) {
-	public String showApplicationForm(
-            @RequestParam(name = "courseId", required = false) Integer courseId, 
-            HttpSession session,
-            Model model) 
-    {
-        if (session.getAttribute("user") != null) {
-            // TODO: display user's details
-        }
-
-        if (courseId != null) {
-            // TODO: prefill course's details, applicable only for INTERNAL courses
-            Course course = courseRepository.findById(courseId).orElse(null);
-            model.addAttribute("course", course);
-        } 
-
-		model.addAttribute("applicationForm", new Application());
-	    return "applicationform";
-	    
-	    // TODO: add invalid id handling too
-    }
-	    
-    @Deprecated
-    @GetMapping("/form") // depreciated. use @GetMapping("/apply")
-    public String showForm(Model model) {
-		model.addAttribute("applicationForm", new Application());
-        return "applicationform";
-    }	
-    
-    @PostMapping("/submitapplication")
-    public String submitApplication(
-            @Valid @ModelAttribute("applicationForm") Application applicationForm, 
-            BindingResult result, 
-            Model model) {
-        // Check for valid annotations in the Application, Course Model.
-        if (result.hasErrors()) {
-            // model.addAttribute("applicationForm", new Application());
-            return "applicationform";
-        }
-        // Apply business validation rules in the service layer.
-
-        return "redirect:/staff/index";
-    }
 
 }
