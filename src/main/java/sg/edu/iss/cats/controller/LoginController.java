@@ -1,6 +1,7 @@
 package sg.edu.iss.cats.controller;
 
 import sg.edu.iss.cats.model.LoginForm;
+import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
 
 import org.springframework.stereotype.Controller;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class LoginController {
@@ -26,7 +29,7 @@ public class LoginController {
     }
 
     @PostMapping("/")
-    public String processLogin(@ModelAttribute LoginForm loginForm, RedirectAttributes ra) {
+    public String processLogin(@ModelAttribute LoginForm loginForm, RedirectAttributes ra,HttpSession session) {
         // get username and password from login form
         // .trim() to remove whitespaces from strings
         String username = loginForm.getUsername().trim();
@@ -40,9 +43,17 @@ public class LoginController {
             ra.addFlashAttribute("msg", "The password you entered is incorrect");
             return "redirect:/";
         }
+        
+        // Login successful
+        User user = userRepository.findByUsername(username);
+
+        	session.setAttribute("loggedInUser", user);
+
         return "index";
 
     }
+    
+
     
 }
 
