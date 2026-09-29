@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sg.edu.iss.cats.model.Application;
+import sg.edu.iss.cats.model.ApplicationStatus;
 import sg.edu.iss.cats.repository.ApplicationRepository;
 
 @Service
@@ -27,6 +28,13 @@ public class ApplicationService {
     public void saveApplication(Application application) { // for planning out purposes, 
         // TODO: add validation 
         // TODO: after validation, applicationRepository.save()
+
+        if (application.getApplicationStatus() == ApplicationStatus.APPLIED){
+            application.setApplicationStatus(ApplicationStatus.UPDATED);
+        }
+        application.setApplicationStatus(ApplicationStatus.APPLIED);
+        applicationRepository.save(application);
+       
     }
 
 

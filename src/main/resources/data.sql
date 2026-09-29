@@ -11,17 +11,15 @@ INSERT INTO user (name, budget, username, password, email, is_active, is_admin) 
     ('Ken', 10000, 'kenny', 'pw', 'ken@gmail.com', true, false);
 
 -- insert dummy data into course table
-INSERT INTO course (course_name, course_type, start_date, end_date, location, training_provider, fee) VALUES 
-    ('Java Programming', 'INTERNAL', '2026-10-01', '2026-10-05', 'NUS-ISS', 'NUS-ISS', 0.00),
-    ('Web Application Development', 'INTERNAL', '2026-10-10', '2026-10-15', 'NUS-ISS', 'NUS-ISS', 0.00),
-    ('Database Design', 'INTERNAL', '2026-11-01', '2026-11-05', 'NUS-ISS', 'NUS-ISS', 0.00),
-    ('Cloud Computing Fundamentals', 'INTERNAL', '2026-11-10', '2026-11-12', 'NUS-ISS', 'NUS-ISS', 0.00),
-    ('Software Quality Assurance', 'INTERNAL', '2026-12-01', '2026-12-04', 'NUS-ISS', 'NUS-ISS', 0.00),
-    ('Enterprise Architecture', 'INTERNAL', '2026-12-10', '2026-12-14', 'NUS-ISS', 'NUS-ISS', 0.00),
-    
-    ('SQL Fundam', 'EXTERNAL', '2026-10-06', '2026-10-07','Centre A', 'A Training Provider', 400.00),
-
-    ('Java PRO Certification', 'PROFESSIONAL','2026-10-19', '2026-10-20','Centre B', 'B Cert Provider', 600.00);
+INSERT INTO course (course_name, course_type, duration,start_date, end_date, location, training_provider, fee) VALUES 
+    ('Java Programming', 'INTERNAL', 'HALFDAYAM', '2026-10-01', '2026-10-01', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Web Application Development', 'INTERNAL', 'FULLDAY', '2026-10-10', '2026-10-12', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Database Design', 'INTERNAL', 'HALFDAYPM', '2026-11-01', '2026-11-01', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Cloud Computing Fundamentals', 'INTERNAL', 'FULLDAY', '2026-11-10', '2026-11-11', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Software Quality Assurance', 'INTERNAL', 'HALFDAYAM', '2026-12-01', '2026-12-01', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Enterprise Architecture', 'INTERNAL', 'FULLDAY', '2026-12-10', '2026-12-14', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('SQL Fundam', 'EXTERNAL', 'FULLDAY', '2026-10-06', '2026-10-07','Centre A', 'A Training Provider', 400.00),
+    ('Java PRO Certification', 'PROFESSIONAL', 'FULLDAY','2026-10-19', '2026-10-20','Centre B', 'B Cert Provider', 600.00);
 
 -- insert dummy data into public holiday table
 INSERT INTO public_holiday_table (holiday_date, holiday_name) VALUES

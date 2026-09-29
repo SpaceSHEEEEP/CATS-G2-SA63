@@ -1,32 +1,80 @@
-<!DOCTYPE html>
-<HTML lang="en" xmlns:th="http://www.thymeleaf.org"> 
-	<head>
-        <title>Index</title>
-	</head>
-	<body>
-        <div th:replace="~{fragments/header :: header}" />
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Index</title>
+  </head>
+  <body>
+    <div th:replace="~{fragments/header :: header}" />
 
-        <div th:if="${session.user}">
-            <h1>Welcome <span th:text="${session.user.name}"></span>! This is the index page</h1>
-        </div>
-        <div th:unless="${session.user}">
-            <h1>Welcome! This is the index page</h1>
-        </div>
-		
-		<a th:href="@{/staff/courselist}">View internal courses</a>
-		<a th:href="@{/staff/apply}">Apply for a course</a>
+    <div th:if="${session.user}">
+      <h1>
+        Welcome <span th:text="${session.user.name}"></span>! This is the index
+        page
+      </h1>
+    </div>
+    <div th:unless="${session.user}">
+      <h1>Welcome! This is the index page</h1>
+    </div>
 
-        <div style="display: flex; flex-direction: column;">
-            <div>
-                <p>TODO: display training days remaining</p>
-            </div>
-            <div>
-                <p>TODO: display budget remaining</p>
-            </div>
-            <div>
-                <p>TODO: display number of applications pending approval</p>
-            </div>
-        </div>
+    <a th:href="@{/staff/courselist}">View internal courses</a>
+    <a th:href="@{/staff/apply}">Apply for a course</a>
 
-	</body>
-</HTML>
+    <div style="display: flex; flex-direction: column">
+      <div>
+        <p>TODO: display training days remaining</p>
+      </div>
+      <div>
+        <p>TODO: display budget remaining</p>
+      </div>
+      <div>
+        <!-- TODO: display number of applications pending approval-->
+        <p>Applications Pending Approval:</p>
+        <p th:if="${#lists.isEmpty(applications)}">
+          You have not applied for any courses.
+        </p>
+        <table th:unless="${#lists.isEmpty(applications)}">
+          <thead>
+            <tr>
+              <th>Application ID</th>
+              <th>Course Name</th>
+              <th>Course Type</th>
+              <th>Duration</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Fee</th>
+              <th>Comments</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="app : ${applications}">
+              <td th:text="${app.applicationId}"></td>
+              <td
+                th:text="${app.course!=null ? app.course.courseName : app.externalCourseName}"
+              ></td>
+              <td
+                th:text="${app.course!=null ? app.course.courseType : app.externalCourseType}"
+              ></td>
+              <td
+                th:text="${app.course!=null ? app.course.duration : app.externalDuration}"
+              ></td>
+              <td
+                th:text="${app.course!=null ? app.course.startDate : app.externalStartDate}"
+              ></td>
+              <td
+                th:text="${app.course!=null ? app.course.endDate : app.externalEndDate}"
+              ></td>
+              <td
+                th:text="${app.course!=null ? app.course.fee : app.externalFee}"
+              ></td>
+              <td th:text="${app.userReason}"></td>
+              <td th:text="${app.applicationStatus}"></td>
+              <td>Edit</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
