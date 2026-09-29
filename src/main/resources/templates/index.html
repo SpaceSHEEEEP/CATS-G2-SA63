@@ -4,9 +4,29 @@
         <title>Index</title>
 	</head>
 	<body>
-        <h1>Welcome! This is the index page</h1>
+        <div th:replace="~{fragments/header :: header}" />
+
+        <div th:if="${session.user}">
+            <h1>Welcome <span th:text="${session.user.name}"></span>! This is the index page</h1>
+        </div>
+        <div th:unless="${session.user}">
+            <h1>Welcome! This is the index page</h1>
+        </div>
 		
 		<a th:href="@{/staff/courselist}">View internal courses</a>
-		<a th:href="@{/staff/form}">Apply for a course</a>
+		<a th:href="@{/staff/apply}">Apply for a course</a>
+
+        <div style="display: flex; flex-direction: column;">
+            <div>
+                <p>TODO: display training days remaining</p>
+            </div>
+            <div>
+                <p>TODO: display budget remaining</p>
+            </div>
+            <div>
+                <p>TODO: display number of applications pending approval</p>
+            </div>
+        </div>
+
 	</body>
 </HTML>

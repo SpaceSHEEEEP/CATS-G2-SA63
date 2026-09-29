@@ -9,11 +9,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
+@RequestMapping("/staff")
 public class LoginController {
 
     private final UserRepository userRepository;
@@ -22,14 +24,14 @@ public class LoginController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/")
+    @GetMapping("/login")
     public String displayLoginForm(Model model) {
         model.addAttribute("login", new LoginForm());
         return "login";
     }
 
-    @PostMapping("/")
-    public String processLogin(@ModelAttribute LoginForm loginForm, RedirectAttributes ra,HttpSession session) {
+    @PostMapping("/index")
+    public String processLogin(@ModelAttribute LoginForm loginForm, RedirectAttributes ra, HttpSession session) {
         // get username and password from login form
         // .trim() to remove whitespaces from strings
         String username = loginForm.getUsername().trim();
@@ -37,20 +39,27 @@ public class LoginController {
 
         if (!userRepository.existsByUsername(username)) {
             ra.addFlashAttribute("msg", "The user with username you just entered does not exist");
-            return "redirect:/";
+            return "redirect:/staff/login";
+            // return "login";
+            // TODO: if username or pw is wrong, don't reset the field values
         }
         else if (!userRepository.existsByUsernameAndPassword(username, password)) {
             ra.addFlashAttribute("msg", "The password you entered is incorrect");
-            return "redirect:/";
+            return "redirect:/staff/login";
         }
         
         // Login successful
         User user = userRepository.findByUsername(username);
-
-        	session.setAttribute("loggedInUser", user);
+        session.setAttribute("user", user);
 
         return "index";
 
+    }
+
+    @GetMapping("/clear_session")
+    public String clearSession(HttpSession session) {
+        session.invalidate();
+        return "redirect:/staff/login";
     }
     
 

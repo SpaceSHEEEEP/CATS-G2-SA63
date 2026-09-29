@@ -8,22 +8,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.model.Application;
 
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 @RequestMapping("/staff")
 public class ApplicationController {
 
-
+    // Moved to EmployeeController.java
+    /*
     @PostMapping("/submitapplication")
-    public String submitApplication(@Valid Application application, BindingResult result, Model model) {
+    public String submitApplication(@Valid @ModelAttribute("applicationForm") Application applicationForm, BindingResult result, Model model) {
         // Check for valid annotations in the Application, Course Model.
         if (result.hasErrors()) {
-            model.addAttribute("applicationForm", new Application());
+            // model.addAttribute("applicationForm", new Application());
             return "applicationform";
         }
         // Apply business validation rules in the service layer.
 
-        return "redirect:/staff/";
-}
+        return "redirect:/staff/index";
+    }
+    */
 }
