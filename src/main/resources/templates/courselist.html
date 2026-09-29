@@ -5,11 +5,12 @@
 	<title>Internal Course</title>
 </head>
 <body>
-	<a th:href="@{/staff/index}">Back to Home</a>
+
+    <div th:replace="~{fragments/header :: header}" />
+
 	<h1>Internal Courses</h1>
 	
 	<p th:if="${#lists.isEmpty(courselist)}">No Internal Courses Available.</p>
-	
 	<table th:unless="${#lists.isEmpty(courselist)}">
 		<thead>
 			<tr>
@@ -28,12 +29,12 @@
 				<td th:text="${course.trainingProvider}"></td>
 				<td th:text="${course.location}"></td>
 				<td>
-				    <a th:href="@{/employee/apply/{id}(id=${course.courseId})}">
-				        Apply
-				    </a>
+                    <!-- wanna pass an optional course id variable -->
+				    <a th:href="@{/staff/apply(courseId=${course.courseId})}">Apply</a>
 				</td>
 			</tr>
 		</tbody>	
 	</table>
+
 </body>
 </html>

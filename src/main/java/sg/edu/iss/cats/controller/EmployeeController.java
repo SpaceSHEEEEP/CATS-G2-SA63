@@ -2,9 +2,17 @@ package sg.edu.iss.cats.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.Application;
@@ -21,36 +29,17 @@ public class EmployeeController {
 		this.courseRepository = courseRepository;
 	}
 
-
-    @GetMapping("/form")
-    public String showForm(Model model) {
-		model.addAttribute("applicationForm", new Application());
-        return "applicationform";
-    }	
-	
-	@GetMapping("/courselist")
-	public String showInternalCourses(Model model) {
-		model.addAttribute("courselist", 
-				courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL));
-		
-		return "courselist";
-	}
-	
-	@GetMapping("/employee/apply/{courseId}")
-	public String showApplicationForm(@PathVariable int courseId, Model model) {
-	    
-		Course course = courseRepository.findById(courseId).orElse(null);
-
-	    model.addAttribute("course", course);
-
-	    return "applicationform";
-	    
-	    //need to add invalid id handling too
-	    
-
 	@GetMapping("/index")
 	public String showIndex(){
 		return "index";
 	}
-    
+
+	@GetMapping("/courselist")
+	public String showInternalCourses(Model model) {
+		model.addAttribute("courselist", 
+				courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL));
+		return "courselist";
+	}
+	
+
 }

@@ -1,19 +1,4 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Course Application</title>
-</head>
-
-<body>
-
-    <h1>Course Application</h1>
-
-    <p>
-        Course:
-        <span th:text="${course.courseName}"></span>
-    </p>
-
-</body>
 <html xmlns:th="http://www.thymeleaf.org" lang="EN">
     <head>
         <meta charset="UTF-8">
@@ -23,9 +8,12 @@
     </head>
 
     <body>
-        <a th:href="@{/staff/index}">Back to Home</a>
+        <div th:replace="~{fragments/header :: header}"/>
+
         <h3>Application Form</h3>
-        <form th:action="@{/submitapplication}" th:object="${applicationForm}" method="POST">
+
+        <form th:action="@{submitapplication}" th:object="${applicationForm}" method="POST">
+
             <!-- error summary banner -->
              <div class = "global-error-banner" th:if="${#fields.hasAnyErrors()}">
                 <p>Summary of Errors</p>
@@ -47,15 +35,17 @@
                  <span class="field-error-message" th:if="${#fields.hasErrors('course.courseName')}" th:errors="*{course.courseName}"></span>
                 
                  <br>
-                 <label>Course Category:</label>
+                 <!-- <label>Course Category:</label> -->
+                 <label>Course Type:</label>
                  <select th:field="*{course.courseType}">
                     <option value="">--Course Type--</option>
-                    <option value="Internal">Internal Training</option>
-                    <option value="External">External Course</option>
-                    <option value="Professional">Professional Certification</option>
+                    <option value="INTERNAL">Internal Training</option>
+                    <option value="EXTERNAL">External Course</option>
+                    <option value="PROFESSIONAL">Professional Certification</option>
                 </select>
                  <!-- localised error message-->
-                 <span class="field-error-message"th:if="${#fields.hasErrors('course.courseType')}" th:errors="*{course.courseCategory}"></span>
+                 <!-- <span class="field-error-message"th:if="${#fields.hasErrors('course.courseType')}" th:errors="*{course.courseCategory}"></span> -->
+                 <span class="field-error-message"th:if="${#fields.hasErrors('course.courseType')}" th:errors="*{course.courseType}"></span>
 
                 <br>
                 <label>Course Start Date:</label>
@@ -69,19 +59,20 @@
                 <!-- localised error message-->
                 <span class="field-error-message" th:if="${#fields.hasErrors('course.endDate')}" th:errors="*{course.endDate}"></span>
 
-                <br>
-                <label>Course Duration:</label>
-                <select th:field="*{course.duration}">
-                    <option value="">--Course Duration--</option>
-                    <option value="1">1 Day</option>
-                    <option value="2">2 Days</option>
-                    <option value="3">3 Days</option>
-                    <option value="4">4 Days</option>
-                    <option value="5">5 Days</option>
-                </select>
+                <!-- we will add fullday, half day am, half day pm options later. for now, ignore this -->
+                <!-- <br> -->
+                <!-- <label>Course Duration:</label> -->
+                <!-- <select th:field="*{course.duration}"> -->
+                <!--     <option value="">--Course Duration--</option> -->
+                <!--     <option value="1">1 Day</option> -->
+                <!--     <option value="2">2 Days</option> -->
+                <!--     <option value="3">3 Days</option> -->
+                <!--     <option value="4">4 Days</option> -->
+                <!--     <option value="5">5 Days</option> -->
+                <!-- </select> -->
                 <!-- localised error message-->
-                <span class="field-error-message" th:if="${#fields.hasErrors('course.duration')}" th:errors="*{course.duration}"></span>
-
+                <!-- <span class="field-error-message" th:if="${#fields.hasErrors('course.duration')}" th:errors="*{course.duration}"></span> -->
+                <!---->
                 <br>
                 <label>Location:</label>
                 <input type="text" th:field="*{course.location}">

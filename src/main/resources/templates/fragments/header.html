@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+
+        <th:block th:fragment="header">
+
+            <header>
+                <a th:href="@{/staff/index}">Home Page</a>
+                <a th:href="@{/staff/login}">Login Page</a>
+                <a th:href="@{/staff/clear_session}">Clear Session</a>
+            </header>
+
+        </th:block>
+
+    </body>
+</html>

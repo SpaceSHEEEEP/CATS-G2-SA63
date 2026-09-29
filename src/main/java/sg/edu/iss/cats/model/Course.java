@@ -51,7 +51,7 @@ public class Course {
 
     // added course duration
     @Enumerated(EnumType.STRING)
-    @NotNull (message = "Course duration is required")
+    // @NotNull (message = "Course duration is required")
     private CourseDuration duration;
 
     // map course to application 
