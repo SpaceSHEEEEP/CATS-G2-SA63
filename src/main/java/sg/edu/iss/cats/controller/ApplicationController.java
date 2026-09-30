@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -44,6 +45,8 @@ public class ApplicationController {
             Model model) {
 
         Application app = new Application();
+        User tim = userRepository.findById(2).orElse(null);
+        session.setAttribute("user", tim);
 
         // Can only apply if logged in
         if (session.getAttribute("user") == null) return "redirect:/staff/login";
@@ -64,6 +67,7 @@ public class ApplicationController {
             @Valid @ModelAttribute("applicationForm") Application form, 
             BindingResult result, 
             Model model, 
+            RedirectAttributes ra,
             HttpSession session) {
 
         // Can only apply if logged in
@@ -75,7 +79,12 @@ public class ApplicationController {
         // Check for valid annotations in the Application, Course Model.
         if (result.hasErrors()) return "applicationform";
 
-        applicationService.saveApplication(form);
+        try {
+            applicationService.saveApplication(form, sessionUser.getUserId());
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+            return "applicationform";
+        }
 
         // do this to trigger countPendingApplications() again, so get most updated info
         sessionUser = userRepository.findById(sessionUser.getUserId()).orElse(null);

@@ -14,12 +14,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data
 @NoArgsConstructor
-
-@Table(name="public_holiday_table")
-public class PublicHoliday {
+public class Holiday {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int publicHolidayId;
+    public int holidayId;
 
     @Column(nullable=false)
     public LocalDate holidayDate;

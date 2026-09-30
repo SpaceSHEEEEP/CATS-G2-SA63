@@ -22,7 +22,7 @@ INSERT INTO course (course_name, course_type, duration,start_date, end_date, loc
     ('Java PRO Certification', 'PROFESSIONAL', 'FULLDAY','2026-10-19', '2026-10-20','Centre B', 'B Cert Provider', 600.00);
 
 -- insert dummy data into public holiday table
-INSERT INTO public_holiday_table (holiday_date, holiday_name) VALUES
+INSERT INTO holiday (holiday_date, holiday_name) VALUES
     ('2027-01-01', 'New Year''s Day'),
     ('2027-02-06', 'Chinese New Year Day1'),
     ('2027-02-07', 'Chinese New Year Day2'),
