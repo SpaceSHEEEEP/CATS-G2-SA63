@@ -21,6 +21,8 @@ import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.ApplicationRepository;
+import sg.edu.iss.cats.model.User;
+import sg.edu.iss.cats.service.BudgetService;
 
 @Controller
 @RequestMapping("/staff") // for employee's stuff
@@ -28,16 +30,24 @@ public class EmployeeController {
 
 	private final CourseRepository courseRepository;
 	private final ApplicationRepository applicationRepository;
+	private final BudgetService budgetService;
 
-	public EmployeeController(CourseRepository courseRepository, ApplicationRepository applicationRepository) {
+	public EmployeeController(CourseRepository courseRepository, ApplicationRepository applicationRepository,
+			BudgetService budgetService) {
 		this.courseRepository = courseRepository;
 		this.applicationRepository = applicationRepository;
+		this.budgetService = budgetService;
 	}
 
 	@GetMapping("/index")
-	public String showIndex(Model model){
-		List<Application> applications = applicationRepository.findAllApplications();
+	public String showIndex(Model model, HttpSession session){
+		User user = (User) session.getAttribute("user");
+		if (user == null) {
+			return "redirect:/staff/login";
+		}
+		List<Application> applications = applicationRepository.findByUserIdWithCourse(user.getUserId());
 		model.addAttribute("applications", applications);
+		model.addAttribute("remainingBudget", budgetService.remainingBudget(user, applications));
 		return "index";
 	}
 
