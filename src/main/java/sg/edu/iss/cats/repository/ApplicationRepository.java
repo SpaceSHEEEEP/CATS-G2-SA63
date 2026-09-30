@@ -12,6 +12,7 @@ import sg.edu.iss.cats.repository.UserRepository;
 
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
+    // TODO: is this really necessary?
   @Query("SELECT a from Application a LEFT JOIN FETCH a.course")
   List<Application> findAllApplications();
 

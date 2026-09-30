@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.User;
+import sg.edu.iss.cats.repository.ApplicationRepository;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.UserRepository;
 import sg.edu.iss.cats.service.ApplicationService;
@@ -24,10 +26,15 @@ public class ApplicationController {
 
     private final CourseRepository courseRepository;
     private final ApplicationService applicationService;
+    private final UserRepository userRepository;
 
-    public ApplicationController(CourseRepository courseRepository, ApplicationService applicationService) {
+    public ApplicationController(
+            CourseRepository courseRepository, 
+            ApplicationService applicationService,
+            UserRepository userRepository) {
         this.courseRepository = courseRepository;
         this.applicationService = applicationService;
+        this.userRepository = userRepository;
     }
 
 	@GetMapping("/apply")
@@ -35,24 +42,21 @@ public class ApplicationController {
 	public String showApplicationForm(
             @RequestParam(name = "courseId", required = false) Integer courseId, 
             HttpSession session,
-            Model model) 
-    {
-        Application app = new Application();
+            Model model) {
 
-        if (session.getAttribute("user") != null) {
-            // TODO: display user's details
-            User user = (User) session.getAttribute("user");
-            app.setUser(user);
-            model.addAttribute("applicationForm", app);
+        Application app = new Application();
+        User tim = userRepository.findById(2).orElse(null);
+        session.setAttribute("user", tim);
+
+        // Can only apply if logged in
+        if (session.getAttribute("user") == null) return "redirect:/staff/login";
+        else {
+            User sessionUser = (User) session.getAttribute("user");
+            app.setUser(userRepository.findById(sessionUser.getUserId()).orElse(null));
         }
 
-        if (courseId != null) {
-            // TODO: prefill course's details, applicable only for INTERNAL courses
-            Course course = courseRepository.findById(courseId).orElse(null);
-            app.setCourse(course);
-            model.addAttribute("applicationForm", app);
-            model.addAttribute("course", course);
-        } 
+        // If got here via "apply" in internal courses list, do this to prefill form
+        if (courseId != null) app.setCourse(courseRepository.findById(courseId).orElse(null));
 
 		model.addAttribute("applicationForm", app);
 	    return "applicationform";
@@ -60,41 +64,32 @@ public class ApplicationController {
     
     @PostMapping("/submitapplication")
     public String submitApplication(
-            @Valid @ModelAttribute("applicationForm") Application applicationForm, 
+            @Valid @ModelAttribute("applicationForm") Application form, 
             BindingResult result, 
             Model model, 
+            RedirectAttributes ra,
             HttpSession session) {
 
-        User user = (User)session.getAttribute("user");
-        if(user == null) {
-            return "redirect:/login";
-        }
-        applicationForm.setUser(user);
+        // Can only apply if logged in
+        User sessionUser = (User) session.getAttribute("user");
+        if (sessionUser == null) return "redirect:/login";
+        form.setUser(userRepository.findById(sessionUser.getUserId()).orElse(null));
+        // need the above because spring mvc remakes a new object after every state change
 
         // Check for valid annotations in the Application, Course Model.
-        if (result.hasErrors()) {
-            // model.addAttribute("applicationForm", new Application());
+        if (result.hasErrors()) return "applicationform";
+
+        try {
+            applicationService.saveApplication(form, sessionUser.getUserId());
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
             return "applicationform";
         }
-        // Apply business validation rules in the service layer.
-	    // TODO: add invalid id handling too, do it in service class
 
-        // If it is an external course with no database ID
-        if (applicationForm.getCourse() != null && applicationForm.getCourse().getCourseId() == null) {
-            // Set course details to be shown in applied table
-            applicationForm.setExternalCourseName(applicationForm.getCourse().getCourseName());
-            applicationForm.setExternalCourseType(applicationForm.getCourse().getCourseType());
-            applicationForm.setExternalDuration(applicationForm.getCourse().getDuration());
-            applicationForm.setExternalStartDate(applicationForm.getCourse().getStartDate());
-            applicationForm.setExternalEndDate(applicationForm.getCourse().getEndDate());
-            applicationForm.setExternalLocation(applicationForm.getCourse().getLocation());
-            applicationForm.setExternalTrainingProvider(applicationForm.getCourse().getTrainingProvider());
-            applicationForm.setExternalFee(applicationForm.getCourse().getFee());
-            applicationForm.setExternalDuration(applicationForm.getCourse().getDuration());
-            // set it as null so it won't be saved into the course table
-            applicationForm.setCourse(null);
-        }
-        applicationService.saveApplication(applicationForm);
+        // do this to trigger countPendingApplications() again, so get most updated info
+        sessionUser = userRepository.findById(sessionUser.getUserId()).orElse(null);
+        session.setAttribute("user", sessionUser); 
+
         return "redirect:/staff/index";
     }
 }
