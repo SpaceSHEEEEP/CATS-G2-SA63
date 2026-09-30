@@ -30,28 +30,29 @@ public class LoginController {
         return "login";
     }
 
-    @PostMapping("/index")
-    public String processLogin(@ModelAttribute LoginForm loginForm, RedirectAttributes ra, HttpSession session) {
+    @PostMapping("/login")
+    public String processLogin(@ModelAttribute LoginForm loginForm, Model model, RedirectAttributes ra, HttpSession session) {
         // get username and password from login form
         // .trim() to remove whitespaces from strings
         String username = loginForm.getUsername().trim();
         String password = loginForm.getPassword().trim();
 
         if (!userRepository.existsByUsername(username)) {
-            ra.addFlashAttribute("msg", "The user with username you just entered does not exist");
-            return "redirect:/staff/login";
-            // return "login";
-            // TODO: if username or pw is wrong, don't reset the field values
+            model.addAttribute("msg", "The user with username you just entered does not exist");
+            model.addAttribute("login", loginForm);
+            return "login";
         }
-        else if (!userRepository.existsByUsernameAndPassword(username, password)) {
-            ra.addFlashAttribute("msg", "The password you entered is incorrect");
-            return "redirect:/staff/login";
+
+        if (!userRepository.existsByUsernameAndPassword(username, password)) {
+            model.addAttribute("msg", "The password you entered is incorrect");
+            model.addAttribute("login", loginForm);
+            return "login";
         }
         
         // Login successful
         session.setAttribute("user", userRepository.findByUsername(username));
 
-        return "index";
+        return "redirect:/staff/index";
 
     }
 
