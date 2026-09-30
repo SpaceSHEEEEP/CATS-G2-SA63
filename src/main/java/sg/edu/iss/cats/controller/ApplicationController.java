@@ -38,13 +38,14 @@ public class ApplicationController {
             Model model) 
     {
         Application app = new Application();
-
-        if (session.getAttribute("user") != null) {
-            // TODO: display user's details
-            User user = (User) session.getAttribute("user");
-            app.setUser(user);
-            model.addAttribute("applicationForm", app);
+        // Use the logged-in user so the form shows their details
+        // return to login if the session has ended.
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/staff/login";
         }
+
+        app.setUser(user);
 
         if (courseId != null) {
             // TODO: prefill course's details, applicable only for INTERNAL courses
@@ -67,7 +68,7 @@ public class ApplicationController {
 
         User user = (User)session.getAttribute("user");
         if(user == null) {
-            return "redirect:/login";
+            return "redirect:/staff/login";
         }
         applicationForm.setUser(user);
 
