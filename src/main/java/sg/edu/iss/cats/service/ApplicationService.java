@@ -53,16 +53,37 @@ public class ApplicationService {
                 courseRepository.save(newCourse);
                 application.setCourse(newCourse);
             }
-        }
+            else {
+                // delete these. it works
+                System.out.println("DEBUG - Course ID: " + (c != null ? c.getCourseId() : "Course is null"));
+                System.out.println("DEBUG - Course Name: " + (c != null ? c.getCourseName() : "N/A"));
+                System.out.println("DEBUG - Course Type: " + (c != null ? c.getCourseType() : "N/A"));
+            }
 
         // TODO: complete validation
 
+        // course title, period, category, justification filled up 
+        // if (c.)
 
 
 
 
+        // start date before end date 
+        
+        // start date must be in the future
 
+        // weekends and public holidays falling during training period are not counted
 
+        // half day sessions are only for internal training 
+
+        // start and end dates must be working days
+
+        // user must have enough budget 
+
+        // TODO: The course period must not overlap with another ‘Applied’, ‘Updated’ 
+        // or ‘Approved’ course application of the same employee. (to be done after added manager features)
+
+        }
         applicationRepository.save(application);
        
     }
