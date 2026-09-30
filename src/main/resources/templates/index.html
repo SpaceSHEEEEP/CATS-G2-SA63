@@ -19,10 +19,11 @@
     <a th:href="@{/staff/courselist}">View internal courses</a>
     <a th:href="@{/staff/apply}">Apply for a course</a>
 
-    <div style="display: flex; flex-direction: column">
-      <p>TODO: display training days remaining</p>
-      <p>TODO: display budget remaining</p>
-      <p>TODO: Applications Pending Approval:</p>
+    <!-- display user details -->
+    <div th:if ="${session.user}">
+      <p th:text="'Days Left :' + ${session.user.days}"></p>
+      <p th:text="'Budget Remaining: $' + ${session.user.budget}"></p>
+      <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>
     </div>
 
     <p th:if="${#lists.isEmpty(applications)}">

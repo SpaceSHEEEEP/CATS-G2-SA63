@@ -76,6 +76,11 @@ public class ApplicationController {
         if (result.hasErrors()) return "applicationform";
 
         applicationService.saveApplication(form);
+
+        // do this to trigger countPendingApplications() again, so get most updated info
+        sessionUser = userRepository.findById(sessionUser.getUserId()).orElse(null);
+        session.setAttribute("user", sessionUser); 
+
         return "redirect:/staff/index";
     }
 }

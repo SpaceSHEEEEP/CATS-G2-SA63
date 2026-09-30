@@ -1,14 +1,14 @@
 -- insert dummy data into user table
-INSERT INTO user (name, budget, username, password, email, is_active, is_admin) VALUES
-    ('Bob', 10000, 'bobby', 'pw', 'bob@gmail.com', true, false),
-    ('Tim', 10000, 'timmy', 'pw', 'tim@gmail.com', true, false),
-    ('Ben', 10000, 'benny', 'pw', 'ben@gmail.com', true, false),
-    ('Dan', 9500, 'danny', 'pw', 'dan@gmail.com', true, false),
-    ('Sam', 11000, 'sammy', 'pw', 'sam@gmail.com', true, false),
-    ('Tom', 12000, 'tommy', 'pw', 'tom@gmail.com', true, false),
-    ('Ron', 8500, 'ronny', 'pw', 'ron@gmail.com', true, false),
-    ('Son', 10500, 'sonny', 'pw', 'son@gmail.com', true, false),
-    ('Ken', 10000, 'kenny', 'pw', 'ken@gmail.com', true, false);
+INSERT INTO user (name, budget, days, username, password, email, is_active, is_admin) VALUES
+    ('Bob', 10000, 10, 'bobby', 'pw', 'bob@gmail.com', true, false),
+    ('Tim', 10000, 10, 'timmy', 'pw', 'tim@gmail.com', true, false),
+    ('Ben', 10000, 10, 'benny', 'pw', 'ben@gmail.com', true, false),
+    ('Dan', 9500, 10, 'danny', 'pw', 'dan@gmail.com', true, false),
+    ('Sam', 11000, 10, 'sammy', 'pw', 'sam@gmail.com', true, false),
+    ('Tom', 12000, 10, 'tommy', 'pw', 'tom@gmail.com', true, false),
+    ('Ron', 8500, 10, 'ronny', 'pw', 'ron@gmail.com', true, false),
+    ('Son', 10500, 10, 'sonny', 'pw', 'son@gmail.com', true, false),
+    ('Ken', 10000, 10, 'kenny', 'pw', 'ken@gmail.com', true, false);
 
 -- insert dummy data into course table
 INSERT INTO course (course_name, course_type, duration,start_date, end_date, location, training_provider, fee) VALUES 
