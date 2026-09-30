@@ -49,8 +49,7 @@ public class LoginController {
         }
         
         // Login successful
-        User user = userRepository.findByUsername(username);
-        session.setAttribute("user", user);
+        session.setAttribute("user", userRepository.findByUsername(username));
 
         return "index";
 

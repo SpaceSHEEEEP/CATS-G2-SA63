@@ -57,5 +57,16 @@ public class Course {
     // map course to application 
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private List<Application> applications;
+
+    public Course(String courseName, CourseType courseType, LocalDate startDate, LocalDate endDate, String location, String trainingProvider, BigDecimal fee, CourseDuration duration) {
+        this.courseName = courseName;
+        this.courseType = courseType;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.location = location;
+        this.trainingProvider = trainingProvider;
+        this.fee = fee;
+        this.duration = duration;
+    }
     
 }

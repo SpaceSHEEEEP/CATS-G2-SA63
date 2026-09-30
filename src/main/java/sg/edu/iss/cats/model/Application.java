@@ -3,6 +3,7 @@ package sg.edu.iss.cats.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,7 +27,7 @@ public class Application {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int applicationId;
+    private Integer applicationId;
     // private int courseId; // added ManyToOne relationship below
     // private int userId; // added ManyToOne relationship below
 
@@ -40,15 +41,6 @@ public class Application {
     private String userReason;
     private String managerReason;
     private Boolean hasBeenPaid;
-
-    private String externalCourseName;
-    private CourseType externalCourseType;
-    private LocalDate externalStartDate;
-    private LocalDate externalEndDate;
-    private String externalLocation; 
-    private String externalTrainingProvider;
-    private BigDecimal externalFee; 
-    private CourseDuration externalDuration;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @Valid
