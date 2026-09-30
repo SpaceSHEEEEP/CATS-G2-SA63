@@ -26,7 +26,7 @@ public class Course {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int courseId;
+    private Integer courseId;
 
     // apply validation annotations for application form checking
     @NotBlank(message = "Course name is required")

@@ -1,40 +1,40 @@
 <!-- this shows a list of internal courses one can apply to -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head xmlns="http://www.thymeleaf.org">
-	<title>Internal Course</title>
-</head>
-<body>
-
+  <head xmlns="http://www.thymeleaf.org">
+    <title>Internal Course</title>
+  </head>
+  <body>
     <div th:replace="~{fragments/header :: header}" />
 
-	<h1>Internal Courses</h1>
-	
-	<p th:if="${#lists.isEmpty(courselist)}">No Internal Courses Available.</p>
-	<table th:unless="${#lists.isEmpty(courselist)}">
-		<thead>
-			<tr>
-				<th>Course</th>
-				<th>Start date</th>
-				<th>End date</th>
-				<th>Provider</th>
-				<th>Location</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr th:each="course : ${courselist}">
-				<td th:text="${course.courseName}"></td>
-				<td th:text="${course.startDate}"></td>
-				<td th:text="${course.endDate}"></td>
-				<td th:text="${course.trainingProvider}"></td>
-				<td th:text="${course.location}"></td>
-				<td>
-                    <!-- wanna pass an optional course id variable -->
-				    <a th:href="@{/staff/apply(courseId=${course.courseId})}">Apply</a>
-				</td>
-			</tr>
-		</tbody>	
-	</table>
+    <h1>Internal Courses</h1>
 
-</body>
+    <p th:if="${#lists.isEmpty(courselist)}">No Internal Courses Available.</p>
+    <table th:unless="${#lists.isEmpty(courselist)}">
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th>Start date</th>
+          <th>End date</th>
+          <th>Provider</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="course : ${courselist}">
+          <td th:text="${course.courseName}"></td>
+          <td th:text="${course.startDate}"></td>
+          <td th:text="${course.endDate}"></td>
+          <td th:text="${course.courseType}"></td>
+          <td th:text="${course.duration}"></td>
+          <td th:text="${course.trainingProvider}"></td>
+          <td th:text="${course.location}"></td>
+          <td>
+            <!-- wanna pass an optional course id variable -->
+            <a th:href="@{/staff/apply(courseId=${course.courseId})}">Apply</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
 </html>
