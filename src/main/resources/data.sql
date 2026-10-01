@@ -1,14 +1,31 @@
 -- insert dummy data into user table
-INSERT INTO user (name, budget, username, password, email, is_active, is_admin) VALUES
-    ('Bob', 10000, 'bobby', 'pw', 'bob@gmail.com', true, false),
-    ('Tim', 10000, 'timmy', 'pw', 'tim@gmail.com', true, false),
-    ('Ben', 10000, 'benny', 'pw', 'ben@gmail.com', true, false),
-    ('Dan', 9500, 'danny', 'pw', 'dan@gmail.com', true, false),
-    ('Sam', 11000, 'sammy', 'pw', 'sam@gmail.com', true, false),
-    ('Tom', 12000, 'tommy', 'pw', 'tom@gmail.com', true, false),
-    ('Ron', 8500, 'ronny', 'pw', 'ron@gmail.com', true, false),
-    ('Son', 10500, 'sonny', 'pw', 'son@gmail.com', true, false),
-    ('Ken', 10000, 'kenny', 'pw', 'ken@gmail.com', true, false);
+INSERT INTO user (name, budget, training_days, username, password, email, is_active, is_admin) VALUES
+    ('Bob', 10000, 10.0, 'bobby', 'pw', 'bob@gmail.com', true, false),
+    ('Tim', 10000, 15.0, 'timmy', 'pw', 'tim@gmail.com', true, false),
+    ('Ben', 10000, 10.5, 'benny', 'pw', 'ben@gmail.com', true, false),
+    ('Dan', 9500, 10.0, 'danny', 'pw', 'dan@gmail.com', true, false),
+    ('Sam', 11000, 10.0, 'sammy', 'pw', 'sam@gmail.com', true, false),
+    ('Tom', 12000, 10.0, 'tommy', 'pw', 'tom@gmail.com', true, false),
+    ('Ron', 8500, 10.0, 'ronny', 'pw', 'ron@gmail.com', true, false),
+    ('Son', 10500, 10.0, 'sonny', 'pw', 'son@gmail.com', true, false),
+    ('Ken', 10000, 10.0, 'kenny', 'pw', 'ken@gmail.com', true, false);
+    
+-- Management hierarchy
+-- Tim and Tom report to Bob (CEO)
+UPDATE user employee
+	JOIN user manager ON manager.username = 'bobby'
+	SET employee.manager_user_id = manager.user_id
+	WHERE employee.username IN ('timmy', 'tommy');
+-- Ben, Dan and Sam report to Tim
+UPDATE user employee
+	JOIN user manager ON manager.username = 'timmy'
+	SET employee.manager_user_id = manager.user_id
+	WHERE employee.username IN ('benny', 'danny', 'sammy');
+-- Ron, Son and Ken report to Tom
+UPDATE user employee
+	JOIN user manager ON manager.username = 'tommy'
+	SET employee.manager_user_id = manager.user_id
+	WHERE employee.username IN ('ronny', 'sonny', 'kenny');
 
 -- insert dummy data into course table
 INSERT INTO course (course_name, course_type, start_date, end_date, location, training_provider, fee) VALUES 

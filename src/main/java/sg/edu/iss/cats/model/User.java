@@ -24,6 +24,7 @@ public class User {
     private int userId;
     private String name;
     private BigDecimal budget;
+    private double trainingDays;
 
     // need usernames to be unique
     // this is a potential test unit to check when we add the "create 

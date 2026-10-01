@@ -4,7 +4,8 @@
         <title>Index</title>
 	</head>
 	<body>
-        <div th:replace="~{fragments/header :: header}" />
+        <div th:replace="~{fragments/header :: header}">
+		</div>
 
         <div th:if="${session.user}">
             <h1>Welcome <span th:text="${session.user.name}"></span>! This is the index page</h1>
@@ -18,7 +19,11 @@
 
         <div style="display: flex; flex-direction: column;">
             <div>
-                <p>TODO: display training days remaining</p>
+				<!-- now just show total training days, no calculation yet-->
+				<p th:if="${session.user != null}">
+				    Training days remaining:
+				    <span th:text="${session.user.trainingDays}"></span>
+				</p>
             </div>
             <div>
                 <p>TODO: display budget remaining</p>
