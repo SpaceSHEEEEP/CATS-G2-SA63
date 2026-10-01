@@ -36,7 +36,7 @@ public class EmployeeController {
 
 	@GetMapping("/index")
 	public String showIndex(Model model){
-		List<Application> applications = applicationRepository.findAllApplications();
+		List<Application> applications = applicationRepository.findAll();
 		model.addAttribute("applications", applications);
 		return "index";
 	}
