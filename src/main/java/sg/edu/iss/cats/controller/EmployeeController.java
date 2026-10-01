@@ -1,5 +1,7 @@
 package sg.edu.iss.cats.controller;
 
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,19 +20,24 @@ import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.repository.CourseRepository;
+import sg.edu.iss.cats.repository.ApplicationRepository;
 
 @Controller
 @RequestMapping("/staff") // for employee's stuff
 public class EmployeeController {
 
 	private final CourseRepository courseRepository;
+	private final ApplicationRepository applicationRepository;
 
-	public EmployeeController(CourseRepository courseRepository) {
+	public EmployeeController(CourseRepository courseRepository, ApplicationRepository applicationRepository) {
 		this.courseRepository = courseRepository;
+		this.applicationRepository = applicationRepository;
 	}
 
 	@GetMapping("/index")
-	public String showIndex(){
+	public String showIndex(Model model){
+		List<Application> applications = applicationRepository.findAllApplications();
+		model.addAttribute("applications", applications);
 		return "index";
 	}
 

@@ -3,6 +3,12 @@ body {
     margin-left: 20px;
 }
 
+header {
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 20px;
+}
+
 .global-error-banner {
     background:red; 
     color:white; 

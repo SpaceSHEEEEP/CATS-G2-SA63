@@ -1,5 +1,9 @@
 package sg.edu.iss.cats.model;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,7 +27,7 @@ public class Application {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int applicationId;
+    private Integer applicationId;
     // private int courseId; // added ManyToOne relationship below
     // private int userId; // added ManyToOne relationship below
 

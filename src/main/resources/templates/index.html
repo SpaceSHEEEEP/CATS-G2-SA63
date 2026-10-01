@@ -7,31 +7,59 @@
         <div th:replace="~{fragments/header :: header}">
 		</div>
 
-        <div th:if="${session.user}">
-            <h1>Welcome <span th:text="${session.user.name}"></span>! This is the index page</h1>
-        </div>
-        <div th:unless="${session.user}">
-            <h1>Welcome! This is the index page</h1>
-        </div>
-		
-		<a th:href="@{/staff/courselist}">View internal courses</a>
-		<a th:href="@{/staff/apply}">Apply for a course</a>
+    <div th:if="${session.user}">
+      <h1>
+        Welcome <span th:text="${session.user.name}"></span>! This is the index
+        page
+      </h1>
+    </div>
+    <div th:unless="${session.user}">
+      <h1>Welcome! This is the index page</h1>
+    </div>
 
-        <div style="display: flex; flex-direction: column;">
-            <div>
-				<!-- now just show total training days, no calculation yet-->
-				<p th:if="${session.user != null}">
-				    Training days remaining:
-				    <span th:text="${session.user.trainingDays}"></span>
-				</p>
-            </div>
-            <div>
-                <p>TODO: display budget remaining</p>
-            </div>
-            <div>
-                <p>TODO: display number of applications pending approval</p>
-            </div>
-        </div>
+    <a th:href="@{/staff/courselist}">View internal courses</a>
+    <a th:href="@{/staff/apply}">Apply for a course</a>
 
-	</body>
-</HTML>
+    <!-- display user details -->
+    <div th:if ="${session.user}">
+      <p th:text="'Days Left :' + ${session.user.days}"></p>
+      <p th:text="'Budget Remaining: $' + ${session.user.budget}"></p>
+      <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>
+    </div>
+
+    <p th:if="${#lists.isEmpty(applications)}">
+      You have not applied for any courses.
+    </p>
+    <table th:unless="${#lists.isEmpty(applications)}">
+      <thead>
+        <tr>
+          <th>Application ID</th>
+          <th>Course Name</th>
+          <th>Course Type</th>
+          <th>Duration</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Fee</th>
+          <th>Comments</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="app : ${applications}">
+          <td th:text="${app.course.courseName}"></td>
+          <td th:text="${app.course.courseType}"></td>
+          <td th:text="${app.course.duration}"></td>
+          <td th:text="${app.course.startDate}"></td>
+          <td th:text="${app.course.endDate}"></td>
+          <td th:text="${app.course.fee}"></td>
+
+          <td th:text="${app.userReason}"></td>
+          <td th:text="${app.applicationStatus}"></td>
+          <td>Edit</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </body>
+</html>

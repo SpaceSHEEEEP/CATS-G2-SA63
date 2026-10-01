@@ -21,10 +21,10 @@ import lombok.NoArgsConstructor;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+    private Integer userId;
     private String name;
     private BigDecimal budget;
-    private double trainingDays;
+    private Double days;
 
     // need usernames to be unique
     // this is a potential test unit to check when we add the "create 
@@ -37,7 +37,8 @@ public class User {
     private String email;
     // private int reportsToId; // using @OneToMany and @ManyToOne now
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) // each application gets mapped to a "user"
+    // FetchType is EAGEr because I want .countPendingApplications() to work
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER) // each application gets mapped to a "user"
     private List<Application> applications;
 
     // 'mappedBy = "manager" tells Hibernate: "To find the list of subordinates for a user, look at the manager field on the other side."' ~ Gemini
@@ -45,4 +46,15 @@ public class User {
     private List<User> subordinates = new ArrayList<>(); // each subordinate get mappedBy manager
     @ManyToOne // the other side
     private User manager;
+
+    public Integer countPendingApplications() {
+        if (applications.isEmpty()) return 0;
+        Integer count = 0;
+        for (Application app : applications) {
+            if (app.getApplicationStatus() == ApplicationStatus.APPLIED || 
+                app.getApplicationStatus() == ApplicationStatus.UPDATED) count++;
+        }
+        System.out.println("DEBUG: COUNT WAS CALLED. # OF PENDING APPS: " + count);
+        return count;
+    }
 }

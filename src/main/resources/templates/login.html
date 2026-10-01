@@ -9,7 +9,7 @@
         <h1>Login to your ISS account</h1>
 
         <div th:if="${login}" th:object="${login}">
-            <form th:action="@{/staff/index}" method="post">
+            <form th:action="@{/staff/login}" method="post">
                 <label for="username">Username</label>
                 <input type="text" th:field="*{username}">
 
