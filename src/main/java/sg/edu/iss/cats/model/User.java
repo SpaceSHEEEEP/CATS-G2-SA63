@@ -24,7 +24,7 @@ public class User {
     private Integer userId;
     private String name;
     private BigDecimal budget;
-    private Float days; // number of entitled days left, name subject to change
+    private Double days;
 
     // need usernames to be unique
     // this is a potential test unit to check when we add the "create 
