@@ -45,8 +45,6 @@ public class ApplicationController {
             Model model) {
 
         Application app = new Application();
-        User tim = userRepository.findById(2).orElse(null);
-        session.setAttribute("user", tim);
 
         // Can only apply if logged in
         if (session.getAttribute("user") == null) return "redirect:/staff/login";

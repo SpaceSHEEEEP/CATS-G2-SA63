@@ -42,7 +42,7 @@ public class Application {
     private String managerReason;
     private Boolean hasBeenPaid;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @Valid
     private Course course;
 

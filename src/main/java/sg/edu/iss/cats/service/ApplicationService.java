@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,7 +91,7 @@ public class ApplicationService {
             if (c.getCourseType() != CourseType.INTERNAL && c.getDuration() != CourseDuration.FULLDAY) 
                 throw new RuntimeException("Only internal courses can be half day");
 
-            // start and end dates must be working days TODO: check holiday
+            // start and end dates must be working days             
             if (checkWorkingDay(c.getStartDate()))
                 throw new RuntimeException("Start day must be a working day");
             if (checkWorkingDay(c.getEndDate()))
@@ -114,10 +115,21 @@ public class ApplicationService {
             if (c.getFee().compareTo(user.getBudget()) > 0) 
                 throw new RuntimeException("You do not have enough budget to apply to this course");
 
-            // TODO: subtract numOfDays from user's days attribute
-
-            // TODO: The course period must not overlap with another ‘Applied’, ‘Updated’ 
+            // The course period must not overlap with another ‘Applied’, ‘Updated’ 
             // or ‘Approved’ course application of the same employee. (to be done after added manager features)
+            List<Application> applications = 
+                applicationRepository.findByUser_UserIdAndApplicationStatus(userId, ApplicationStatus.APPLIED);
+            applications.addAll(applicationRepository.findByUser_UserIdAndApplicationStatus(userId, ApplicationStatus.UPDATED));
+            applications.addAll(applicationRepository.findByUser_UserIdAndApplicationStatus(userId, ApplicationStatus.APPROVED));
+            for (Application a : applications) {
+                if (c.getStartDate().compareTo(a.getCourse().getEndDate()) <= 0 &&
+                    c.getEndDate().compareTo(a.getCourse().getStartDate())  >= 0)
+                    throw new RuntimeException("This course overlaps with your " + a.getCourse().getCourseName() + " course. Please reschedule.");
+            }
+
+            // TODO: subtract numOfDays from user's days attribute
+            // and subtract user's budget
+
 
         }
         applicationRepository.save(application);
