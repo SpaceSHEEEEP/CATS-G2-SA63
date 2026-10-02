@@ -25,10 +25,13 @@
       <!-- TODO: show fieldset only if courseType is not internal, otherwise just hide it -->
       <!-- same for course fee. just dont need to give the option -->
       <!-- same for half day or full day thing -->
+      
+      <p th:text="*{applicationId}"></p>
+      <input type="hidden" th:field="*{applicationId}">
+      <input type="hidden" th:field="*{course.courseId}" />
 
       <div>
         <fieldset>
-          <input type="hidden" th:field="*{course.courseId}" />
           <label>Name:</label>
           <input type="text" th:field="*{user.name}" th:readonly="true" />
         </fieldset>

@@ -1,5 +1,7 @@
 package sg.edu.iss.cats.controller;
 
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,14 +26,17 @@ import sg.edu.iss.cats.service.ApplicationService;
 @RequestMapping("/staff")
 public class ApplicationController {
 
+    private final ApplicationRepository applicationRepository;
     private final CourseRepository courseRepository;
-    private final ApplicationService applicationService;
     private final UserRepository userRepository;
+    private final ApplicationService applicationService;
 
     public ApplicationController(
+            ApplicationRepository applicationRepository,
             CourseRepository courseRepository, 
             ApplicationService applicationService,
             UserRepository userRepository) {
+        this.applicationRepository = applicationRepository;
         this.courseRepository = courseRepository;
         this.applicationService = applicationService;
         this.userRepository = userRepository;
@@ -39,7 +44,7 @@ public class ApplicationController {
 
 	@GetMapping("/apply")
 	// public String showApplicationForm(@PathVariable int courseId, Model model) {
-	public String showApplicationForm(
+	public String showForm(
             @RequestParam(name = "courseId", required = false) Integer courseId, 
             HttpSession session,
             Model model) {
@@ -61,7 +66,7 @@ public class ApplicationController {
     }
     
     @PostMapping("/submitapplication")
-    public String submitApplication(
+    public String submitForm(
             @Valid @ModelAttribute("applicationForm") Application form, 
             BindingResult result, 
             Model model, 
@@ -89,5 +94,24 @@ public class ApplicationController {
         session.setAttribute("user", sessionUser); 
 
         return "redirect:/staff/index";
+    }
+
+    @GetMapping("/edit")
+    public String editForm(
+            @RequestParam(name = "applicationId", required = true) Integer applicationId,
+            Model model,
+            HttpSession session) {
+
+        // check if user is logged in
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/staff/login";
+
+        // check if the application exists and that this user made the application
+        List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+        if (applications.isEmpty()) return "redirect:/staff/index";
+
+        // else, application exists
+        model.addAttribute("applicationForm", applications.get(0));
+        return "applicationform";
     }
 }
