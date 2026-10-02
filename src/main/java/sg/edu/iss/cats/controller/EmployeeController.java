@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.CourseType;
@@ -35,8 +36,15 @@ public class EmployeeController {
 	}
 
 	@GetMapping("/index")
-	public String showIndex(Model model){
-		List<Application> applications = applicationRepository.findAll();
+	public String showIndex(Model model, HttpSession session){
+		// Reads the user stored by LoginController after successful login.
+		User user = (User) session.getAttribute("user");
+		// if no logged-in will return to login, otherwise user.getUserId() will fail in next step
+		if (user == null) {
+		    return "redirect:/staff/login";
+		}
+		
+		List<Application> applications = applicationRepository.findByUser_UserId(user.getUserId());
 		model.addAttribute("applications", applications);
 		return "index";
 	}

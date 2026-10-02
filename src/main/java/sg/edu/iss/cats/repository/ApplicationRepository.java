@@ -16,5 +16,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     // don't need this. findAll is a built in function from JpaRepository. Delete this
   // @Query("SELECT a from Application a LEFT JOIN FETCH a.course")
   // List<Application> findAllApplications();
+ 
+    // Find all applications belonging to one employee.
+    List<Application> findByUser_UserId(Integer userId);
 
 }
