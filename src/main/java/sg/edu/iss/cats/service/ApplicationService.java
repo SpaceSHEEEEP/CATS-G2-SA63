@@ -124,7 +124,7 @@ public class ApplicationService {
         applications.addAll(applicationRepository.findByUser_UserIdAndApplicationStatus(userId, ApplicationStatus.APPROVED));
 
         for (Application a : applications) {
-            if (appId == null || (editApplication && a.getApplicationId().equals(appId))) continue;
+            if (editApplication && a.getApplicationId().equals(appId)) continue;
             if (c.getStartDate().compareTo(a.getCourse().getEndDate()) <= 0 &&
                 c.getEndDate().compareTo(a.getCourse().getStartDate())  >= 0)
                 throw new RuntimeException("This course overlaps with your " + a.getCourse().getCourseName() + " course. Please reschedule.");
@@ -144,6 +144,5 @@ public class ApplicationService {
                 d.getDayOfWeek() == DayOfWeek.SUNDAY ||
                 holidayRepository.existsByHolidayDate(d));
     }
-
 
 }

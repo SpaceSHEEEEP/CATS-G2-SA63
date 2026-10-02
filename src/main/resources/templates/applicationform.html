@@ -30,6 +30,7 @@
       <input type="hidden" th:field="*{applicationId}">
       <input type="hidden" th:field="*{course.courseId}" />
 
+      <!-- User's info-->
       <div>
         <fieldset>
           <label>Name:</label>
@@ -40,10 +41,13 @@
           <label>Email:</label>
           <input type="email" th:field="*{user.email}" th:readonly="true" />
         </fieldset>
+      </div>
 
+      <!-- Course info -->
+      <div>
         <fieldset>
           <label>Course Name:</label>
-          <input type="text" th:field="*{course.courseName}"/>
+          <input type="text" th:field="*{course.courseName}" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"/>
           <span class="field-error-message" th:if="${#fields.hasErrors('course.courseName')}" th:errors="*{course.courseName}"/>
         </fieldset>
 
@@ -53,53 +57,55 @@
 
         <fieldset>
           <label>Course Type:</label>
-          <select th:field="*{course.courseType}">
+          <select th:field="*{course.courseType}" th:disabled="*{course?.courseType?.name() == 'INTERNAL'}">
             <option value="">--Course Type--</option>
-            <option value="INTERNAL">Internal Training</option>
+            <option value="INTERNAL" th:if="*{course?.courseType?.name() == 'INTERNAL'}">Internal Training</option>
             <option value="EXTERNAL">External Course</option>
             <option value="PROFESSIONAL">Professional Certification</option>
           </select>
+          <input type="hidden" name ="course.courseType" value="INTERNAL" th:if="*{course?.courseType?.name() == 'INTERNAL'}">
           <span class="field-error-message" th:if="${#fields.hasErrors('course.courseType')}" th:errors="*{course.courseType}"/>
         </fieldset>
 
         <fieldset>
           <label>Course Start Date:</label>
-          <input type="date" th:field="*{course.startDate}"/>
+          <input type="date" th:field="*{course.startDate}" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"/>
           <span class="field-error-message" th:if="${#fields.hasErrors('course.startDate')}" th:errors="*{course.startDate}"/>
         </fieldset>
 
         <fieldset>
           <label>Course End Date:</label>
-          <input type="date" th:field="*{course.endDate}"/>
+          <input type="date" th:field="*{course.endDate}" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"/>
           <span class="field-error-message" th:if="${#fields.hasErrors('course.endDate')}" th:errors="*{course.endDate}"/>
         </fieldset>
 
         <fieldset>
           <label>Course Duration:</label>
-          <select th:field="*{course.duration}">
-            <option value="">--Course Duration--</option>
-            <option value="HALFDAYAM">Half Day (AM)</option>
-            <option value="HALFDAYPM">Half Day (PM)</option>
-            <option value="FULLDAY">Full Day</option>
-          </select>
+          <!-- <select th:field="*{course.duration}" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"> -->
+          <!--   <option value="">--Course Duration--</option> -->
+          <!--   <option value="HALFDAYAM">Half Day (AM)</option> -->
+          <!--   <option value="HALFDAYPM">Half Day (PM)</option> -->
+          <!--   <option value="FULLDAY">Full Day</option> -->
+          <!-- </select> -->
+          <input type="text" th:name="course.duration" th:value="*{course.duration != null} ? *{course.duration} : 'FULLDAY'" th:readonly="true" />
           <span class="field-error-message" th:if="${#fields.hasErrors('course.duration')}" th:errors="*{course.duration}"/>
         </fieldset>
 
         <fieldset>
           <label>Location:</label>
-          <input type="text" th:field="*{course.location}"/>
+          <input type="text" th:field="*{course.location}" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"/>
           <span class="field-error-message" th:if="${#fields.hasErrors('course.location')}" th:errors="*{course.location}"/>
         </fieldset>
 
         <fieldset>
           <label>Training Provider:</label>
-          <input type="text" th:field="*{course.trainingProvider}"/>
+          <input type="text" th:field="*{course.trainingProvider}" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"/>
           <span class="field-error-message" th:if="${#fields.hasErrors('course.trainingProvider')}" th:errors="*{course.trainingProvider}"/>
         </fieldset>
 
         <fieldset>
           <label>Fee:</label>
-          <input type="number" th:field="*{course.fee}" step="0.01" />
+          <input type="number" th:field="*{course.fee}" step="0.01" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"/>
           <span class="field-error-message" th:if="${#fields.hasErrors('course.fee')}" th:errors="*{course.fee}"/>
         </fieldset>
 
