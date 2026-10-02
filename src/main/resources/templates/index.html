@@ -34,6 +34,7 @@
     <table th:unless="${#lists.isEmpty(applications)}">
       <thead>
         <tr>
+          <th>application id</th>
           <th>Course Name</th>
           <th>Course Type</th>
           <th>Duration</th>
@@ -47,12 +48,13 @@
       </thead>
       <tbody>
         <tr th:each="app : ${applications}">
+          <td th:text="${app.applicationId}"></td>
           <td th:text="${app.course.courseName}"></td>
           <td th:text="${app.course.courseType}"></td>
           <td th:text="${app.course.duration}"></td>
           <td th:text="${app.course.startDate}"></td>
           <td th:text="${app.course.endDate}"></td>
-          <td th:text="${app.course.fee}"></td>
+          <td th:text="'$' + ${app.course.fee}"></td>
 
           <td th:text="${app.userReason}"></td>
           <td th:text="${app.applicationStatus}"></td>
