@@ -32,7 +32,7 @@ public class UserRepositoryTests {
 	@DisplayName("Returns true when Bobby's password matches")
 	void bobbyPasswordMatches() {
 	    boolean matches = userRepository.existsByUsernameAndPassword(
-	            "bobby", "password");
+	            "bobby", "pw");
 
 	    assertThat(matches).isTrue();
 	}

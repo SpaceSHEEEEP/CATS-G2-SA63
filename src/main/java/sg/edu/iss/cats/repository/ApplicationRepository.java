@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.ApplicationStatus;
@@ -21,5 +22,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     @Query("SELECT a FROM Application a JOIN FETCH a.user WHERE a.user.userId = ?1 AND a.applicationId = ?2")
     public List<Application> findByUser_UserIdAndApplicationId(Integer userId, Integer applicationId);
 
+    // Find all applications belonging to one employee.
+    List<Application> findByUser_UserId(Integer userId);
 
+    // Load direct subordinates' applications, ordered by employee name.
+    @EntityGraph(attributePaths = {"user", "course"})
+    List<Application> findByUser_Manager_UserIdOrderByUser_NameAscApplicationIdAsc(Integer managerId);
 }

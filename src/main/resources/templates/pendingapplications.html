@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Team Training</title>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <h1>Team Training</h1>
+
+    <h2>Pending Approvals</h2>
+    <p th:if="${#lists.isEmpty(pendingApplications)}">
+        No applications awaiting approval.
+    </p>
+
+    <table th:unless="${#lists.isEmpty(pendingApplications)}">
+        <thead>
+            <tr>
+                <th scope="col">Employee</th>
+                <th scope="col">Course</th>
+                <th scope="col">Category</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
+                <th scope="col">Fee (SGD)</th>
+                <th scope="col">Justification</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="app : ${pendingApplications}">
+                <td th:text="${app.user.name}"></td>
+                <td th:text="${app.course.courseName}"></td>
+                <td th:text="${app.course.courseType}"></td>
+                <td th:text="${app.course.startDate}"></td>
+                <td th:text="${app.course.endDate}"></td>
+                <td th:text="${app.course.fee}"></td>
+                <td th:text="${app.userReason}"></td>
+                <td th:text="${app.applicationStatus}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>All Subordinate Applications</h2>
+    <p th:if="${#lists.isEmpty(subordinateApplications)}">
+        Your subordinates have no applications.
+    </p>
+
+    <table th:unless="${#lists.isEmpty(subordinateApplications)}">
+        <thead>
+            <tr>
+                <th scope="col">Employee</th>
+                <th scope="col">Course</th>
+                <th scope="col">Category</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
+                <th scope="col">Fee (SGD)</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="app : ${subordinateApplications}">
+                <td th:text="${app.user.name}"></td>
+                <td th:text="${app.course.courseName}"></td>
+                <td th:text="${app.course.courseType}"></td>
+                <td th:text="${app.course.startDate}"></td>
+                <td th:text="${app.course.endDate}"></td>
+                <td th:text="${app.course.fee}"></td>
+                <td th:text="${app.applicationStatus}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
