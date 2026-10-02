@@ -14,5 +14,7 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     // for Application Repo 
     public User findByUsername(String username);
 
+    // A user is a manager if another employee reports to them.
+    boolean existsByManager_UserId(Integer managerId);
     
 }
