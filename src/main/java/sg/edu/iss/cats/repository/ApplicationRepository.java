@@ -13,8 +13,4 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     // This finds a user's applications that has some status
     List<Application> findByUser_UserIdAndApplicationStatus(Integer userId, ApplicationStatus status);
 
-    // don't need this. findAll is a built in function from JpaRepository. Delete this
-  // @Query("SELECT a from Application a LEFT JOIN FETCH a.course")
-  // List<Application> findAllApplications();
-
 }
