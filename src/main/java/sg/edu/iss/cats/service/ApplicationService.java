@@ -132,7 +132,13 @@ public class ApplicationService {
 
         // TODO: subtract numOfDays from user's days attribute
         // and subtract user's budget
-    
+        user.setBudget(user.getBudget().subtract(c.getFee()));
+        user.setDays(user.getDays() - numOfDays);
+
+        userRepository.save(user);
+        application.setUser(user);
+
+        
         if (editApplication) application.setApplicationStatus(ApplicationStatus.UPDATED);
         else application.setApplicationStatus(ApplicationStatus.APPLIED);
         applicationRepository.save(application);
