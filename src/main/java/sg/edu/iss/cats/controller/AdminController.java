@@ -14,6 +14,8 @@ import sg.edu.iss.cats.model.LoginForm;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
 import java.time.LocalDate;
+
+import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.HolidayRepository;
 
 @Controller
@@ -22,10 +24,13 @@ public class AdminController {
 	
 	private final UserRepository userRepository;
 	private final HolidayRepository holidayRepository;
+	private final CourseRepository courseRepository;
 	
-	public AdminController( UserRepository userRepository, HolidayRepository holidayRepository) {
+	public AdminController( UserRepository userRepository, HolidayRepository holidayRepository,
+			CourseRepository courseRepository) {
 		this.userRepository = userRepository;
 		this.holidayRepository = holidayRepository;
+		this.courseRepository = courseRepository;
 
 	}
 
@@ -53,6 +58,7 @@ public class AdminController {
         model.addAttribute("holidays",
                 holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(
                         firstDay, lastDay));
+        model.addAttribute("courseSummaries",courseRepository.findCoursesWithApplicantCounts());
         
         return "admin";
 	}
