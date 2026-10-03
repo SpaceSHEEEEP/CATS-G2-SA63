@@ -21,9 +21,11 @@ import sg.edu.iss.cats.repository.HolidayRepository;
 public class AdminController {
 	
 	private final UserRepository userRepository;
+	private final HolidayRepository holidayRepository;
 	
-	public AdminController( UserRepository userRepository) {
+	public AdminController( UserRepository userRepository, HolidayRepository holidayRepository) {
 		this.userRepository = userRepository;
+		this.holidayRepository = holidayRepository;
 
 	}
 
@@ -41,6 +43,16 @@ public class AdminController {
 
         // Load current user records
         model.addAttribute("users", userRepository.findAll());
+        
+        // Show holidays for the current calendar year only.
+        int year = LocalDate.now().getYear();
+        LocalDate firstDay = LocalDate.of(year, 1, 1);
+        LocalDate lastDay = LocalDate.of(year, 12, 31);
+
+        model.addAttribute("holidayYear", year);
+        model.addAttribute("holidays",
+                holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(
+                        firstDay, lastDay));
         
         return "admin";
 	}

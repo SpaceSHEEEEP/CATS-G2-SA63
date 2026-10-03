@@ -44,5 +44,28 @@
 	    </tbody>
 	</table>
 	
+	<h2 th:text="'Public Holidays — ' + ${holidayYear}">
+	    Public Holidays
+	</h2>
+
+	<p th:if="${#lists.isEmpty(holidays)}">
+	    No public holidays recorded for this year.
+	</p>
+
+	<table th:unless="${#lists.isEmpty(holidays)}">
+	    <thead>
+	        <tr>
+	            <th>Holiday Name</th>
+	            <th>Date</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	        <tr th:each="holiday : ${holidays}">
+	            <td th:text="${holiday.holidayName}"></td>
+	            <td th:text="${#temporals.format(
+	                    holiday.holidayDate, 'dd-MM-yyyy')}"></td>
+	        </tr>
+	    </tbody>
+	</table>
 </body>
 </html>
