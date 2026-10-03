@@ -84,6 +84,9 @@ public class ApplicationController {
 
         try {
             applicationService.saveApplication(form, sessionUser.getUserId());
+
+            // Flash Attribute for success message
+            ra.addFlashAttribute("successapplymsg", "Application '" + form.getApplicationId() + "' submitted successfully!");
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             return "applicationform";
@@ -113,5 +116,32 @@ public class ApplicationController {
         // else, application exists
         model.addAttribute("applicationForm", applications.get(0));
         return "applicationform";
+    }
+
+    @PostMapping("/delete")
+    public String deleteApplication(
+            @RequestParam(name = "applicationId", required = true) Integer applicationId,
+            HttpSession session,
+            RedirectAttributes ra) {
+
+        // check if user is logged in
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/staff/login";
+
+        // check if the application exists and that this user made the application
+        List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+        if (applications.isEmpty()) return "redirect:/staff/index";
+
+        // else, application exists, delete it
+        applicationService.deleteApplication(applications.get(0), user.getUserId());
+            
+        // update the user object in the session to reflect changes
+        User sessionUser = userRepository.findById(user.getUserId()).orElse(null);
+        session.setAttribute("user", sessionUser);
+        
+        // Flash Attribute for success message
+        ra.addFlashAttribute("successdeletemsg", "Application '" + applicationId + "' deleted successfully!");
+
+        return "redirect:/staff/index";
     }
 }
