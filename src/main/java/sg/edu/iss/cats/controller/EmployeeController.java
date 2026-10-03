@@ -2,6 +2,9 @@ package sg.edu.iss.cats.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,6 +31,7 @@ import sg.edu.iss.cats.repository.ApplicationRepository;
 @RequestMapping("/staff") // for employee's stuff
 public class EmployeeController {
 
+    private final int pageSize = 10;
 	private final CourseRepository courseRepository;
 	private final ApplicationRepository applicationRepository;
 	private final UserRepository userRepository;
@@ -58,12 +62,23 @@ public class EmployeeController {
 		return "index";
 	}
 
-	@GetMapping("/courselist")
-	public String showInternalCourses(Model model) {
-		model.addAttribute("courselist", 
-				courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL));
-		return "courselist";
-	}
-	
+	// @GetMapping("/courselist")
+	// public String showInternalCourses(Model model) {
+	// 	model.addAttribute("courselist", 
+	// 			courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL));
+	// 	return "courselist";
+	// }
+
+    @GetMapping ("/courselist")
+    public String showInternalCoursesPages(
+            @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+            Model model) {
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        Page<Course> coursePage = courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL, pageable);
+        model.addAttribute("courselist", coursePage);
+        model.addAttribute("pageNum", pageNum);
+        model.addAttribute("pageNumLast", coursePage.getTotalPages());
+        return "courselist";
+    }
 
 }

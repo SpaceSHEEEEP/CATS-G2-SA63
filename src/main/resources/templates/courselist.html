@@ -21,7 +21,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr th:each="course : ${courselist}">
+        <!-- <tr th:each="course : ${courselist}"> -->
+        <tr th:each="course : ${courselist.content}">
           <td th:text="${course.courseName}"></td>
           <td th:text="${course.startDate}"></td>
           <td th:text="${course.endDate}"></td>
@@ -30,11 +31,14 @@
           <td th:text="${course.trainingProvider}"></td>
           <td th:text="${course.location}"></td>
           <td>
-            <!-- wanna pass an optional course id variable -->
             <a th:href="@{/staff/apply(courseId=${course.courseId})}">Apply</a>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <a th:if="${pageNum > 0}" th:href="@{/staff/courselist(pageNum=${pageNum-1})}">Prev page</a>
+    <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/staff/courselist(pageNum=${pageNum+1})}">Next page</a>
+
   </body>
 </html>
