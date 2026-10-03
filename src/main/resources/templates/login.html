@@ -3,6 +3,7 @@
 
     <head>
         <title>Login Page</title>
+        <link rel="stylesheet" th:href="@{/style.css}" />
     </head>
     <body>
 
@@ -10,14 +11,19 @@
 
         <div th:if="${login}" th:object="${login}">
             <form th:action="@{/staff/login}" method="post">
-                <label for="username">Username</label>
-                <input type="text" th:field="*{username}">
-
-                <label for="password">Password</label>
-                <input type="password" th:field="*{password}">
+                <fieldset>
+                    <label for="username">Username</label>
+                    <input type="text" th:field="*{username}">
+                </fieldset>
+    
+                <fieldset>
+                    <label for="password">Password</label>
+                    <input type="password" th:field="*{password}">
+                </fieldset>
 
                 <input type="submit">
             </form>
+
             <span th:if="${msg}" th:text="${msg}"></span>
         </div>
 

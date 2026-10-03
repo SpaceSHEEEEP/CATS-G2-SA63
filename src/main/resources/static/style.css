@@ -9,6 +9,43 @@ header {
     gap: 20px;
 }
 
+table {
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+td, th {
+    border: 1px solid black;
+    text-align: start;
+    padding: 0.5rem;
+}
+
+th {
+    background-color: whitesmoke;
+    font-weight: bold;
+}
+
+fieldset {
+    display: flex;
+    align-items: center;
+    border: 0px ;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+button, input[type="submit"], input[type="reset"], input[type="button"] {
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    background-color: blue;
+    color: white;
+    padding: 0.5em;
+}
+
+.index_actions {
+    display: flex;
+    gap: 20px;
+}
+
 .global-error-banner {
     background:red; 
     color:white; 

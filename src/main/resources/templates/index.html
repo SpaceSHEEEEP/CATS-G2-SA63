@@ -2,6 +2,7 @@
 <HTML lang="en" xmlns:th="http://www.thymeleaf.org"> 
 	<head>
         <title>My Training</title>
+        <link rel="stylesheet" th:href="@{/style.css}" />
 	</head>
 	<body>
         <div th:replace="~{fragments/header :: header}">
@@ -15,11 +16,11 @@
       <h1>Welcome! This is the index page</h1>
     </div>
 
-    <a th:href="@{/staff/courselist}">View internal courses</a>
-	<a th:if="${isManager}" th:href="@{/manager/applications}">
-	    Team Training
-	</a>
-    <a th:href="@{/staff/apply}">Apply for a course</a>
+    <div class="index_actions">
+        <a th:href="@{/staff/courselist}">View internal courses</a>
+        <a th:if="${isManager}" th:href="@{/manager/applications}">Team Training</a>
+        <a th:href="@{/staff/apply}">Apply for a course</a>
+    </div>
 
     <!-- display user details -->
     <div th:if ="${session.user}">
@@ -43,7 +44,7 @@
           <th>Fee</th>
           <th>Comments</th>
           <th>Status</th>
-          <th>Action</th>
+          <th>Edit?</th>
         </tr>
       </thead>
       <tbody>
@@ -52,13 +53,13 @@
           <td th:text="${app.course.courseName}"></td>
           <td th:text="${app.course.courseType}"></td>
           <td th:text="${app.course.duration}"></td>
-          <td th:text="${app.course.startDate}"></td>
-          <td th:text="${app.course.endDate}"></td>
+          <td th:text="${#temporals.format(app.course.startDate, 'dd-MM-yyyy')}"></td>
+          <td th:text="${#temporals.format(app.course.endDate, 'dd-MM-yyyy')}"></td>
           <td th:text="'$' + ${app.course.fee}"></td>
 
           <td th:text="${app.userReason}"></td>
           <td th:text="${app.applicationStatus}"></td>
-          <td>Edit</td>
+          <td><a th:href="@{/staff/edit(applicationId=${app.applicationId})}">Edit</a></td>
         </tr>
       </tbody>
     </table>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Team Training</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
 </head>
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
@@ -17,9 +18,9 @@
     <table th:unless="${#lists.isEmpty(pendingApplications)}">
         <thead>
             <tr>
-                <th scope="col">Employee</th>
-                <th scope="col">Course</th>
-                <th scope="col">Category</th>
+                <th scope="col">Employee Name</th>
+                <th scope="col">Course Name</th>
+                <th scope="col">Course Category</th>
                 <th scope="col">Start Date</th>
                 <th scope="col">End Date</th>
                 <th scope="col">Fee (SGD)</th>
@@ -32,8 +33,8 @@
                 <td th:text="${app.user.name}"></td>
                 <td th:text="${app.course.courseName}"></td>
                 <td th:text="${app.course.courseType}"></td>
-                <td th:text="${app.course.startDate}"></td>
-                <td th:text="${app.course.endDate}"></td>
+                <td th:text="${#temporals.format(app.course.startDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${#temporals.format(app.course.endDate, 'dd-MM-yyyy')}"></td>
                 <td th:text="${app.course.fee}"></td>
                 <td th:text="${app.userReason}"></td>
                 <td th:text="${app.applicationStatus}"></td>
@@ -63,8 +64,8 @@
                 <td th:text="${app.user.name}"></td>
                 <td th:text="${app.course.courseName}"></td>
                 <td th:text="${app.course.courseType}"></td>
-                <td th:text="${app.course.startDate}"></td>
-                <td th:text="${app.course.endDate}"></td>
+                <td th:text="${#temporals.format(app.course.startDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${#temporals.format(app.course.endDate, 'dd-MM-yyyy')}"></td>
                 <td th:text="${app.course.fee}"></td>
                 <td th:text="${app.applicationStatus}"></td>
             </tr>

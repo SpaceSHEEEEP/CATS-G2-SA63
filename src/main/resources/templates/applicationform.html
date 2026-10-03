@@ -81,12 +81,6 @@
 
         <fieldset>
           <label>Course Duration:</label>
-          <!-- <select th:field="*{course.duration}" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"> -->
-          <!--   <option value="">--Course Duration--</option> -->
-          <!--   <option value="HALFDAYAM">Half Day (AM)</option> -->
-          <!--   <option value="HALFDAYPM">Half Day (PM)</option> -->
-          <!--   <option value="FULLDAY">Full Day</option> -->
-          <!-- </select> -->
           <input type="text" th:name="course.duration" th:value="*{course.duration != null} ? *{course.duration} : 'FULLDAY'" th:readonly="true" />
           <span class="field-error-message" th:if="${#fields.hasErrors('course.duration')}" th:errors="*{course.duration}"/>
         </fieldset>

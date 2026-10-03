@@ -3,6 +3,7 @@
 <html lang="en">
   <head xmlns="http://www.thymeleaf.org">
     <title>Internal Course</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
   </head>
   <body>
     <div th:replace="~{fragments/header :: header}" />
@@ -16,16 +17,19 @@
           <th>Course</th>
           <th>Start date</th>
           <th>End date</th>
-          <th>Provider</th>
+          <th>Course Type</th>
+          <th>Course Duration</th>
+          <th>Training Provider</th>
           <th>Location</th>
+          <th>Interested?</th>
         </tr>
       </thead>
       <tbody>
         <!-- <tr th:each="course : ${courselist}"> -->
         <tr th:each="course : ${courselist.content}">
           <td th:text="${course.courseName}"></td>
-          <td th:text="${course.startDate}"></td>
-          <td th:text="${course.endDate}"></td>
+          <td th:text="${#temporals.format(course.startDate, 'dd-MM-yyyy')}"></td>
+          <td th:text="${#temporals.format(course.endDate, 'dd-MM-yyyy')}"></td>
           <td th:text="${course.courseType}"></td>
           <td th:text="${course.duration}"></td>
           <td th:text="${course.trainingProvider}"></td>
