@@ -1,0 +1,54 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="EN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" th:href="@{/style.css}" />
+    <title>Calendar</title>
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}" />
+    <h1 th:text="${currentMonth}">Current Month</h1>
+
+    <div class = "year-month-filter-container">
+      <!-- dropdown to navigate across years and months -->
+      <div>
+        <form th:action="@{/staff/calendar}" method="GET">
+          <label>Year: </label>
+          <select name="year">
+            <option value="">--Select A Year--</option>
+            <option th:each="yr:${years}" th:value="${yr}" th:text="${yr}" th:selected="${yr==currentYear}"></option>
+          </select>
+
+          <label>Month: </label>
+          <select name="month">
+            <option value="">--Select A Month--</option>
+            <option th:each="mth:${months}" th:value="${mth}" th:text="${mth}"></option>
+          </select>
+          <button type="submit">Select</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- calendar container -->
+    <div class="calendar-container">
+      <div class="static-days-header">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+      </div>
+
+      <div class="calendar-grid-section">
+        <div class="blank" th:each="blank:${blanks}"></div>
+        <div class="day" th:each="day:${days}">
+          <span th:text="${day}">1</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

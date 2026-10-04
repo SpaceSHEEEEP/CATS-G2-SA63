@@ -20,7 +20,7 @@
         <p> Unable to submit application. Please re-enter fields or review again before submitting.</p>
       </div>
 
-      <p th:if="${error}" style="color: orange;">Error from service validation: <span th:text="${error}"></span></p>
+      <p th:if="${error}" class="field-error-message">Error from service validation: <span th:text="${error}"></span></p>
       
       <!-- TODO: show fieldset only if courseType is not internal, otherwise just hide it -->
       <!-- same for course fee. just dont need to give the option -->

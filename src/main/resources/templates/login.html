@@ -1,32 +1,54 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"> 
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${adminLogin == true}
+            ? 'Administrator Login' : 'Staff Login'">
+        Staff Login
+    </title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+</head>
+<body>
+    <h1 th:text="${adminLogin == true}
+            ? 'Administrator Login' : 'Staff Login'">
+        Staff Login
+    </h1>
 
-    <head>
-        <title>Login Page</title>
-        <link rel="stylesheet" th:href="@{/style.css}" />
-    </head>
-    <body>
+    <p th:if="${adminLogin == true}">
+        Sign in with an administrator account to access admin features.
+    </p>
 
-        <h1>Login to your ISS account</h1>
+    <p th:unless="${adminLogin == true}">
+        Sign in to manage your training applications.
+    </p>
 
-        <div th:if="${login}" th:object="${login}">
-            <form th:action="@{/staff/login}" method="post">
-                <fieldset>
-                    <label for="username">Username</label>
-                    <input type="text" th:field="*{username}">
-                </fieldset>
-    
-                <fieldset>
-                    <label for="password">Password</label>
-                    <input type="password" th:field="*{password}">
-                </fieldset>
+    <form th:object="${login}"
+          th:action="${adminLogin == true}
+              ? @{/admin/login} : @{/staff/login}"
+          method="post">
 
-                <input type="submit">
-            </form>
+        <fieldset>
+            <label for="username">Username</label>
+            <input type="text" th:field="*{username}"
+                   autocomplete="username" required>
+        </fieldset>
 
-            <span th:if="${msg}" th:text="${msg}"></span>
-        </div>
+        <fieldset>
+            <label for="password">Password</label>
+            <input type="password" th:field="*{password}"
+                   autocomplete="current-password" required>
+        </fieldset>
 
-    </body>
+        <button type="submit">Log in</button>
+    </form>
+
+    <p th:if="${msg}" th:text="${msg}" role="alert"></p>
+
+    <a th:unless="${adminLogin == true}" th:href="@{/admin/login}">
+        Administrator login
+    </a>
+
+    <a th:if="${adminLogin == true}" th:href="@{/staff/login}">
+        Back to staff login
+    </a>
+</body>
 </html>
-

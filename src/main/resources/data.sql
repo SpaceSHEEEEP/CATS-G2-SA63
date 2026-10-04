@@ -8,7 +8,8 @@ INSERT INTO user (name, budget, days, username, password, email, is_active, is_a
     ('Tom', 12000, 10.0, 'tommy', 'pw', 'tom@gmail.com', true, false),
     ('Ron', 8500, 10.0, 'ronny', 'pw', 'ron@gmail.com', true, false),
     ('Son', 10500, 10.0, 'sonny', 'pw', 'son@gmail.com', true, false),
-    ('Ken', 10000, 10.0, 'kenny', 'pw', 'ken@gmail.com', true, false);
+    ('Ken', 10000, 10.0, 'kenny', 'pw', 'ken@gmail.com', true, false),
+    ('Min', 10000, 10.0, 'minny', 'pw', 'min@gmail.com', true, true); -- Admin User
     
 -- Management hierarchy
 -- Tim and Tom report to Bob (CEO)

@@ -62,13 +62,6 @@ public class EmployeeController {
 		return "index";
 	}
 
-	// @GetMapping("/courselist")
-	// public String showInternalCourses(Model model) {
-	// 	model.addAttribute("courselist", 
-	// 			courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL));
-	// 	return "courselist";
-	// }
-
     @GetMapping ("/courselist")
     public String showInternalCoursesPages(
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
