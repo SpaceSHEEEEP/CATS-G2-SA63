@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Administration</title>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <h1>Administration</h1>
+    <p>Welcome <span th:text="${session.user.name}"></span>.</p>
+	
+	<h2>Users</h2>
+
+	<p th:if="${#lists.isEmpty(users)}">No users found.</p>
+
+	<table th:unless="${#lists.isEmpty(users)}">
+	    <thead>
+	        <tr>
+	            <th>Name</th>
+				<th>Username</th>
+	            <th>Email</th>
+	            <th>Administrator</th>
+				<th>Reports To</th>
+	            <th>Remaining Budget (SGD)</th>
+	            <th>Days Remaining</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	        <tr th:each="staff : ${users}">
+	            <td th:text="${staff.name}"></td>
+				<td th:text="${staff.username}"></td>
+	            <td th:text="${staff.email}"></td>
+	            <td th:text="${staff.admin} ? 'Yes' : 'No'"></td>
+				<td th:text="${staff.manager == null
+						? '-'
+						: staff.manager.name}">
+				</td>
+				<td th:text="${staff.budget == null
+				        ? 'Not set'
+				        : 'SGD ' + #numbers.formatDecimal(staff.budget, 1, 2)}">
+				</td>
+	            <td th:text="${staff.days}"></td>
+	        </tr>
+	    </tbody>
+	</table>
+	<h2>Courses</h2>
+	<p>Ordered by number of applicants, highest first.</p>
+
+	<p th:if="${#lists.isEmpty(courseSummaries)}">
+	    No courses recorded.
+	</p>
+
+	<table th:unless="${#lists.isEmpty(courseSummaries)}">
+	    <thead>
+	        <tr>
+	            <th>Course Name</th>
+	            <th>Category</th>
+	            <th>Start Date</th>
+	            <th>End Date</th>
+	            <th>Applicants</th>
+	            <th>Location</th>
+	            <th>Training Provider</th>
+	            <th>Fee (SGD)</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	        <tr th:each="summary : ${courseSummaries}">
+	            <td th:text="${summary.course.courseName}"></td>
+	            <td th:text="${summary.course.courseType}"></td>
+	            <td th:text="${#temporals.format(
+	                    summary.course.startDate, 'dd-MM-yyyy')}"></td>
+	            <td th:text="${#temporals.format(
+	                    summary.course.endDate, 'dd-MM-yyyy')}"></td>
+	            <td th:text="${summary.applicantCount}"></td>
+	            <td th:text="${summary.course.location}"></td>
+	            <td th:text="${summary.course.trainingProvider}"></td>
+	            <td th:text="${summary.course.fee == null
+	                    ? 'Not set'
+	                    : 'SGD ' + #numbers.formatDecimal(
+	                            summary.course.fee, 1, 2)}"></td>
+	        </tr>
+	    </tbody>
+	</table>
+	
+	<h2 th:text="'Public Holidays — ' + ${holidayYear}">
+	    Public Holidays
+	</h2>
+
+	<p th:if="${#lists.isEmpty(holidays)}">
+	    No public holidays recorded for this year.
+	</p>
+
+	<table th:unless="${#lists.isEmpty(holidays)}">
+	    <thead>
+	        <tr>
+	            <th>Holiday Name</th>
+	            <th>Date</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	        <tr th:each="holiday : ${holidays}">
+	            <td th:text="${holiday.holidayName}"></td>
+	            <td th:text="${#temporals.format(
+	                    holiday.holidayDate, 'dd-MM-yyyy')}"></td>
+	        </tr>
+	    </tbody>
+	</table>
+</body>
+</html>
