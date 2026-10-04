@@ -53,10 +53,34 @@ public class ManagerController {
 		}
 
 		model.addAttribute("pendingApplications", pendingApplications);
-		model.addAttribute("subordinateApplications", subordinateApplications);
+		model.addAttribute("subordinateApplications", subordinateApplications.subList(0, Math.min(subordinateApplications.size(), 4)));
 
 		return "pendingapplications";
 	}
 	
+    @GetMapping("/applicationhistory")
+    public String showSubordinateHistory(Model model, HttpSession session) {
+		User user = (User) session.getAttribute("user");
+
+        // Need to be logged in
+		if (user == null) return "redirect:/staff/login";
+
+		// Need to be a manager
+		if (!userRepository.existsByManager_UserId(user.getUserId())) return "redirect:/staff/index";
+
+        // Give me a list of subordinates
+        List<User> subordinates = userRepository.findAllByManager_UserId(user.getUserId());
+
+        // for each subordinate, gimme a list of his/her applications
+        List<List<Application>> subordinatesApplications = new ArrayList<>();
+        for (User u : subordinates) {
+            if (!applicationRepository.existsByUser_UserId(u.getUserId())) continue;
+            subordinatesApplications.add(applicationRepository.findByUser_UserId(u.getUserId()));
+        }
+        model.addAttribute("subordinatesApplications", subordinatesApplications);
+
+        return "applicationhistory";
+
+    }
     
 }

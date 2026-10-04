@@ -11,7 +11,6 @@ import sg.edu.iss.cats.model.ApplicationStatus;
 
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
-    // TODO: add JUnit tests for this
     // This finds a user's applications that has some status
     public List<Application> findByUser_UserIdAndApplicationStatus(Integer userId, ApplicationStatus status);
 
@@ -23,9 +22,14 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     public List<Application> findByUser_UserIdAndApplicationId(Integer userId, Integer applicationId);
 
     // Find all applications belonging to one employee.
+    @EntityGraph(attributePaths = {"user", "course"})
     List<Application> findByUser_UserId(Integer userId);
 
     // Load direct subordinates' applications, ordered by employee name.
     @EntityGraph(attributePaths = {"user", "course"})
     List<Application> findByUser_Manager_UserIdOrderByUser_NameAscApplicationIdAsc(Integer managerId);
+
+    // has this user made any applications?
+    @EntityGraph(attributePaths = {"user", "course"})
+    boolean existsByUser_UserId(Integer userId);
 }
