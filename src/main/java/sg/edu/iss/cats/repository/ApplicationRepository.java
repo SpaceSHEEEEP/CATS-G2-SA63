@@ -19,8 +19,13 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     // Application instad of application because Application is the name of our java class 
     // JOIN FETCH does the joining btw application and user, but also fetches us the user table, which is FetchType.LAZY,
     // without FETCH, then we can't access the user somewhere down the line
-    @Query("SELECT a FROM Application a JOIN FETCH a.user WHERE a.user.userId = ?1 AND a.applicationId = ?2")
-    public List<Application> findByUser_UserIdAndApplicationId(Integer userId, Integer applicationId);
+    //needed to add JOIN FETCH for course as well
+    @Query("SELECT a FROM Application a " +
+    	       "JOIN FETCH a.user " +
+    	       "JOIN FETCH a.course " +
+    	       "WHERE a.user.userId = ?1 AND a.applicationId = ?2")
+    	public List<Application> findByUser_UserIdAndApplicationId(
+    	        Integer userId, Integer applicationId);
 
     // Find all applications belonging to one employee.
     List<Application> findByUser_UserId(Integer userId);
