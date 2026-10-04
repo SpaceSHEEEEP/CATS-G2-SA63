@@ -11,7 +11,6 @@ import sg.edu.iss.cats.model.ApplicationStatus;
 
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
-    // TODO: add JUnit tests for this
     // This finds a user's applications that has some status
     public List<Application> findByUser_UserIdAndApplicationStatus(Integer userId, ApplicationStatus status);
 

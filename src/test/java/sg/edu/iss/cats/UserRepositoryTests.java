@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
+import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
 
 //Uses sample users from data.sql and the test-profile MySQL database.
@@ -60,6 +61,39 @@ public class UserRepositoryTests {
 	    		"mr.brightside", "password");
 
 	    assertThat(exists).isFalse();
+	}
+
+	@Test
+	@DisplayName("Returns User Object when the username exists")
+	void findUserByUsername() {
+	    User user = userRepository.findByUsername("bobby");
+
+	    assertThat(user).isNotNull();
+	    assertThat(user.getUsername()).isEqualTo("bobby");
+	}
+
+	@Test
+	@DisplayName("Does not return any User Object when the username does not exist")
+	void findUserByUsernameDoesNotExist() {
+	    User user = userRepository.findByUsername("mr.brightside");
+
+	    assertThat(user).isNull();
+	}
+
+	@Test
+	@DisplayName("Returns TRUE when a user is a manager")
+	void findUserIsManager() {
+	    boolean isManager = userRepository.existsByManager_UserId(2);
+
+	    assertThat(isManager).isTrue();
+	}
+
+	@Test
+	@DisplayName("Returns False when a user is not manager")
+	void findUserIsManagerDoesNotExist() {
+	    boolean isManager = userRepository.existsByManager_UserId(5);
+
+	    assertThat(isManager).isFalse();
 	}
 
 }
