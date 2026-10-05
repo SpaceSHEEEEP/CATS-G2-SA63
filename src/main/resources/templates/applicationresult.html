@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Application Search Results</title>
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <h1>Application Search Results</h1>
+	<p th:text="'Number of results: ' + ${#lists.size(searchApplications)}"></p>
+
+    <p th:if="${#lists.isEmpty(searchApplications)}">
+        No applications found.
+    </p>
+
+    <table th:unless="${#lists.isEmpty(searchApplications)}">
+
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Course</th>
+                <th>Course Type</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Fee (SGD)</th>
+                <th>Justification</th>
+                <th>Status</th>
+				<th>Manager Remarks</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr th:each="app : ${searchApplications}">
+                <td th:text="${app.user.name}"></td>
+                <td th:text="${app.course.courseName}"></td>
+                <td th:text="${app.course.courseType}"></td>
+                <td th:text="${app.course.startDate}"></td>
+                <td th:text="${app.course.endDate}"></td>
+                <td th:text="${app.course.fee}"></td>
+                <td th:text="${app.userReason}"></td>
+                <td th:text="${app.applicationStatus}"></td>
+				<td th:text="${app.managerReason}"></td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+    <br>
+
+    <a th:href="@{/manager/applications}">
+        Back to Pending Applications
+    </a>
+
+</body>
+</html>

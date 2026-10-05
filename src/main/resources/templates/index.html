@@ -57,7 +57,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr th:each="app : ${applications}">
+        <tr th:each="app : ${applications}"
+		th:if="${app.applicationStatus.toString() != 'DELETED'}">
           <td th:text="${app.applicationId}"></td>
           <td th:text="${app.course.courseName}"></td>
           <td th:text="${app.course.courseType}"></td>
@@ -68,6 +69,29 @@
 
           <td th:text="${app.userReason}"></td>
           <td th:text="${app.applicationStatus}"></td>
+          
+		  <td>
+			<a th:href="@{/staff/view(applicationId=${app.applicationId})}">
+			    View Details	
+			</a>
+			
+			<a th:href="@{/staff/edit(applicationId=${app.applicationId})}">
+		          Edit	
+			</a>
+
+			<a th:href="@{/staff/delete(applicationId=${app.applicationId})}">
+			      Delete	
+			</a>
+			
+			<form th:if="${app.applicationStatus.toString() == 'APPROVED'}"
+				th:action="@{/staff/completed(applicationId=${app.applicationId})}"
+				method="post">
+				<button type="submit">
+					COMPLETED
+				</button>
+			</form>
+			
+		  </td>
           <td><a th:href="@{/staff/edit(applicationId=${app.applicationId})}">Edit</a></td>
           <td>
             <form th:action="@{/staff/delete(applicationId=${app.applicationId})}" method="POST">
