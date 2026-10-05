@@ -12,69 +12,56 @@
 
     <h1>Application Details</h1>
 
-    <p>
-        Application ID:
-        <span th:text="${applicationView.applicationId}"></span>
-    </p>
+    <div class="details-card">
+        <dl class="details-grid">
 
-    <p>
-        Course Name:
-        <span th:text="${applicationView.course.courseName}"></span>
-    </p>
+            <dt>Application ID</dt>
+            <dd th:text="${applicationView.applicationId}"></dd>
 
-    <p>
-        Course Type:
-        <span th:text="${applicationView.course.courseType}"></span>
-    </p>
+            <dt>Course Name</dt>
+            <dd th:text="${applicationView.course.courseName}"></dd>
 
-    <p>
-        Start Date:
-        <span th:text="${applicationView.course.startDate}"></span>
-    </p>
+            <dt>Course Type</dt>
+            <dd><span class="badge" th:text="${applicationView.course.courseType}"></span></dd>
 
-    <p>
-        End Date:
-        <span th:text="${applicationView.course.endDate}"></span>
-    </p>
+            <dt>Start Date</dt>
+            <dd th:text="${applicationView.course.startDate}"></dd>
 
-    <p>
-        Duration:
-        <span th:text="${applicationView.course.duration}"></span>
-    </p>
+            <dt>End Date</dt>
+            <dd th:text="${applicationView.course.endDate}"></dd>
 
-    <p>
-        Training Provider:
-        <span th:text="${applicationView.course.trainingProvider}"></span>
-    </p>
+            <dt>Duration</dt>
+            <dd th:text="${applicationView.course.duration}"></dd>
 
-    <p>
-        Location:
-        <span th:text="${applicationView.course.location}"></span>
-    </p>
+            <dt>Training Provider</dt>
+            <dd th:text="${applicationView.course.trainingProvider}"></dd>
 
-    <p>
-        Fee:
-        $<span th:text="${applicationView.course.fee}"></span>
-    </p>
+            <dt>Location</dt>
+            <dd th:text="${applicationView.course.location}"></dd>
 
-    <p>
-        Justification:
-        <span th:text="${applicationView.userReason}"></span>
-    </p>
+            <dt>Fee</dt>
+            <dd>$<span th:text="${applicationView.course.fee}"></span></dd>
 
-    <p>
-        Status:
-        <span th:text="${applicationView.applicationStatus}"></span>
-    </p>
+            <dt>User's Justification</dt>
+            <dd class="full-width" th:text="${applicationView.userReason}"></dd>
 
-    <a th:href="@{/staff/edit(applicationId=${applicationView.applicationId})}">
-        Edit
-    </a>
+            <dt>Status</dt>
+            <dd><span th:text="${applicationView.applicationStatus}"></span></dd>
 
-    <a th:href="@{/staff/delete(applicationId=${applicationView.applicationId})}">
-        Delete
-    </a>
-	
+        </dl>
+    </div>
+
+    <h3>Manager's Justification</h3>
+    <div>
+        <form th:action="@{/manager/application/status}" method="post">
+            <input type="hidden" name="applicationId" th:value="${applicationView.applicationId}">
+            <textarea name="managerReason" placeholder="Enter reason" rows="5" width="100%"></textarea>
+            <!-- TODO: add validation to this form -->
+            <!-- <span class="field-error-message" th:if="${#fields.hasErrors('managerReason')}" th:errors="*{userReason}"/> -->
+            <button type="submit" name="status" value="APPROVED">Approve</button>
+            <button type="submit" name="status" value="REJECTED">Reject</button>
+        </form>
+    </div>
 
 </body>
 </html>

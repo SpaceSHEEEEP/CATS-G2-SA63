@@ -2,105 +2,42 @@
 <HTML lang="en" xmlns:th="http://www.thymeleaf.org"> 
 	<head>
         <title>My Training</title>
+        <link rel="stylesheet" th:href="@{/style.css}"/>
 	</head>
 	<body>
-        <div th:replace="~{fragments/header :: header}">
-		</div>
+        <div th:replace="~{fragments/header :: header}"></div>
 
-    <div th:if="${session.user}">
-		<h1>My Training</h1>
-		<p>Welcome <span th:text="${session.user.name}"></span>.</p>
-    </div>
-    <div th:unless="${session.user}">
-      <h1>Welcome! This is the index page</h1>
-    </div>
+        <div th:if="${session.user}">
+            <h1>My Training</h1>
+            <p>Welcome <span th:text="${session.user.name}"></span>.</p>
+        </div>
+        <div th:unless="${session.user}">
+          <h1>Welcome! This is the index page</h1>
+        </div>
 
-    <a th:href="@{/staff/courselist}">View internal courses</a>
-	<a th:if="${isManager}" th:href="@{/manager/applications}">
-	    Team Training
-	</a>
-    <a th:href="@{/staff/apply}">Apply for a course</a>
-    <a th:href="@{/staff/calendar}">View Calendar</a>
+        <div class="actions">
+            <a th:href="@{/staff/courselist}">View internal courses</a>
+            <a th:if="${isManager}" th:href="@{/manager/applications}">Team Training</a>
+            <a th:href="@{/staff/apply}">Apply for a course</a>
+            <a th:href="@{/staff/calendar}">View Calendar</a>
+        </div>
 
-    <!-- display user details -->
-    <div th:if ="${session.user}">
-      <p th:text="'Days Left :' + ${session.user.days}"></p>
-      <p th:text="'Budget Remaining: $' + ${session.user.budget}"></p>
-      <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>
-    </div>
+        <!-- display user details -->
+        <div th:if ="${session.user}">
+          <p th:text="'Days Left :' + ${session.user.days}"></p>
+          <p th:text="'Budget Remaining: $' + ${session.user.budget}"></p>
+          <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>
+        </div>
 
-    <!-- display success message for every application made -->
-    <div th:if="${successapplymsg}" th:text="${successapplymsg}" style="background:#d4edda; color:#155724; padding:10px; border-radius:4px;">
-    </div>
+        <!-- display success message for every application made or deleted -->
+        <div th:if="${successmsg}" th:text="${successmsg}" class="field-success-message"></div>
 
-    <!-- display success message for every application deleted -->
-    <div th:if="${successdeletemsg}" th:text="${successdeletemsg}" style="background:#d4edda; color:#155724; padding:10px; border-radius:4px;">
-    </div>
-
-    <p th:if="${#lists.isEmpty(applications)}">
-      You have not applied for any courses.
-    </p>
-    <table th:unless="${#lists.isEmpty(applications)}">
-      <thead>
-        <tr>
-          <th>application id</th>
-          <th>Course Name</th>
-          <th>Course Type</th>
-          <th>Duration</th>
-          <th>Start Date</th>
-          <th>End Date</th>
-          <th>Fee</th>
-          <th>Comments</th>
-          <th>Status</th>
-          <th>Edit</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="app : ${applications}"
-		th:if="${app.applicationStatus.toString() != 'DELETED'}">
-          <td th:text="${app.applicationId}"></td>
-          <td th:text="${app.course.courseName}"></td>
-          <td th:text="${app.course.courseType}"></td>
-          <td th:text="${app.course.duration}"></td>
-          <td th:text="${app.course.startDate}"></td>
-          <td th:text="${app.course.endDate}"></td>
-          <td th:text="'$' + ${app.course.fee}"></td>
-
-          <td th:text="${app.userReason}"></td>
-          <td th:text="${app.applicationStatus}"></td>
-          
-		  <td>
-			<a th:href="@{/staff/view(applicationId=${app.applicationId})}">
-			    View Details	
-			</a>
-			
-			<a th:href="@{/staff/edit(applicationId=${app.applicationId})}">
-		          Edit	
-			</a>
-
-			<a th:href="@{/staff/delete(applicationId=${app.applicationId})}">
-			      Delete	
-			</a>
-			
-			<form th:if="${app.applicationStatus.toString() == 'APPROVED'}"
-				th:action="@{/staff/completed(applicationId=${app.applicationId})}"
-				method="post">
-				<button type="submit">
-					COMPLETED
-				</button>
-			</form>
-			
-		  </td>
-          <td><a th:href="@{/staff/edit(applicationId=${app.applicationId})}">Edit</a></td>
-          <td>
-            <form th:action="@{/staff/delete(applicationId=${app.applicationId})}" method="POST">
-              <button type="submit">X</button>
-            </form>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+        <!-- user's personal course history -->
+        <p th:if="${#lists.isEmpty(applications)}">You have not applied for any courses.</p>
+        <span th:unless=${#lists.isEmpty(applications)}>
+            <h2>Personal Course History</h2>
+            <span th:replace="~{fragments/applicationlist :: applicationList(${applications})}"></span>
+        </span>
 
   </body>
 </html>

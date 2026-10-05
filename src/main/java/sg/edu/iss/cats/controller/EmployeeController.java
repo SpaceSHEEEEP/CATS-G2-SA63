@@ -2,6 +2,9 @@ package sg.edu.iss.cats.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,6 +31,7 @@ import sg.edu.iss.cats.repository.ApplicationRepository;
 @RequestMapping("/staff") // for employee's stuff
 public class EmployeeController {
 
+    private final int pageSize = 10;
 	private final CourseRepository courseRepository;
 	private final ApplicationRepository applicationRepository;
 	private final UserRepository userRepository;
@@ -41,29 +45,30 @@ public class EmployeeController {
 
 	@GetMapping("/index")
 	public String showIndex(Model model, HttpSession session){
-		// Reads the user stored by LoginController after successful login.
+
+        // needs to be logged in
 		User user = (User) session.getAttribute("user");
-		// if no logged-in will return to login, otherwise user.getUserId() will fail in next step
-		if (user == null) {
-		    return "redirect:/staff/login";
-		}
+		if (user == null) return "redirect:/staff/login";
 		
 		List<Application> applications = applicationRepository.findByUser_UserId(user.getUserId());
 		model.addAttribute("applications", applications);
 		
 		// Show Team Training only when employees report to this user.
-		model.addAttribute("isManager",
-		        userRepository.existsByManager_UserId(user.getUserId()));
+		model.addAttribute("isManager", userRepository.existsByManager_UserId(user.getUserId()));
 		
 		return "index";
 	}
 
-	@GetMapping("/courselist")
-	public String showInternalCourses(Model model) {
-		model.addAttribute("courselist", 
-				courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL));
-		return "courselist";
-	}
-	
+    @GetMapping ("/courselist")
+    public String showInternalCoursesPages(
+            @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+            Model model) {
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        Page<Course> coursePage = courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL, pageable);
+        model.addAttribute("courselist", coursePage);
+        model.addAttribute("pageNum", pageNum);
+        model.addAttribute("pageNumLast", coursePage.getTotalPages());
+        return "courselist";
+    }
 
 }

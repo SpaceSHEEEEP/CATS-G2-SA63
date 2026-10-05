@@ -62,7 +62,5 @@ public class LoginController {
         return "redirect:/staff/login";
     }
     
-
-    
 }
 

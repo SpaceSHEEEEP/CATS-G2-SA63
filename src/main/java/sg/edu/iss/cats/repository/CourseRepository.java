@@ -2,6 +2,9 @@ package sg.edu.iss.cats.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -29,5 +32,14 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 	        ORDER BY COUNT(DISTINCT a.user.userId) DESC, c.courseId ASC
 	        """)
 	List<CourseApplicantSummary> findCoursesWithApplicantCounts();
+
+    Page<Course> findByCourseTypeOrderByStartDateAsc(CourseType courseType, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"course, application"})
+    Page<Course> findAllByOrderByStartDateAsc(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"applications"})
+    @Query("SELECT c FROM Course c ORDER BY SIZE(c.applications) DESC")
+    Page<Course> findAllByOrderByApplicationsSizeDesc(Pageable pageable);
 
 }

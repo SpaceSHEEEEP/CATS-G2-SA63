@@ -1,15 +1,19 @@
 package sg.edu.iss.cats.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
-
+import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.LoginForm;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
@@ -22,6 +26,7 @@ import sg.edu.iss.cats.repository.HolidayRepository;
 @RequestMapping("/admin")
 public class AdminController {
 	
+    private final int pageSize = 10;
 	private final UserRepository userRepository;
 	private final HolidayRepository holidayRepository;
 	private final CourseRepository courseRepository;
@@ -35,16 +40,12 @@ public class AdminController {
 	}
 
 	@GetMapping
-	public String ShowAdmin(Model model, HttpSession  session) {
+	public String ShowAdmin(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum, Model model, HttpSession session) {
 		User user = (User) session.getAttribute("user");
 
-        if (user == null) {
-            return "redirect:/admin/login";
-        }
+        if (user == null) return "redirect:/admin/login";
 
-        if (!user.isAdmin()) {
-            return "redirect:/staff/index";
-        }
+        if (!user.isAdmin()) return "redirect:/staff/index";
 
         // Load current user records
         model.addAttribute("users", userRepository.findAll());
@@ -58,7 +59,14 @@ public class AdminController {
         model.addAttribute("holidays",
                 holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(
                         firstDay, lastDay));
-        model.addAttribute("courseSummaries",courseRepository.findCoursesWithApplicantCounts());
+        // model.addAttribute("courseSummaries",courseRepository.findCoursesWithApplicantCounts());
+
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        // TODO: get pages WITH application count!! The one below doesn't have application count
+        Page<Course> courseSummaries = courseRepository.findAllByOrderByApplicationsSizeDesc(pageable);
+        model.addAttribute("courseSummaries", courseSummaries);
+        model.addAttribute("pageNum", pageNum);
+        model.addAttribute("pageNumLast", courseSummaries.getTotalPages());
         
         return "admin";
 	}
@@ -78,9 +86,8 @@ public class AdminController {
         User user = null;
 
         // Check credentials before checking whether this is an admin account.
-        if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) {
+        if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) 
             user = userRepository.findByUsername(username.trim());
-        }
 
         if (user == null || !user.isAdmin()) {
             // Keep the page in admin mode after an unsuccessful attempt.
