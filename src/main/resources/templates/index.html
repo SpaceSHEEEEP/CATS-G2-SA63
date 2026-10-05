@@ -20,12 +20,21 @@
 	    Team Training
 	</a>
     <a th:href="@{/staff/apply}">Apply for a course</a>
+    <a th:href="@{/staff/calendar}">View Calendar</a>
 
     <!-- display user details -->
     <div th:if ="${session.user}">
       <p th:text="'Days Left :' + ${session.user.days}"></p>
       <p th:text="'Budget Remaining: $' + ${session.user.budget}"></p>
       <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>
+    </div>
+
+    <!-- display success message for every application made -->
+    <div th:if="${successapplymsg}" th:text="${successapplymsg}" style="background:#d4edda; color:#155724; padding:10px; border-radius:4px;">
+    </div>
+
+    <!-- display success message for every application deleted -->
+    <div th:if="${successdeletemsg}" th:text="${successdeletemsg}" style="background:#d4edda; color:#155724; padding:10px; border-radius:4px;">
     </div>
 
     <p th:if="${#lists.isEmpty(applications)}">
@@ -43,7 +52,8 @@
           <th>Fee</th>
           <th>Comments</th>
           <th>Status</th>
-          <th>Action</th>
+          <th>Edit</th>
+          <th>Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -82,6 +92,12 @@
 			</form>
 			
 		  </td>
+          <td><a th:href="@{/staff/edit(applicationId=${app.applicationId})}">Edit</a></td>
+          <td>
+            <form th:action="@{/staff/delete(applicationId=${app.applicationId})}" method="POST">
+              <button type="submit">X</button>
+            </form>
+          </td>
         </tr>
       </tbody>
     </table>

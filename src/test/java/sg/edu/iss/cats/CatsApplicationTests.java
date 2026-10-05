@@ -55,4 +55,34 @@ public class CatsApplicationTests {
 		result.forEach(app -> System.out.println("***** " + app));
 		assertThat(result).isEmpty();
 	}
+
+	@Test
+	@DisplayName("Returns a list of applications with user id and application id")
+	void testFindApplicationByUserIdAndApplicationId() {
+		// Formulate a sample application for testing
+		Application a = new Application();
+		a.setApplicationStatus(ApplicationStatus.APPLIED);
+		a.setUserReason("Learn more about Java Spring Boot");
+
+		User user = new User();
+		user.setUserId(1);
+		a.setUser(user);
+
+		Course course = new Course();
+		course.setCourseId(1);
+		a.setCourse(course);
+
+		applicationRepository.save(a);
+		List<Application> result = applicationRepository.findByUser_UserIdAndApplicationId(1, a.getApplicationId());
+		result.forEach(app -> System.out.println("***** " + app));
+		assertThat(result).isNotEmpty();
+	}
+
+	@Test
+	@DisplayName ("Returns an empty list when no applications found with user id and application id")
+	void testFindApplicationByUserIdAndApplicationIdWithNoResults() {
+		List<Application> result = applicationRepository.findByUser_UserIdAndApplicationId(999, 999);
+		result.forEach(app -> System.out.println("***** " + app));
+		assertThat(result).isEmpty();
+	}
 }
