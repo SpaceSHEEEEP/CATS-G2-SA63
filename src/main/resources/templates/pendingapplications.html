@@ -11,19 +11,18 @@
     <h1>Team Training</h1>
 
 	<h2>Search Team Applications</h2>
-
 	<form th:action="@{/manager/applications/search}" method="get">
 
-		<label>Employee Name:</label>
+		<label for="employeeName">Employee Name:</label>
 		<input type="text" name="employeeName">
 		
-	    <label>Start Date:</label>
+	    <label for="startDate">Start Date:</label>
 	    <input type="date" name="startDate" required>
 
-	    <label>End Date:</label>
+	    <label for="endDate">End Date:</label>
 	    <input type="date" name="endDate" required>
 
-	    <label>Course Type:</label>
+	    <label for="courseType">Course Type:</label>
 	    <select name="courseType">
 	        <option value="ALL">All courses</option>
 	        <option value="INTERNAL">INTERNAL</option>
@@ -36,79 +35,18 @@
 	</form>
 
 	
-	
     <h2>Pending Approvals</h2>
-    <p th:if="${#lists.isEmpty(pendingApplications)}">
-        No applications awaiting approval.
-    </p>
+    <p th:if="${#lists.isEmpty(pendingApplications)}">No applications awaiting approval.</p>
     <div th:unless="${#lists.isEmpty(pendingApplications)}">
         <div th:replace="~{fragments/applicationlistwithname :: applicationListWithName(${pendingApplications})}"></div>
     </div>
 
     <h2>Subordinate Course Application History</h2>
-    <p th:if="${#lists.isEmpty(subordinatesApplications)}">
-        Your subordinates never made any applications.
-    </p>
+    <p th:if="${#lists.isEmpty(subordinatesApplications)}">Your subordinates never made any applications.</p>
     <div th:unless="${#lists.isEmpty(subordinateApplications)}">
         <div th:replace="~{fragments/applicationlistwithname :: applicationListWithName(${subordinateApplications})}"></div>
         <a th:href="@{/manager/applicationhistory}">See all</a>
     </div>
 
-    <table th:unless="${#lists.isEmpty(pendingApplications)}">
-        <thead>
-            <tr>
-                <th scope="col">Employee</th>
-                <th scope="col">Course</th>
-                <th scope="col">Category</th>
-                <th scope="col">Start Date</th>
-                <th scope="col">End Date</th>
-                <th scope="col">Fee (SGD)</th>
-                <th scope="col">Justification</th>
-                <th scope="col">Status</th>
-				<th scope="col">Manager Reason</th>
-				<th scope="col">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="app : ${pendingApplications}">
-                <td th:text="${app.user.name}"></td>
-                <td th:text="${app.course.courseName}"></td>
-                <td th:text="${app.course.courseType}"></td>
-                <td th:text="${app.course.startDate}"></td>
-                <td th:text="${app.course.endDate}"></td>
-                <td th:text="${app.course.fee}"></td>
-                <td th:text="${app.userReason}"></td>
-                <td th:text="${app.applicationStatus}"></td>
-				<td>
-				    <form th:action="@{/manager/application/status}" method="post">
-
-				        <input type="hidden"
-				               name="applicationId"
-				               th:value="${app.applicationId}">
-
-				        <input type="text"
-				               name="managerReason"
-				               placeholder="Enter reason"
-				               required>
-						</td>
-						<td>  
-				        <button type="submit"
-				                name="status"
-				                value="APPROVED">
-				            Approve
-				        </button>
-
-				        <button type="submit"
-				                name="status"
-				                value="REJECTED">
-				            Reject
-				        </button>
-				    </form>
-				</td>
-            </tr>
-        </tbody>
-    </table>
-
-    
 </body>
 </html>

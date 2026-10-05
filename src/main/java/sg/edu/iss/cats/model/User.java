@@ -42,7 +42,7 @@ public class User {
     private List<Application> applications;
 
     // 'mappedBy = "manager" tells Hibernate: "To find the list of subordinates for a user, look at the manager field on the other side."' ~ Gemini
-    @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "manager", fetch = FetchType.EAGER) // TODO: make lazy next time
     private List<User> subordinates = new ArrayList<>(); // each subordinate get mappedBy manager
     @ManyToOne // the other side
     private User manager;

@@ -1,61 +1,69 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org" lang="EN">
 <head>
-    <meta charset="UTF-8">
-    <title>Application Search Results</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" th:href="@{/style.css}" />
+  <title>Application Details</title>
 </head>
 
 <body>
-
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <h1>Application Search Results</h1>
-	<p th:text="'Number of results: ' + ${#lists.size(searchApplications)}"></p>
+    <h1>Application Details</h1>
 
-    <p th:if="${#lists.isEmpty(searchApplications)}">
-        No applications found.
-    </p>
+    <div class="details-card">
+        
+        <dl class="details-grid">
+            <dt>Application ID</dt>
+            <dd th:text="${applicationResult.applicationId}"></dd>
 
-    <table th:unless="${#lists.isEmpty(searchApplications)}">
+            <dt>Course Name</dt>
+            <dd th:text="${applicationResult.course.courseName}"></dd>
 
-        <thead>
-            <tr>
-                <th>Employee</th>
-                <th>Course</th>
-                <th>Course Type</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Fee (SGD)</th>
-                <th>Justification</th>
-                <th>Status</th>
-				<th>Manager Remarks</th>
-            </tr>
-        </thead>
+            <dt>Course Type</dt>
+            <dd><span class="badge" th:text="${applicationResult.course.courseType}"></span></dd>
 
-        <tbody>
+            <dt>Start Date</dt>
+            <dd th:text="${applicationResult.course.startDate}"></dd>
 
-            <tr th:each="app : ${searchApplications}">
-                <td th:text="${app.user.name}"></td>
-                <td th:text="${app.course.courseName}"></td>
-                <td th:text="${app.course.courseType}"></td>
-                <td th:text="${app.course.startDate}"></td>
-                <td th:text="${app.course.endDate}"></td>
-                <td th:text="${app.course.fee}"></td>
-                <td th:text="${app.userReason}"></td>
-                <td th:text="${app.applicationStatus}"></td>
-				<td th:text="${app.managerReason}"></td>
-            </tr>
+            <dt>End Date</dt>
+            <dd th:text="${applicationResult.course.endDate}"></dd>
 
-        </tbody>
+            <dt>Duration</dt>
+            <dd th:text="${applicationResult.course.duration}"></dd>
 
-    </table>
+            <dt>Training Provider</dt>
+            <dd th:text="${applicationResult.course.trainingProvider}"></dd>
 
-    <br>
+            <dt>Location</dt>
+            <dd th:text="${applicationResult.course.location}"></dd>
 
-    <a th:href="@{/manager/applications}">
-        Back to Pending Applications
-    </a>
+            <dt>Fee</dt>
+            <dd>$<span th:text="${applicationResult.course.fee}"></span></dd>
+
+            <dt>Justification</dt>
+            <dd class="full-width" th:text="${applicationResult.userReason}"></dd>
+
+            <dt>Status</dt>
+            <dd><span th:text="${applicationResult.applicationStatus}"></span></dd>
+        </dl>
+
+        <div class="actions">
+            <a th:href="@{/staff/edit(applicationId=${applicationResult.applicationId})}" class="btn btn-primary">Edit</a>
+            <!-- TODO: have like a pop up that says "are you sure?" maybe use javascript alert? idk -->
+            <form th:action="@{/staff/delete(applicationId=${applicationResult.applicationId})}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+                <!-- TODO: do survey first, then mark as complete -->
+                <!-- so action send to staff/survey etc etc -->
+            <form th:if="${applicationResult.applicationStatus.name() == 'APPROVED'}"
+                  th:action="@{/staff/completed(applicationId=${applicationResult.applicationId})}"
+                  method="post">
+                <button type="submit">COMPLETED</button>
+            </form>
+        </div>
+    </div>
 
 </body>
 </html>

@@ -45,19 +45,16 @@ public class EmployeeController {
 
 	@GetMapping("/index")
 	public String showIndex(Model model, HttpSession session){
-		// Reads the user stored by LoginController after successful login.
+
+        // needs to be logged in
 		User user = (User) session.getAttribute("user");
-		// if no logged-in will return to login, otherwise user.getUserId() will fail in next step
-		if (user == null) {
-		    return "redirect:/staff/login";
-		}
+		if (user == null) return "redirect:/staff/login";
 		
 		List<Application> applications = applicationRepository.findByUser_UserId(user.getUserId());
 		model.addAttribute("applications", applications);
 		
 		// Show Team Training only when employees report to this user.
-		model.addAttribute("isManager",
-		        userRepository.existsByManager_UserId(user.getUserId()));
+		model.addAttribute("isManager", userRepository.existsByManager_UserId(user.getUserId()));
 		
 		return "index";
 	}

@@ -87,13 +87,13 @@ public class ApplicationController {
 
         try {
             applicationService.saveApplication(form, sessionUser.getUserId());
-
-            // Flash Attribute for success message
-            ra.addFlashAttribute("successapplymsg", "Application '" + form.getApplicationId() + "' submitted successfully!");
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             return "applicationform";
         }
+
+        // Flash Attribute for success message
+        ra.addFlashAttribute("successmsg", "Application '" + form.getApplicationId() + "' submitted successfully!");
 
         // do this to trigger countPendingApplications() again, so get most updated info
         sessionUser = userRepository.findById(sessionUser.getUserId()).orElse(null);
@@ -122,70 +122,35 @@ public class ApplicationController {
     }
 
     @GetMapping("/view")
-    public String viewApplication(
-    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
+    public String viewApplication(@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
 		    
     	User user = (User) session.getAttribute("user");
-    	if (user == null) {
-    		return "redirect:/staff/login";
-    		}
+    	if (user == null) return "redirect:/staff/login";
 		
+        // TODO: leave better comments
+        // TODO: maybe rewrite this
 		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
-		if (applications.isEmpty()) {
-			return "redirect:/staff/index";
-	        }
+		if (!applications.isEmpty()) {
+            model.addAttribute("applicationResult", applications.get(0));
+            return "applicationresult";
+        }
+
+        // if the application isnt mine but its my subordinates, and im the manager,
+        List<Application> apps = applicationRepository.findByApplicationId(applicationId);
+        if (apps.isEmpty()) return "redirect:/staff/index"; // cant find app
+        Application app = apps.get(0);
+        List<User> subordinates = user.getSubordinates();
+        for (User sub : subordinates) {
+            if (app.getUser().getUserId().equals(sub.getUserId())) {
+                model.addAttribute("applicationView", app);
+                return "applicationview";
+            }
+        }
 		
-		
-		model.addAttribute("applicationView", applications.get(0));
-	        return "applicationview";
-    		}
+        // its not mine nor my subordinates'
+        return "redirect:/staff/index";
+    }
 
-    @GetMapping("/delete")
-    public String deleteApplication(
-    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
-		    
-    	User user = (User) session.getAttribute("user");
-    	if (user == null) {
-    		return "redirect:/staff/login";
-    		}
-		
-		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
-		if (applications.isEmpty()) {
-			return "redirect:/staff/index";
-	        }
-
-	    Application deleteApplication = applications.get(0);
-	    
-	    //changes status to delete instead of deleting from db
-	    deleteApplication.setApplicationStatus(ApplicationStatus.DELETED);
-	    applicationRepository.save(deleteApplication);
-
-	        return "redirect:/staff/index";
-    		}
-    
-    @PostMapping("/completed")
-    public String completedApplication(
-    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
-		    
-    	User user = (User) session.getAttribute("user");
-    	if (user == null) {
-    		return "redirect:/staff/login";
-    		}
-		
-		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
-		if (applications.isEmpty()) {
-			return "redirect:/staff/index";
-	        }
-
-	    Application completedApplication = applications.get(0);
-	    
-	    //html if logic for only when status == approved, then can call this method to change to completed
-	    completedApplication.setApplicationStatus(ApplicationStatus.COMPLETED);
-	    applicationRepository.save(completedApplication);
-
-	        return "redirect:/staff/index";
-    		}
-    
     @PostMapping("/delete")
     public String deleteApplication(
             @RequestParam(name = "applicationId", required = true) Integer applicationId,
@@ -208,7 +173,26 @@ public class ApplicationController {
         session.setAttribute("user", sessionUser);
         
         // Flash Attribute for success message
-        ra.addFlashAttribute("successdeletemsg", "Application '" + applicationId + "' deleted successfully!");
+        ra.addFlashAttribute("successmsg", "Application '" + applicationId + "' deleted successfully!");
+
+        return "redirect:/staff/index";
+    }
+    
+    @PostMapping("/completed")
+    public String completedApplication(
+    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
+		    
+    	User user = (User) session.getAttribute("user");
+    	if (user == null) return "redirect:/staff/login";
+		
+		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+		if (applications.isEmpty()) return "redirect:/staff/index";
+
+	    Application completedApplication = applications.get(0);
+	    
+	    //html if logic for only when status == approved, then can call this method to change to completed
+	    completedApplication.setApplicationStatus(ApplicationStatus.COMPLETED);
+	    applicationRepository.save(completedApplication);
 
         return "redirect:/staff/index";
     }

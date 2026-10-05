@@ -28,6 +28,7 @@ th {
 fieldset {
     display: flex;
     align-items: center;
+    gap: 15px;
     border: 0px ;
     padding: 0.5rem;
     margin-bottom: 1rem;
@@ -46,8 +47,6 @@ details {
   border-radius: 0.5rem;
   margin-bottom: 1rem;
 }
-aside, details, pre, progress {
-}
 
 summary {
   cursor: pointer;
@@ -57,7 +56,7 @@ summary {
   word-break: break-word;
 }
 
-.index_actions {
+.actions {
     display: flex;
     gap: 20px;
 }
@@ -119,3 +118,19 @@ summary {
     height: 50px;
     border: 1px solid lightgrey;
 }
+
+/* this is from gemini */
+.details-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.details-grid .full-width {
+    grid-column: span 2;
+    background: #f9f9f9;
+    padding: 0.75rem;
+    border-radius: 4px;
+}
+

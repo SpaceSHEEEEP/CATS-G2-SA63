@@ -10,10 +10,8 @@
         <div th:replace="~{fragments/header :: header}"></div>
 
         <h2>Subordinate Course Application History</h2>
-        <p th:if="${#lists.isEmpty(subordinatesApplications)}">
-            your subordinates have no applications.
-        </p>
 
+        <p th:if="${#lists.isEmpty(subordinatesApplications)}">Your subordinates have no applications.</p>
         <div th:unless="${#lists.isEmpty(subordinatesApplications)}" th:each="applications : ${subordinatesApplications}">
             <details th:unless="${#lists.isEmpty(applications)}">
                 <summary th:text="${applications[0].user.name}"></summary>

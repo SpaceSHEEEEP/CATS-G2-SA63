@@ -13,6 +13,7 @@
     <p th:if="${#lists.isEmpty(courselist)}">No Internal Courses Available.</p>
     <table th:unless="${#lists.isEmpty(courselist)}">
       <thead>
+
         <tr>
           <th>Course</th>
           <th>Start date</th>
@@ -23,9 +24,10 @@
           <th>Location</th>
           <th>Interested?</th>
         </tr>
+
       </thead>
       <tbody>
-        <!-- <tr th:each="course : ${courselist}"> -->
+
         <tr th:each="course : ${courselist.content}">
           <td th:text="${course.courseName}"></td>
           <td th:text="${#temporals.format(course.startDate, 'dd-MM-yyyy')}"></td>
@@ -34,10 +36,9 @@
           <td th:text="${course.duration}"></td>
           <td th:text="${course.trainingProvider}"></td>
           <td th:text="${course.location}"></td>
-          <td>
-            <a th:href="@{/staff/apply(courseId=${course.courseId})}">Apply</a>
-          </td>
+          <td><a th:href="@{/staff/apply(courseId=${course.courseId})}">Apply</a></td>
         </tr>
+
       </tbody>
     </table>
 

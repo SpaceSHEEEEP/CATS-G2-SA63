@@ -43,13 +43,9 @@ public class AdminController {
 	public String ShowAdmin(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum, Model model, HttpSession session) {
 		User user = (User) session.getAttribute("user");
 
-        if (user == null) {
-            return "redirect:/admin/login";
-        }
+        if (user == null) return "redirect:/admin/login";
 
-        if (!user.isAdmin()) {
-            return "redirect:/staff/index";
-        }
+        if (!user.isAdmin()) return "redirect:/staff/index";
 
         // Load current user records
         model.addAttribute("users", userRepository.findAll());
@@ -90,9 +86,8 @@ public class AdminController {
         User user = null;
 
         // Check credentials before checking whether this is an admin account.
-        if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) {
+        if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) 
             user = userRepository.findByUsername(username.trim());
-        }
 
         if (user == null || !user.isAdmin()) {
             // Keep the page in admin mode after an unsuccessful attempt.

@@ -15,6 +15,7 @@
                     <th scope="col">End Date</th>
                     <th scope="col">Fee (SGD)</th>
                     <th scope="col">Status</th>
+                    <th scope="col">View Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +28,7 @@
                     <td th:text="${#temporals.format(app.course.endDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${app.course.fee}"></td>
                     <td th:text="${app.applicationStatus}"></td>
+                    <td><a th:href="@{/staff/view(applicationId=${app.applicationId})}">View Details</a></td>
                 </tr>
             </tbody>
         </table>
