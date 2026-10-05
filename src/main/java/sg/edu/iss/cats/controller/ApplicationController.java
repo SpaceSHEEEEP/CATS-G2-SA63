@@ -155,6 +155,7 @@ public class ApplicationController {
     public String deleteApplication(
             @RequestParam(name = "applicationId", required = true) Integer applicationId,
             HttpSession session,
+            Model model,
             RedirectAttributes ra) {
 
         // check if user is logged in
@@ -166,7 +167,13 @@ public class ApplicationController {
         if (applications.isEmpty()) return "redirect:/staff/index";
 
         // else, application exists, delete it
-        applicationService.deleteApplication(applications.get(0), user.getUserId());
+        // included try-catch for the controller for exception handling from the service
+         try {
+            applicationService.deleteApplication(applications.get(0), user.getUserId());
+        } catch (RuntimeException e) {
+            ra.addAttribute("error", e.getMessage());
+            return "redirect:/staff/index";
+        }
             
         // update the user object in the session to reflect changes
         User sessionUser = userRepository.findById(user.getUserId()).orElse(null);
@@ -180,7 +187,7 @@ public class ApplicationController {
     
     @PostMapping("/completed")
     public String completedApplication(
-    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
+    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session, RedirectAttributes ra) {
 		    
     	User user = (User) session.getAttribute("user");
     	if (user == null) return "redirect:/staff/login";
@@ -190,10 +197,29 @@ public class ApplicationController {
 
 	    Application completedApplication = applications.get(0);
 	    
+        // included try-catch for the controller for exception handling from the service
+        // checks that the application status is APPROVED first
+        if (completedApplication.getApplicationStatus() == ApplicationStatus.APPROVED){
+            try {
+            applicationService.completeApplication(completedApplication, user.getUserId());
+        } catch (RuntimeException e) {
+            ra.addAttribute("errormsg", e.getMessage());
+            return "redirect:/staff/index";
+        }
+        }
+        // update the user object in the session to reflect changes
+        User sessionUser = userRepository.findById(user.getUserId()).orElse(null);
+        session.setAttribute("user", sessionUser);
+        
+        // Flash Attribute for success message
+        ra.addFlashAttribute("successmsg", "Application '" + applicationId + "' is marked as COMPLETED successfully!");
+
+        // added a completeApplication method in ApplicationService, not sure which to go for so leave the original version below here first.
+        /* 
 	    //html if logic for only when status == approved, then can call this method to change to completed
 	    completedApplication.setApplicationStatus(ApplicationStatus.COMPLETED);
 	    applicationRepository.save(completedApplication);
-
+        */
         return "redirect:/staff/index";
     }
 }

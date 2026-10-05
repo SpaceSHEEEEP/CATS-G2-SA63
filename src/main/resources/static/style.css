@@ -73,11 +73,36 @@ summary {
     font-size:0.85em
 }
 
-.field-success-message {
+.global-success-message {
     background:#d4edda; 
     color:#155724; 
     padding:10px; 
     border-radius:4px;
+}
+
+.global-error-message {
+    background:#d4edda; 
+    color:red; 
+    padding:10px; 
+    border-radius:4px;
+}
+
+.user-statistics-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-right: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+.user-days-statistics, .user-allowance-statistics, .user-applications-statistics {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid grey;
+    gap: 10px;
+    padding: 20px;
+    text-align: center;
 }
 
 .year-month-filter-container{

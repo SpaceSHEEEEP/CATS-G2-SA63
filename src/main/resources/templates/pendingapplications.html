@@ -17,10 +17,10 @@
 		<input type="text" name="employeeName">
 		
 	    <label for="startDate">Start Date:</label>
-	    <input type="date" name="startDate" required>
+	    <input type="date" name="startDate">
 
 	    <label for="endDate">End Date:</label>
-	    <input type="date" name="endDate" required>
+	    <input type="date" name="endDate">
 
 	    <label for="courseType">Course Type:</label>
 	    <select name="courseType">
@@ -42,7 +42,7 @@
     </div>
 
     <h2>Subordinate Course Application History</h2>
-    <p th:if="${#lists.isEmpty(subordinatesApplications)}">Your subordinates never made any applications.</p>
+    <p th:if="${#lists.isEmpty(subordinateApplications)}">Your subordinates never made any applications.</p>
     <div th:unless="${#lists.isEmpty(subordinateApplications)}">
         <div th:replace="~{fragments/applicationlistwithname :: applicationListWithName(${subordinateApplications})}"></div>
         <a th:href="@{/manager/applicationhistory}">See all</a>

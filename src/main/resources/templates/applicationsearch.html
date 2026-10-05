@@ -12,10 +12,23 @@
     <div th:replace="~{fragments/header :: header}"></div>
 
     <h1>Application Search Results</h1>
+    
+    <!-- Exclude applications which statuses are deleted  -->
+    <p th:text="'Number of results: ' + ${searchApplications.?[applicationStatus.name()!='DELETED'].size()}"></p>
+    <!--
 	<p th:text="'Number of results: ' + ${#lists.size(searchApplications)}"></p>
+    -->
 
+    <!-- Show 'No applications found.' if there are zero applications that are of statuses 'APPLIED' or 'EDITED' -->
+    <p th:if="${searchApplications.?[applicationStatus.name()!='DELETED'].isEmpty()}">No applications found.</p>
+    <!--
     <p th:if="${#lists.isEmpty(searchApplications)}">No applications found.</p>
+    -->
+
+    <table th:unless="${searchApplications.?[applicationStatus.name()!='DELETED'].isEmpty()}">
+    <!--
     <table th:unless="${#lists.isEmpty(searchApplications)}">
+    -->
         <thead>
             <tr>
                 <th>Employee</th>
@@ -32,7 +45,7 @@
 
         <tbody>
 
-            <tr th:each="app : ${searchApplications}">
+            <tr th:each="app : ${searchApplications}" th:unless="${app.applicationStatus.name() == 'DELETED'}">
                 <td th:text="${app.user.name}"></td>
                 <td th:text="${app.course.courseName}"></td>
                 <td th:text="${app.course.courseType}"></td>

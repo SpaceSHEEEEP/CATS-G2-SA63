@@ -23,8 +23,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
     private String name;
-    private BigDecimal budget;
-    private Double days;
+    private BigDecimal allowanceTotal;
+    private BigDecimal budgetedAllowanceRemaining;
+    private BigDecimal actualAllowanceRemaining;
+    private Double daysTotal;
+    private Double budgetedDaysRemaining;
+    private Double actualDaysRemaining;
 
     // need usernames to be unique
     // this is a potential test unit to check when we add the "create 

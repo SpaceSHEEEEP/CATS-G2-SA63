@@ -89,8 +89,8 @@ public class ManagerController {
 	@GetMapping("/applications/search")
 	public String searchApplications(
 	        @RequestParam(name = "employeeName") String employeeName,
-			@RequestParam(name = "startDate") LocalDate startDate,
-	        @RequestParam(name = "endDate") LocalDate endDate,
+					@RequestParam(name = "startDate", required = false) LocalDate startDate,
+	        @RequestParam(name = "endDate", required = false) LocalDate endDate,
 	        @RequestParam(name = "courseType") String courseType,
 	        HttpSession session,
 	        Model model) {
@@ -103,15 +103,21 @@ public class ManagerController {
 
 	    List<Application> searchApplications = new ArrayList<>();
 
+			boolean startDateEmpty = (startDate == null);
+			boolean endDateEmpty = (endDate == null);
+
 	    for (Application app : applications) {
 	        Course course = app.getCourse();
 	        
-	       //lower case to make search not case sensitive
+	        // lower case to make search not case sensitive
 	        boolean nameMatch = employeeName.isBlank() || app.getUser().getName().toLowerCase().contains(employeeName.toLowerCase());
 	        
+					boolean start = startDateEmpty || course.getEndDate().compareTo(startDate)>=0;
+					boolean end = endDateEmpty || course.getStartDate().compareTo(endDate)<=0;
+					boolean dateMatch = start && end;
 	        // boolean dateMatch = !course.getEndDate().isBefore(startDate) && !course.getStartDate().isAfter(endDate);
-            boolean dateMatch = course.getEndDate().compareTo(startDate) >= 0 && 
-                                course.getStartDate().compareTo(endDate) <= 0;
+          // boolean dateMatch = course.getEndDate().compareTo(startDate) >= 0 && 
+          //                     course.getStartDate().compareTo(endDate) <= 0;
 
 	        boolean typeMatch = courseType.equals("ALL") || course.getCourseType().name().equals(courseType);
 	        

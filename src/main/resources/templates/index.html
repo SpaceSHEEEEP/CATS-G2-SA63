@@ -23,14 +23,27 @@
         </div>
 
         <!-- display user details -->
-        <div th:if ="${session.user}">
-          <p th:text="'Days Left :' + ${session.user.days}"></p>
-          <p th:text="'Budget Remaining: $' + ${session.user.budget}"></p>
-          <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>
+        <div th:if ="${session.user}" class="user-statistics-container">
+          <div class="user-days-statistics">
+            <p th:text="'Days Total: ' + ${session.user.daysTotal}"></p>
+            <p th:text="'Budgeted Days Left: ' + ${session.user.budgetedDaysRemaining}"></p>
+            <p th:text="'Actual Days Left: ' + ${session.user.actualDaysRemaining}"></p>
+          </div>
+          <div class="user-allowance-statistics">
+            <p th:text="'Allowance Total: $' + ${session.user.allowanceTotal}"></p>
+            <p th:text="'Budgeted Allowance Remaining: $' + ${session.user.budgetedAllowanceRemaining}"></p>
+            <p th:text="'Actual Allowance Remaining: $' + ${session.user.actualAllowanceRemaining}"></p>
+          </div>
+          <div class="user-applications-statistics">
+            <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>
+          </div>
         </div>
 
         <!-- display success message for every application made or deleted -->
-        <div th:if="${successmsg}" th:text="${successmsg}" class="field-success-message"></div>
+        <div th:if="${successmsg}" th:text="${successmsg}" class="global-success-message"></div>
+
+        <!-- display error message for exception handling -->
+        <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
 
         <!-- user's personal course history -->
         <p th:if="${#lists.isEmpty(applications)}">You have not applied for any courses.</p>
