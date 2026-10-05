@@ -1,6 +1,8 @@
 package sg.edu.iss.cats.controller;
 
 import java.util.List;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.model.Application;
+import sg.edu.iss.cats.model.ApplicationStatus;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.ApplicationRepository;
@@ -118,6 +121,71 @@ public class ApplicationController {
         return "applicationform";
     }
 
+    @GetMapping("/view")
+    public String viewApplication(
+    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
+		    
+    	User user = (User) session.getAttribute("user");
+    	if (user == null) {
+    		return "redirect:/staff/login";
+    		}
+		
+		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+		if (applications.isEmpty()) {
+			return "redirect:/staff/index";
+	        }
+		
+		
+		model.addAttribute("applicationView", applications.get(0));
+	        return "applicationview";
+    		}
+
+    @GetMapping("/delete")
+    public String deleteApplication(
+    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
+		    
+    	User user = (User) session.getAttribute("user");
+    	if (user == null) {
+    		return "redirect:/staff/login";
+    		}
+		
+		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+		if (applications.isEmpty()) {
+			return "redirect:/staff/index";
+	        }
+
+	    Application deleteApplication = applications.get(0);
+	    
+	    //changes status to delete instead of deleting from db
+	    deleteApplication.setApplicationStatus(ApplicationStatus.DELETED);
+	    applicationRepository.save(deleteApplication);
+
+	        return "redirect:/staff/index";
+    		}
+    
+    @PostMapping("/completed")
+    public String completedApplication(
+    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
+		    
+    	User user = (User) session.getAttribute("user");
+    	if (user == null) {
+    		return "redirect:/staff/login";
+    		}
+		
+		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+		if (applications.isEmpty()) {
+			return "redirect:/staff/index";
+	        }
+
+	    Application completedApplication = applications.get(0);
+	    
+	    //html if logic for only when status == approved, then can call this method to change to completed
+	    completedApplication.setApplicationStatus(ApplicationStatus.COMPLETED);
+	    applicationRepository.save(completedApplication);
+
+	        return "redirect:/staff/index";
+    		}
+    
     @PostMapping("/delete")
     public String deleteApplication(
             @RequestParam(name = "applicationId", required = true) Integer applicationId,

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="EN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" th:href="@{/style.css}" />
+  <title>Application Details</title>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <h1>Application Details</h1>
+
+    <p>
+        Application ID:
+        <span th:text="${applicationView.applicationId}"></span>
+    </p>
+
+    <p>
+        Course Name:
+        <span th:text="${applicationView.course.courseName}"></span>
+    </p>
+
+    <p>
+        Course Type:
+        <span th:text="${applicationView.course.courseType}"></span>
+    </p>
+
+    <p>
+        Start Date:
+        <span th:text="${applicationView.course.startDate}"></span>
+    </p>
+
+    <p>
+        End Date:
+        <span th:text="${applicationView.course.endDate}"></span>
+    </p>
+
+    <p>
+        Duration:
+        <span th:text="${applicationView.course.duration}"></span>
+    </p>
+
+    <p>
+        Training Provider:
+        <span th:text="${applicationView.course.trainingProvider}"></span>
+    </p>
+
+    <p>
+        Location:
+        <span th:text="${applicationView.course.location}"></span>
+    </p>
+
+    <p>
+        Fee:
+        $<span th:text="${applicationView.course.fee}"></span>
+    </p>
+
+    <p>
+        Justification:
+        <span th:text="${applicationView.userReason}"></span>
+    </p>
+
+    <p>
+        Status:
+        <span th:text="${applicationView.applicationStatus}"></span>
+    </p>
+
+    <a th:href="@{/staff/edit(applicationId=${applicationView.applicationId})}">
+        Edit
+    </a>
+
+    <a th:href="@{/staff/delete(applicationId=${applicationView.applicationId})}">
+        Delete
+    </a>
+	
+
+</body>
+</html>
