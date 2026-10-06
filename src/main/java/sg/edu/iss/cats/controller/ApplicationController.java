@@ -1,6 +1,7 @@
 package sg.edu.iss.cats.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -17,10 +18,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.model.Application;
-import sg.edu.iss.cats.model.ApplicationStatus;
+import sg.edu.iss.cats.model.Status;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.User;
-import sg.edu.iss.cats.repository.ApplicationRepository;
+import sg.edu.iss.cats.repository.AppRepo;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.UserRepository;
 import sg.edu.iss.cats.service.ApplicationService;
@@ -29,17 +30,17 @@ import sg.edu.iss.cats.service.ApplicationService;
 @RequestMapping("/staff")
 public class ApplicationController {
 
-    private final ApplicationRepository applicationRepository;
+    private final AppRepo appRepo;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final ApplicationService applicationService;
 
     public ApplicationController(
-            ApplicationRepository applicationRepository,
+            AppRepo appRepo,
             CourseRepository courseRepository, 
             ApplicationService applicationService,
             UserRepository userRepository) {
-        this.applicationRepository = applicationRepository;
+        this.appRepo = appRepo;
         this.courseRepository = courseRepository;
         this.applicationService = applicationService;
         this.userRepository = userRepository;
@@ -93,7 +94,7 @@ public class ApplicationController {
         }
 
         // Flash Attribute for success message
-        ra.addFlashAttribute("successmsg", "Application '" + form.getApplicationId() + "' submitted successfully!");
+        ra.addFlashAttribute("successmsg", "Application '" + form.getId() + "' submitted successfully!");
 
         // do this to trigger countPendingApplications() again, so get most updated info
         sessionUser = userRepository.findById(sessionUser.getUserId()).orElse(null);
@@ -104,7 +105,7 @@ public class ApplicationController {
 
     @GetMapping("/edit")
     public String editForm(
-            @RequestParam(name = "applicationId", required = true) Integer applicationId,
+            @RequestParam(name = "id", required = true) Integer id,
             Model model,
             HttpSession session) {
 
@@ -113,7 +114,7 @@ public class ApplicationController {
         if (user == null) return "redirect:/staff/login";
 
         // check if the application exists and that this user made the application
-        List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+        List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
         if (applications.isEmpty()) return "redirect:/staff/index";
 
         // else, application exists
@@ -122,23 +123,22 @@ public class ApplicationController {
     }
 
     @GetMapping("/view")
-    public String viewApplication(@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session) {
+    public String viewApplication(@RequestParam(name = "id", required = true) Integer id, Model model, HttpSession session) {
 		    
     	User user = (User) session.getAttribute("user");
     	if (user == null) return "redirect:/staff/login";
 		
         // TODO: leave better comments
         // TODO: maybe rewrite this
-		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+		List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
 		if (!applications.isEmpty()) {
             model.addAttribute("applicationResult", applications.get(0));
             return "applicationresult";
         }
 
         // if the application isnt mine but its my subordinates, and im the manager,
-        List<Application> apps = applicationRepository.findByApplicationId(applicationId);
-        if (apps.isEmpty()) return "redirect:/staff/index"; // cant find app
-        Application app = apps.get(0);
+        Application app = appRepo.findById(id).orElse(null);
+        if (app == null) return "redirect:/staff/index"; // cant find app
         List<User> subordinates = user.getSubordinates();
         for (User sub : subordinates) {
             if (app.getUser().getUserId().equals(sub.getUserId())) {
@@ -153,7 +153,7 @@ public class ApplicationController {
 
     @PostMapping("/delete")
     public String deleteApplication(
-            @RequestParam(name = "applicationId", required = true) Integer applicationId,
+            @RequestParam(name = "id", required = true) Integer id,
             HttpSession session,
             Model model,
             RedirectAttributes ra) {
@@ -163,7 +163,7 @@ public class ApplicationController {
         if (user == null) return "redirect:/staff/login";
 
         // check if the application exists and that this user made the application
-        List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+        List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
         if (applications.isEmpty()) return "redirect:/staff/index";
 
         // else, application exists, delete it
@@ -180,26 +180,26 @@ public class ApplicationController {
         session.setAttribute("user", sessionUser);
         
         // Flash Attribute for success message
-        ra.addFlashAttribute("successmsg", "Application '" + applicationId + "' deleted successfully!");
+        ra.addFlashAttribute("successmsg", "Application '" + id + "' deleted successfully!");
 
         return "redirect:/staff/index";
     }
     
     @PostMapping("/completed")
     public String completedApplication(
-    	@RequestParam(name = "applicationId", required = true) Integer applicationId, Model model, HttpSession session, RedirectAttributes ra) {
+    	@RequestParam(name = "id", required = true) Integer id, Model model, HttpSession session, RedirectAttributes ra) {
 		    
     	User user = (User) session.getAttribute("user");
     	if (user == null) return "redirect:/staff/login";
 		
-		List<Application> applications = applicationRepository.findByUser_UserIdAndApplicationId(user.getUserId(), applicationId);
+		List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
 		if (applications.isEmpty()) return "redirect:/staff/index";
 
 	    Application completedApplication = applications.get(0);
 	    
         // included try-catch for the controller for exception handling from the service
         // checks that the application status is APPROVED first
-        if (completedApplication.getApplicationStatus() == ApplicationStatus.APPROVED){
+        if (completedApplication.getStatus() == Status.APPROVED){
             try {
             applicationService.completeApplication(completedApplication, user.getUserId());
         } catch (RuntimeException e) {
@@ -212,13 +212,13 @@ public class ApplicationController {
         session.setAttribute("user", sessionUser);
         
         // Flash Attribute for success message
-        ra.addFlashAttribute("successmsg", "Application '" + applicationId + "' is marked as COMPLETED successfully!");
+        ra.addFlashAttribute("successmsg", "Application '" + id + "' is marked as COMPLETED successfully!");
 
         // added a completeApplication method in ApplicationService, not sure which to go for so leave the original version below here first.
         /* 
 	    //html if logic for only when status == approved, then can call this method to change to completed
-	    completedApplication.setApplicationStatus(ApplicationStatus.COMPLETED);
-	    applicationRepository.save(completedApplication);
+	    completedApplication.setStatus(Status.COMPLETED);
+	    appRepo.save(completedApplication);
         */
         return "redirect:/staff/index";
     }

@@ -27,13 +27,13 @@ public class Application {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer applicationId;
+    private Integer id;
     // private int courseId; // added ManyToOne relationship below
     // private int userId; // added ManyToOne relationship below
 
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
-    private ApplicationStatus applicationStatus;
+    private Status status;
 
     @Column(nullable=false)
     @Size(max=1000, message="Reason cannot exceed 1000 characters.")

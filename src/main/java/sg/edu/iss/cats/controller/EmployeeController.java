@@ -25,7 +25,7 @@ import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.repository.UserRepository;
 import sg.edu.iss.cats.repository.CourseRepository;
-import sg.edu.iss.cats.repository.ApplicationRepository;
+import sg.edu.iss.cats.repository.AppRepo;
 
 @Controller
 @RequestMapping("/staff") // for employee's stuff
@@ -33,13 +33,13 @@ public class EmployeeController {
 
     private final int pageSize = 10;
 	private final CourseRepository courseRepository;
-	private final ApplicationRepository applicationRepository;
+	private final AppRepo appRepo;
 	private final UserRepository userRepository;
 
-	public EmployeeController(CourseRepository courseRepository, ApplicationRepository applicationRepository,
+	public EmployeeController(CourseRepository courseRepository, AppRepo appRepo,
 			UserRepository userRepository) {
 		this.courseRepository = courseRepository;
-		this.applicationRepository = applicationRepository;
+		this.appRepo = appRepo;
 		this.userRepository = userRepository;
 	}
 
@@ -50,7 +50,7 @@ public class EmployeeController {
 		User user = (User) session.getAttribute("user");
 		if (user == null) return "redirect:/staff/login";
 		
-		List<Application> applications = applicationRepository.findByUser_UserId(user.getUserId());
+		List<Application> applications = appRepo.findByUser_UserId(user.getUserId());
 		model.addAttribute("applications", applications);
 		
 		// Show Team Training only when employees report to this user.

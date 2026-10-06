@@ -16,7 +16,7 @@
         
         <dl class="details-grid">
             <dt>Application ID</dt>
-            <dd th:text="${applicationResult.applicationId}"></dd>
+            <dd th:text="${applicationResult.id}"></dd>
 
             <dt>Course Name</dt>
             <dd th:text="${applicationResult.course.courseName}"></dd>
@@ -46,19 +46,19 @@
             <dd class="full-width" th:text="${applicationResult.userReason}"></dd>
 
             <dt>Status</dt>
-            <dd><span th:text="${applicationResult.applicationStatus}"></span></dd>
+            <dd><span th:text="${applicationResult.status}"></span></dd>
         </dl>
 
         <div class="actions">
-            <a th:href="@{/staff/edit(applicationId=${applicationResult.applicationId})}" class="btn btn-primary">Edit</a>
+            <a th:href="@{/staff/edit(id=${applicationResult.id})}" class="btn btn-primary">Edit</a>
             <!-- TODO: have like a pop up that says "are you sure?" maybe use javascript alert? idk -->
-            <form th:action="@{/staff/delete(applicationId=${applicationResult.applicationId})}" method="POST" style="display:inline;">
+            <form th:action="@{/staff/delete(id=${applicationResult.id})}" method="POST" style="display:inline;">
                 <button type="submit" class="btn btn-danger">Delete</button>
             </form>
                 <!-- TODO: do survey first, then mark as complete -->
                 <!-- so action send to staff/survey etc etc -->
-            <form th:if="${applicationResult.applicationStatus.name() == 'APPROVED'}"
-                  th:action="@{/staff/completed(applicationId=${applicationResult.applicationId})}"
+            <form th:if="${applicationResult.status.name() == 'APPROVED'}"
+                  th:action="@{/staff/completed(id=${applicationResult.id})}"
                   method="post">
                 <button type="submit">COMPLETED</button>
             </form>

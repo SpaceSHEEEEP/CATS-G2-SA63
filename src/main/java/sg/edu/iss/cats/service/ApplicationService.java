@@ -10,12 +10,12 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sg.edu.iss.cats.model.Application;
-import sg.edu.iss.cats.model.ApplicationStatus;
+import sg.edu.iss.cats.model.Status;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.CourseDuration;
 import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.model.User;
-import sg.edu.iss.cats.repository.ApplicationRepository;
+import sg.edu.iss.cats.repository.AppRepo;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.HolidayRepository;
 import sg.edu.iss.cats.repository.UserRepository;
@@ -23,17 +23,17 @@ import sg.edu.iss.cats.repository.UserRepository;
 @Service
 public class ApplicationService {
 
-    private final ApplicationRepository applicationRepository;
+    private final AppRepo appRepo;
     private final CourseRepository courseRepository;
     private final HolidayRepository holidayRepository;
     private final UserRepository userRepository;
 
     public ApplicationService(
-            ApplicationRepository applicationRepository, 
+            AppRepo appRepo, 
             CourseRepository courseRepository,
             HolidayRepository holidayRepository,
             UserRepository userRepository) {
-        this.applicationRepository = applicationRepository;
+        this.appRepo = appRepo;
         this.courseRepository = courseRepository;
         this.holidayRepository = holidayRepository;
         this.userRepository = userRepository;
@@ -49,16 +49,16 @@ public class ApplicationService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         // Check if the application is new or edit
-        Integer appId = application.getApplicationId();
-        boolean editApplication = (appId != null && applicationRepository.existsById(appId));
+        Integer appId = application.getId();
+        boolean editApplication = (appId != null && appRepo.existsById(appId));
 
         // if the application is being edited,
         if (editApplication){
             // Get the original application
-            Application originalApplication = applicationRepository.findById(appId).orElseThrow(() -> new RuntimeException("Application not found"));
+            Application originalApplication = appRepo.findById(appId).orElseThrow(() -> new RuntimeException("Application not found"));
 
             // Check if the application is already deleted
-            if (originalApplication.getApplicationStatus() == ApplicationStatus.DELETED) 
+            if (originalApplication.getStatus() == Status.DELETED) 
             throw new RuntimeException("Cannot edit a deleted application");
 
             // Refund the days and budget back to user first, to deduct again before the user re-saves.
@@ -125,13 +125,10 @@ public class ApplicationService {
 
         // The course period must not overlap with another ‘Applied’, ‘Updated’ 
         // or ‘Approved’ course application of the same employee. (to be done after added manager features)
-        List<Application> applications = 
-            applicationRepository.findByUser_UserIdAndApplicationStatus(userId, ApplicationStatus.APPLIED);
-        applications.addAll(applicationRepository.findByUser_UserIdAndApplicationStatus(userId, ApplicationStatus.UPDATED));
-        applications.addAll(applicationRepository.findByUser_UserIdAndApplicationStatus(userId, ApplicationStatus.APPROVED));
+        List<Application> applications = appRepo.findByUser_UserIdAndStatusIn(userId, List.of(Status.UPDATED, Status.APPROVED));  
 
         for (Application a : applications) {
-            if (editApplication && a.getApplicationId().equals(appId)) continue;
+            if (editApplication && a.getId().equals(appId)) continue;
             if (c.getStartDate().compareTo(a.getCourse().getEndDate()) <= 0 &&
                 c.getEndDate().compareTo(a.getCourse().getStartDate())  >= 0)
                 throw new RuntimeException("This course overlaps with your " + a.getCourse().getCourseName() + " course. Please reschedule.");
@@ -153,9 +150,9 @@ public class ApplicationService {
         application.setUser(user);
 
         
-        if (editApplication) application.setApplicationStatus(ApplicationStatus.UPDATED);
-        else application.setApplicationStatus(ApplicationStatus.APPLIED);
-        applicationRepository.save(application);
+        if (editApplication) application.setStatus(Status.UPDATED);
+        else application.setStatus(Status.APPLIED);
+        appRepo.save(application);
        
     }
 
@@ -176,14 +173,14 @@ public class ApplicationService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
   
         // checks if the application exists in the database
-        Application originalApplication = applicationRepository.findById(application.getApplicationId()).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application originalApplication = appRepo.findById(application.getId()).orElseThrow(() -> new RuntimeException("Application not found"));
 
         // prevents deletion of an application that is already deleted
-        if (originalApplication.getApplicationStatus() == ApplicationStatus.DELETED)
+        if (originalApplication.getStatus() == Status.DELETED)
             throw new RuntimeException("Cannot delete an application that is already deleted");
 
         // set status
-        originalApplication.setApplicationStatus(ApplicationStatus.DELETED);
+        originalApplication.setStatus(Status.DELETED);
         
         // refund
         double retrieveNumOfDays = calculateNumOfDays(originalApplication.getCourse());
@@ -191,7 +188,7 @@ public class ApplicationService {
         user.setBudgetedDaysRemaining(user.getBudgetedDaysRemaining() + retrieveNumOfDays);
 
         userRepository.save(user);
-        applicationRepository.save(originalApplication);
+        appRepo.save(originalApplication);
     }
 
     @Transactional( 
@@ -205,7 +202,7 @@ public class ApplicationService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         // checks if the application exists in the database
-        Application originalApplication = applicationRepository.findById(application.getApplicationId()).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application originalApplication = appRepo.findById(application.getId()).orElseThrow(() -> new RuntimeException("Application not found"));
 
         Course c = originalApplication.getCourse();
         double numOfDays = calculateNumOfDays(c);
@@ -215,10 +212,10 @@ public class ApplicationService {
         user.setActualDaysRemaining(user.getActualDaysRemaining() - numOfDays);
         
         // set status
-        originalApplication.setApplicationStatus(ApplicationStatus.COMPLETED);
+        originalApplication.setStatus(Status.COMPLETED);
 
         userRepository.save(user);
-        applicationRepository.save(originalApplication);
+        appRepo.save(originalApplication);
     }
 
     // converted into a function to be used multiple times in saveApplication and deleteApplication functions

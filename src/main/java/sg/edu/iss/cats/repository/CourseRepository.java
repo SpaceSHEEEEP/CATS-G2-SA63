@@ -41,5 +41,4 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     @EntityGraph(attributePaths = {"applications"})
     @Query("SELECT c FROM Course c ORDER BY SIZE(c.applications) DESC")
     Page<Course> findAllByOrderByApplicationsSizeDesc(Pageable pageable);
-
 }

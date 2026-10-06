@@ -16,7 +16,7 @@
         <dl class="details-grid">
 
             <dt>Application ID</dt>
-            <dd th:text="${applicationView.applicationId}"></dd>
+            <dd th:text="${applicationView.id}"></dd>
 
             <dt>Course Name</dt>
             <dd th:text="${applicationView.course.courseName}"></dd>
@@ -46,7 +46,7 @@
             <dd class="full-width" th:text="${applicationView.userReason}"></dd>
 
             <dt>Status</dt>
-            <dd><span th:text="${applicationView.applicationStatus}"></span></dd>
+            <dd><span th:text="${applicationView.Status}"></span></dd>
 
         </dl>
     </div>
@@ -54,7 +54,7 @@
     <h3>Manager's Justification</h3>
     <div>
         <form th:action="@{/manager/application/status}" method="post">
-            <input type="hidden" name="applicationId" th:value="${applicationView.applicationId}">
+            <input type="hidden" name="id" th:value="${applicationView.id}">
             <textarea name="managerReason" placeholder="Enter reason" rows="5" width="100%"></textarea>
             <!-- TODO: add validation to this form -->
             <!-- <span class="field-error-message" th:if="${#fields.hasErrors('managerReason')}" th:errors="*{userReason}"/> -->

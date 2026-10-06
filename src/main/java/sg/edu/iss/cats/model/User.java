@@ -55,8 +55,8 @@ public class User {
         if (applications.isEmpty()) return 0;
         Integer count = 0;
         for (Application app : applications) {
-            if (app.getApplicationStatus() == ApplicationStatus.APPLIED || 
-                app.getApplicationStatus() == ApplicationStatus.UPDATED) count++;
+            if (app.getStatus() == Status.APPLIED || 
+                app.getStatus() == Status.UPDATED) count++;
         }
         System.out.println("DEBUG: COUNT WAS CALLED. # OF PENDING APPS: " + count);
         return count;
