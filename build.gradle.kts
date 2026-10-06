@@ -35,6 +35,10 @@ dependencies {
 	testCompileOnly("org.projectlombok:lombok")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testAnnotationProcessor("org.projectlombok:lombok")
+	
+	//for telegram API
+	implementation("org.telegram:telegrambots-longpolling:9.2.0")
+	implementation("org.telegram:telegrambots-client:9.2.0")
 }
 
 tasks.withType<Test> {
