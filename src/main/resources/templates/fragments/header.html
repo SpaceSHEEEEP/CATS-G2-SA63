@@ -8,7 +8,9 @@
         <th:block th:fragment="header">
 
             <header>
-                <a th:href="@{/staff/index}">My Training</a>
+                <a th:href="@{/staff/index}">Training</a>
+				<a th:if="${session.user != null and session.user.admin}" th:href="@{/admin}">
+					Administration</a>
                 <a th:href="@{/staff/login}">Login Page</a>
                 <a th:href="@{/staff/clear_session}">Clear Session</a>
             </header>
