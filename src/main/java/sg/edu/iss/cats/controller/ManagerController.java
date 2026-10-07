@@ -1,7 +1,10 @@
 package sg.edu.iss.cats.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.springframework.stereotype.Controller;
@@ -103,6 +106,11 @@ public class ManagerController {
 
 	    List<Application> searchApplications = new ArrayList<>();
 
+			List<String> userDetailsList = new ArrayList<>();
+			List<Integer> userIdTrackingList = new ArrayList<>(); // prevent duplicated entries for the user personal details
+			List<String> userDetailsAndAllowanceRemainingList = new ArrayList<>();
+			Map<Integer, BigDecimal> userIdToAllowance = new HashMap<>();
+			
 			boolean startDateEmpty = (startDate == null);
 			boolean endDateEmpty = (endDate == null);
 
@@ -121,11 +129,50 @@ public class ManagerController {
 
 	        boolean typeMatch = courseType.equals("ALL") || course.getCourseType().name().equals(courseType);
 	        
-	        if (nameMatch && dateMatch && typeMatch) searchApplications.add(app);
+	        if (nameMatch && dateMatch && typeMatch) 
+					{
+							searchApplications.add(app);
+
+							// if application is not DELETED, prepare the details
+							if (!app.getApplicationStatus().equals(ApplicationStatus.DELETED)) {
+									Integer userId = app.getUser().getUserId();
+									BigDecimal fee = app.getCourse().getFee();
+
+									// if the hash map does not contain the user ID as key
+									if (!userIdToAllowance.containsKey(userId)) {
+										// fill in the map with user id and the user's actual allowance
+										userIdToAllowance.put(userId, app.getUser().getActualAllowanceRemaining());
+									}
+
+									// return the value (allowance) which the specific key (userId) is mapped and subtract fee to obtain remaining budget
+									BigDecimal budgetRemaining = userIdToAllowance.get(userId).subtract(fee);
+
+									// update the hash map
+									userIdToAllowance.put(userId, budgetRemaining);
+
+									// Construct csv style for user personal details
+									// Check first if the user id is new or duplicate
+									// If the user id is new, add it into the tracking list and display it
+									if (!userIdTrackingList.contains(userId)) {
+										userIdTrackingList.add(userId);
+									
+										String personalDetailsRow = String.format("%d,%s,%s", userId, app.getUser().getName(), app.getUser().getEmail());
+
+										userDetailsList.add(personalDetailsRow);
+									}
+
+									// Construct csv style for user application details and allowance remaining
+									String row = String.format("%d,%s,%d,%s,%.2f,%.2f", userId, app.getUser().getName(), course.getCourseId(), course.getCourseName(), fee, budgetRemaining);
+
+									userDetailsAndAllowanceRemainingList.add(row);									
+							}
+					}
 	    }
 	    
 	    System.out.println("Search results count: " + searchApplications.size());
 	    model.addAttribute("searchApplications", searchApplications);
+			model.addAttribute("personalDetailsRows", userDetailsList);
+			model.addAttribute("rows", userDetailsAndAllowanceRemainingList);
 
 	    // return "applicationresult";
         return "applicationsearch";

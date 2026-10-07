@@ -63,6 +63,20 @@
 
     <br>
 
+    <!-- Note: do not adjust the format here -->
+    <h1>Staff Reports</h1>
+    <h3>Staff Personal Details</h3>
+    <pre>UserID,Name,Email
+<th:block th:each="r:${personalDetailsRows}">[[${r}]]
+</th:block></pre>
+
+    <h3>Overview of Allowance Balances</h3>
+    <pre>UserID,Name,CourseID,CourseName,Fee,AllowanceRemaining
+<th:block th:each="r:${rows}">[[${r}]]
+</th:block></pre>
+
+    <br>
+
     <a th:href="@{/manager/applications}">Back to Pending Applications</a>
 
 </body>
