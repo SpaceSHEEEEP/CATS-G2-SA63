@@ -32,8 +32,8 @@
 	            <td th:text="${staff.email}"></td>
 	            <td th:text="${staff.admin} ? 'Yes' : 'No'"></td>
                 <td th:text="${staff.manager == null} ? '-' : ${staff.manager.name}"></td>
-                <td th:text="${staff.budget == null} ? 'Not set' : ${#numbers.formatDecimal(staff.budget, 1, 2)}"></td>
-	            <td th:text="${staff.days}"></td>
+                <td th:text="${staff.actualAllowance == null} ? 'Not set' : ${#numbers.formatDecimal(staff.actualAllowance, 1, 2)}"></td>
+	            <td th:text="${staff.actualDays}"></td>
 	        </tr>
 	    </tbody>
 	</table>

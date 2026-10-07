@@ -134,14 +134,14 @@ public class ManagerController {
 							searchApplications.add(app);
 
 							// if application is not DELETED, prepare the details
-							if (!app.getApplicationStatus().equals(ApplicationStatus.DELETED)) {
+							if (!app.getStatus().equals(Status.DELETED)) {
 									Integer userId = app.getUser().getUserId();
 									BigDecimal fee = app.getCourse().getFee();
 
 									// if the hash map does not contain the user ID as key
 									if (!userIdToAllowance.containsKey(userId)) {
 										// fill in the map with user id and the user's actual allowance
-										userIdToAllowance.put(userId, app.getUser().getActualAllowanceRemaining());
+										userIdToAllowance.put(userId, app.getUser().getActualAllowance());
 									}
 
 									// return the value (allowance) which the specific key (userId) is mapped and subtract fee to obtain remaining budget

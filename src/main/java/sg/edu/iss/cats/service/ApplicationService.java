@@ -63,8 +63,8 @@ public class ApplicationService {
 
             // Refund the days and budget back to user first, to deduct again before the user re-saves.
             double retrieveNumOfDays = calculateNumOfDays(originalApplication.getCourse());
-            user.setBudgetedAllowanceRemaining(user.getBudgetedAllowanceRemaining().add(originalApplication.getCourse().getFee()));
-            user.setBudgetedDaysRemaining(user.getBudgetedDaysRemaining() + retrieveNumOfDays);
+            user.setBudgetedAllowance(user.getBudgetedAllowance().add(originalApplication.getCourse().getFee()));
+            user.setBudgetedDays(user.getBudgetedDays() + retrieveNumOfDays);
         }
 
         // ensure that the course is either in the course sql table or it will be added into the sql table
@@ -117,10 +117,10 @@ public class ApplicationService {
         double numOfDays = calculateNumOfDays(c);
        
         // user must have enough budget 
-        if (c.getFee().compareTo(user.getBudgetedAllowanceRemaining()) > 0) 
+        if (c.getFee().compareTo(user.getBudgetedAllowance()) > 0) 
             throw new RuntimeException("You do not have enough budget to apply to this course");
         // user must have enough days
-        if (numOfDays > user.getBudgetedDaysRemaining()) 
+        if (numOfDays > user.getBudgetedDays()) 
             throw new RuntimeException("You do not have enough days to apply to this course");
 
         // The course period must not overlap with another ‘Applied’, ‘Updated’ 
@@ -135,16 +135,16 @@ public class ApplicationService {
         }
 
         // Subtract user's budgeted statistics
-        user.setBudgetedAllowanceRemaining(user.getBudgetedAllowanceRemaining().subtract(c.getFee()));
-        user.setBudgetedDaysRemaining(user.getBudgetedDaysRemaining() - numOfDays);
+        user.setBudgetedAllowance(user.getBudgetedAllowance().subtract(c.getFee()));
+        user.setBudgetedDays(user.getBudgetedDays() - numOfDays);
 
         // Additional Rule: Budgeted should always be lower or equal to Actual
         // Gave it a thought and felt that there won't be a scenario when budgeted > actual
-        if (user.getBudgetedAllowanceRemaining().compareTo(user.getActualAllowanceRemaining())>0)
-            {throw new RuntimeException("Budgeted Remaining should not be higher than Actual Remaining.");}
+        if (user.getBudgetedAllowance().compareTo(user.getActualAllowance())>0)
+            {throw new RuntimeException("Budgeted Allowance should not be higher than Actual Allowance.");}
 
-        if (user.getBudgetedDaysRemaining().compareTo(user.getActualDaysRemaining())>0)
-            {throw new RuntimeException("Budgeted Remaining should not be higher than Actual Remaining.");}
+        if (user.getBudgetedDays().compareTo(user.getActualDays())>0)
+            {throw new RuntimeException("Budgeted Days should not be higher than Actual Days.");}
 
         userRepository.save(user);
         application.setUser(user);
@@ -184,8 +184,8 @@ public class ApplicationService {
         
         // refund
         double retrieveNumOfDays = calculateNumOfDays(originalApplication.getCourse());
-        user.setBudgetedAllowanceRemaining(user.getBudgetedAllowanceRemaining().add(originalApplication.getCourse().getFee()));
-        user.setBudgetedDaysRemaining(user.getBudgetedDaysRemaining() + retrieveNumOfDays);
+        user.setBudgetedAllowance(user.getBudgetedAllowance().add(originalApplication.getCourse().getFee()));
+        user.setBudgetedDays(user.getBudgetedDays() + retrieveNumOfDays);
 
         userRepository.save(user);
         appRepo.save(originalApplication);
@@ -208,8 +208,8 @@ public class ApplicationService {
         double numOfDays = calculateNumOfDays(c);
 
         // subtract the actual statistics
-        user.setActualAllowanceRemaining(user.getActualAllowanceRemaining().subtract(c.getFee()));
-        user.setActualDaysRemaining(user.getActualDaysRemaining() - numOfDays);
+        user.setActualAllowance(user.getActualAllowance().subtract(c.getFee()));
+        user.setActualDays(user.getActualDays() - numOfDays);
         
         // set status
         originalApplication.setStatus(Status.COMPLETED);

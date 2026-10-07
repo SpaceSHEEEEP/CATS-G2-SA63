@@ -25,14 +25,12 @@
         <!-- display user details -->
         <div th:if ="${session.user}" class="user-statistics-container">
           <div class="user-days-statistics">
-            <p th:text="'Days Total: ' + ${session.user.daysTotal}"></p>
-            <p th:text="'Budgeted Days Left: ' + ${session.user.budgetedDaysRemaining}"></p>
-            <p th:text="'Actual Days Left: ' + ${session.user.actualDaysRemaining}"></p>
+            <p th:text="'Actual Days Left: ' + ${session.user.actualDays}"></p>
+            <p th:text="'Budgeted Days Left: ' + ${session.user.budgetedDays}"></p>
           </div>
           <div class="user-allowance-statistics">
-            <p th:text="'Allowance Total: $' + ${session.user.allowanceTotal}"></p>
-            <p th:text="'Budgeted Allowance Remaining: $' + ${session.user.budgetedAllowanceRemaining}"></p>
-            <p th:text="'Actual Allowance Remaining: $' + ${session.user.actualAllowanceRemaining}"></p>
+            <p th:text="'Actual Allowance Remaining: $' + ${session.user.actualAllowance}"></p>
+            <p th:text="'Budgeted Allowance Remaining: $' + ${session.user.budgetedAllowance}"></p>
           </div>
           <div class="user-applications-statistics">
             <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>

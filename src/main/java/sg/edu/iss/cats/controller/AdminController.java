@@ -31,8 +31,7 @@ public class AdminController {
 	private final HolidayRepository holidayRepository;
 	private final CourseRepository courseRepository;
 	
-	public AdminController( UserRepository userRepository, HolidayRepository holidayRepository,
-			CourseRepository courseRepository) {
+	public AdminController(UserRepository userRepository, HolidayRepository holidayRepository, CourseRepository courseRepository) {
 		this.userRepository = userRepository;
 		this.holidayRepository = holidayRepository;
 		this.courseRepository = courseRepository;
