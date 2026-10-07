@@ -21,7 +21,6 @@
       </div>
       <p th:if="${error}" class="field-error-message">Error from service validation: <span th:text="${error}"></span></p>
       
-      <p th:text="*{id}"></p>
       <input type="hidden" th:field="*{id}">
       <input type="hidden" th:field="*{course.courseId}" />
 

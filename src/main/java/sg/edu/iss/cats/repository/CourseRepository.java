@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.CourseType;
+import sg.edu.iss.cats.dto.CourseApplicantSummary;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {
 	
@@ -17,11 +18,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 	
 	// Query result containing a course and its calculated applicant count.
 	// This is not an entity and does not create another database table.
-	interface CourseApplicantSummary {
-	    Course getCourse();
-	    Long getApplicantCount();
-	}
-
 	// Provisional rule: count distinct employees across all application statuses.
 	@Query("""
 	        SELECT c AS course,
@@ -31,7 +27,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 	        GROUP BY c
 	        ORDER BY COUNT(DISTINCT a.user.userId) DESC, c.courseId ASC
 	        """)
-	List<CourseApplicantSummary> findCoursesWithApplicantCounts();
+	Page<CourseApplicantSummary> findCoursesWithApplicantCounts(Pageable pageable);
+	// List<CourseApplicantSummary> findCoursesWithApplicantCounts();
 
     Page<Course> findByCourseTypeOrderByStartDateAsc(CourseType courseType, Pageable pageable);
 

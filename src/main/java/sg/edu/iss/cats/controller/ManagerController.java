@@ -64,7 +64,7 @@ public class ManagerController {
 		return "pendingapplications";
 	}
 	
-    @GetMapping("/applicationhistory")
+    @GetMapping("/history")
     public String showSubordinateHistory(Model model, HttpSession session) {
 
         // Need to be logged in
@@ -85,7 +85,7 @@ public class ManagerController {
         }
         model.addAttribute("subordinatesApplications", subordinatesApplications);
 
-        return "applicationhistory";
+        return "history";
 
     }
 
@@ -120,53 +120,49 @@ public class ManagerController {
 	        // lower case to make search not case sensitive
 	        boolean nameMatch = employeeName.isBlank() || app.getUser().getName().toLowerCase().contains(employeeName.toLowerCase());
 	        
-					boolean start = startDateEmpty || course.getEndDate().compareTo(startDate)>=0;
-					boolean end = endDateEmpty || course.getStartDate().compareTo(endDate)<=0;
-					boolean dateMatch = start && end;
-	        // boolean dateMatch = !course.getEndDate().isBefore(startDate) && !course.getStartDate().isAfter(endDate);
-          // boolean dateMatch = course.getEndDate().compareTo(startDate) >= 0 && 
-          //                     course.getStartDate().compareTo(endDate) <= 0;
+            boolean start = startDateEmpty || course.getEndDate().compareTo(startDate)>=0;
+            boolean end = endDateEmpty || course.getStartDate().compareTo(endDate)<=0;
+            boolean dateMatch = start && end;
 
 	        boolean typeMatch = courseType.equals("ALL") || course.getCourseType().name().equals(courseType);
 	        
-	        if (nameMatch && dateMatch && typeMatch) 
-					{
-							searchApplications.add(app);
+	        if (nameMatch && dateMatch && typeMatch) {
+                searchApplications.add(app);
 
-							// if application is not DELETED, prepare the details
-							if (!app.getStatus().equals(Status.DELETED)) {
-									Integer userId = app.getUser().getUserId();
-									BigDecimal fee = app.getCourse().getFee();
+                // if application is not DELETED, prepare the details
+                if (!app.getStatus().equals(Status.DELETED)) {
+                    Integer userId = app.getUser().getUserId();
+                    BigDecimal fee = app.getCourse().getFee();
 
-									// if the hash map does not contain the user ID as key
-									if (!userIdToAllowance.containsKey(userId)) {
-										// fill in the map with user id and the user's actual allowance
-										userIdToAllowance.put(userId, app.getUser().getActualAllowance());
-									}
+                    // if the hash map does not contain the user ID as key
+                    if (!userIdToAllowance.containsKey(userId)) {
+                        // fill in the map with user id and the user's actual allowance
+                        userIdToAllowance.put(userId, app.getUser().getActualAllowance());
+                    }
 
-									// return the value (allowance) which the specific key (userId) is mapped and subtract fee to obtain remaining budget
-									BigDecimal budgetRemaining = userIdToAllowance.get(userId).subtract(fee);
+                    // return the value (allowance) which the specific key (userId) is mapped and subtract fee to obtain remaining budget
+                    BigDecimal budgetRemaining = userIdToAllowance.get(userId).subtract(fee);
 
-									// update the hash map
-									userIdToAllowance.put(userId, budgetRemaining);
+                    // update the hash map
+                    userIdToAllowance.put(userId, budgetRemaining);
 
-									// Construct csv style for user personal details
-									// Check first if the user id is new or duplicate
-									// If the user id is new, add it into the tracking list and display it
-									if (!userIdTrackingList.contains(userId)) {
-										userIdTrackingList.add(userId);
-									
-										String personalDetailsRow = String.format("%d,%s,%s", userId, app.getUser().getName(), app.getUser().getEmail());
+                    // Construct csv style for user personal details
+                    // Check first if the user id is new or duplicate
+                    // If the user id is new, add it into the tracking list and display it
+                    if (!userIdTrackingList.contains(userId)) {
+                        userIdTrackingList.add(userId);
+                        String personalDetailsRow = String.format("%d,%s,%s", userId, app.getUser().getName(), 
+                                                                  app.getUser().getEmail());
+                        userDetailsList.add(personalDetailsRow);
+                    }
 
-										userDetailsList.add(personalDetailsRow);
-									}
+                    // Construct csv style for user application details and allowance remaining
+                    String row = String.format("%d,%s,%d,%s,%.2f,%.2f", userId, app.getUser().getName(), 
+                                               course.getCourseId(), course.getCourseName(), fee, budgetRemaining);
 
-									// Construct csv style for user application details and allowance remaining
-									String row = String.format("%d,%s,%d,%s,%.2f,%.2f", userId, app.getUser().getName(), course.getCourseId(), course.getCourseName(), fee, budgetRemaining);
-
-									userDetailsAndAllowanceRemainingList.add(row);									
-							}
-					}
+                    userDetailsAndAllowanceRemainingList.add(row);									
+                }
+            }
 	    }
 	    
 	    System.out.println("Search results count: " + searchApplications.size());
@@ -174,8 +170,7 @@ public class ManagerController {
 			model.addAttribute("personalDetailsRows", userDetailsList);
 			model.addAttribute("rows", userDetailsAndAllowanceRemainingList);
 
-	    // return "applicationresult";
-        return "applicationsearch";
+        return "search";
 	}
 	
 	@PostMapping("/application/status")

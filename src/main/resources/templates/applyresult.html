@@ -49,19 +49,24 @@
             <dd><span th:text="${applicationResult.status}"></span></dd>
         </dl>
 
-        <div class="actions">
-            <a th:href="@{/staff/edit(id=${applicationResult.id})}" class="btn btn-primary">Edit</a>
-            <!-- TODO: have like a pop up that says "are you sure?" maybe use javascript alert? idk -->
-            <form th:action="@{/staff/delete(id=${applicationResult.id})}" method="POST" style="display:inline;">
-                <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
-                <!-- TODO: do survey first, then mark as complete -->
-                <!-- so action send to staff/survey etc etc -->
-            <form th:if="${applicationResult.status.name() == 'APPROVED'}"
-                  th:action="@{/staff/completed(id=${applicationResult.id})}"
-                  method="post">
-                <button type="submit">COMPLETED</button>
-            </form>
+
+        <div th:if="${viewer == 'mine'}">
+            <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
+                <div th:replace="~{fragments/formactions :: cancelOrComplete(app=${applicationResult})}"></div>
+            </th:block>
+
+            <th:block th:unless="${applicationResult.status.name() == 'APPROVED'}">
+                <div th:replace="~{fragments/formactions :: editOrDelete(app=${applicationResult})}"></div>
+            </th:block>
+        </div>
+
+        <div th:if="${viewer == 'manager'}">
+            <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
+                <div th:replace="~{fragments/formactions :: showManagerReason(app=${applicationResult})}"></div>
+            </th:block>
+            <th:block th:unless="${applicationResult.status.name() == 'APPROVED'}">
+                <div th:replace="~{fragments/formactions :: approveOrReject(app=${applicationResult})}"></div>
+            </th:block>
         </div>
     </div>
 

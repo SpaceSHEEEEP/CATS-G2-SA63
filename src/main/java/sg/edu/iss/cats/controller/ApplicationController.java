@@ -66,7 +66,7 @@ public class ApplicationController {
         if (courseId != null) app.setCourse(courseRepository.findById(courseId).orElse(null));
 
 		model.addAttribute("applicationForm", app);
-	    return "applicationform";
+	    return "applyform";
     }
     
     @PostMapping("/submitapplication")
@@ -84,13 +84,13 @@ public class ApplicationController {
         // need the above because spring mvc remakes a new object after every state change
 
         // Check for valid annotations in the Application, Course Model.
-        if (result.hasErrors()) return "applicationform";
+        if (result.hasErrors()) return "applyform";
 
         try {
             applicationService.saveApplication(form, sessionUser.getUserId());
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
-            return "applicationform";
+            return "applyform";
         }
 
         // Flash Attribute for success message
@@ -119,7 +119,7 @@ public class ApplicationController {
 
         // else, application exists
         model.addAttribute("applicationForm", applications.get(0));
-        return "applicationform";
+        return "applyform";
     }
 
     @GetMapping("/view")
@@ -133,7 +133,8 @@ public class ApplicationController {
 		List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
 		if (!applications.isEmpty()) {
             model.addAttribute("applicationResult", applications.get(0));
-            return "applicationresult";
+            model.addAttribute("viewer", "mine");
+            return "applyresult";
         }
 
         // if the application isnt mine but its my subordinates, and im the manager,
@@ -142,8 +143,9 @@ public class ApplicationController {
         List<User> subordinates = user.getSubordinates();
         for (User sub : subordinates) {
             if (app.getUser().getUserId().equals(sub.getUserId())) {
-                model.addAttribute("applicationView", app);
-                return "applicationview";
+                model.addAttribute("applicationResult", app);
+                model.addAttribute("viewer", "manager");
+                return "applyresult";
             }
         }
 		

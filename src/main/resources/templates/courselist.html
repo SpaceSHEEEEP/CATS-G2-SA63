@@ -42,8 +42,16 @@
       </tbody>
     </table>
 
-    <a th:if="${pageNum > 0}" th:href="@{/staff/courselist(pageNum=${pageNum-1})}">Prev page</a>
-    <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/staff/courselist(pageNum=${pageNum+1})}">Next page</a>
+    <div class = "pagination">
+        <div>
+        <a th:if="${pageNum > 0}" th:href="@{/staff/courselist(pageNum=${pageNum-1})}">Prev page</a>
+        <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/staff/courselist(pageNum=${pageNum+1})}">Next page</a>
+        </div>
+        
+        <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
+            <a th:href="@{/staff/courselist(pageNum=${i})}" th:text="${i + 1}"></a>
+        </th:block>
+    </div>
 
   </body>
 </html>
