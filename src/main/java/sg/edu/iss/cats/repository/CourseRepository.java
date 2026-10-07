@@ -1,6 +1,6 @@
 package sg.edu.iss.cats.repository;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,8 +13,6 @@ import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.dto.CourseApplicantSummary;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-	
-	List<Course> findByCourseTypeOrderByStartDateAsc(CourseType courseType);
 	
 	// Query result containing a course and its calculated applicant count.
 	// This is not an entity and does not create another database table.
@@ -30,7 +28,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 	Page<CourseApplicantSummary> findCoursesWithApplicantCounts(Pageable pageable);
 	// List<CourseApplicantSummary> findCoursesWithApplicantCounts();
 
-    Page<Course> findByCourseTypeOrderByStartDateAsc(CourseType courseType, Pageable pageable);
+    Page<Course> findByCourseTypeInOrderByStartDateAsc(Collection<CourseType> types, Pageable pageable);
 
     @EntityGraph(attributePaths = {"course, application"})
     Page<Course> findAllByOrderByStartDateAsc(Pageable pageable);

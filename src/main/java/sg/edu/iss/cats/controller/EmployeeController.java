@@ -1,5 +1,6 @@
 package sg.edu.iss.cats.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -61,11 +62,27 @@ public class EmployeeController {
 
     @GetMapping ("/courselist")
     public String showInternalCoursesPages(
+            @RequestParam(name = "type", defaultValue = "ALL") String type,
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
             Model model) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
-        Page<Course> coursePage = courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL, pageable);
-        model.addAttribute("courselist", coursePage);
+        List<CourseType> courseTypes = new ArrayList<>();
+        switch (type) {
+            case "INTERNAL":
+                courseTypes.add(CourseType.INTERNAL);
+                break;
+            case "EXTERNAL":
+                courseTypes.add(CourseType.EXTERNAL);
+                break;
+            case "PROFESSIONAL":
+                courseTypes.add(CourseType.PROFESSIONAL);
+                break;
+            default:
+                courseTypes.addAll(List.of(CourseType.INTERNAL, CourseType.EXTERNAL, CourseType.PROFESSIONAL));
+                break;
+        }
+        Page<Course> coursePage = courseRepository.findByCourseTypeInOrderByStartDateAsc(courseTypes, pageable);
+        model.addAttribute("courses", coursePage);
         model.addAttribute("pageNum", pageNum);
         model.addAttribute("pageNumLast", coursePage.getTotalPages());
         return "courselist";
