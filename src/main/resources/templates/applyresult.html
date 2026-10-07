@@ -51,11 +51,17 @@
 
 
         <div th:if="${viewer == 'mine'}">
+            <th:block th:unless="${#strings.isEmpty(#strings.trim(applicationResult.managerReason))}">
+                <div th:replace="~{fragments/formactions :: showManagerReason(app=${applicationResult})}"></div>
+            </th:block>
+
             <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
                 <div th:replace="~{fragments/formactions :: cancelOrComplete(app=${applicationResult})}"></div>
             </th:block>
 
-            <th:block th:unless="${applicationResult.status.name() == 'APPROVED'}">
+            <th:block th:unless="${applicationResult.status.name() == 'APPROVED' or 
+                                   applicationResult.status.name() == 'REJECTED' or 
+                                   applicationResult.status.name() == 'DELETED'}">
                 <div th:replace="~{fragments/formactions :: editOrDelete(app=${applicationResult})}"></div>
             </th:block>
         </div>
@@ -64,7 +70,7 @@
             <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
                 <div th:replace="~{fragments/formactions :: showManagerReason(app=${applicationResult})}"></div>
             </th:block>
-            <th:block th:unless="${applicationResult.status.name() == 'APPROVED'}">
+            <th:block th:unless="${applicationResult.status.name() == 'APPROVED' or applicationResult.status.name() == 'DELETED'}">
                 <div th:replace="~{fragments/formactions :: approveOrReject(app=${applicationResult})}"></div>
             </th:block>
         </div>
