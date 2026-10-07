@@ -56,6 +56,11 @@ summary {
   word-break: break-word;
 }
 
+.pagination {
+    display: flex;
+    gap: 20px;
+}
+
 .actions {
     display: flex;
     gap: 20px;

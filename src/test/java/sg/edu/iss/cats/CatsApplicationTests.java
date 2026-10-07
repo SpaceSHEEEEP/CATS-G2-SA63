@@ -15,7 +15,7 @@ import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.ApplicationStatus;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.model.Course;
-import sg.edu.iss.cats.repository.ApplicationRepository;
+import sg.edu.iss.cats.repository.AppRepo;
 
 //Uses sample users from data.sql and the test-profile MySQL database.
 @DataJpaTest
@@ -23,7 +23,7 @@ import sg.edu.iss.cats.repository.ApplicationRepository;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class CatsApplicationTests {
 	@Autowired
-	private ApplicationRepository applicationRepository;
+	private AppRepo appRepo;
 	
 	@Test
 	@DisplayName("Returns a list of applications with user id and application status")
@@ -41,9 +41,9 @@ public class CatsApplicationTests {
 		course.setCourseId(1);
 		a.setCourse(course);
 
-		applicationRepository.save(a);
+		appRepo.save(a);
 
-		List<Application> result = applicationRepository.findByUser_UserIdAndApplicationStatus(1, ApplicationStatus.APPLIED);
+		List<Application> result = appRepo.findByUser_UserIdAndApplicationStatus(1, ApplicationStatus.APPLIED);
 		result.forEach(app -> System.out.println("***** " + app));
 		assertThat(result).isNotEmpty();
 	}
@@ -51,14 +51,14 @@ public class CatsApplicationTests {
 	@Test
 	@DisplayName("Returns an empty list when no applications found with user id and application status")
 	void testFindApplicationByUserIdAndStatusWithNoResults() {
-		List<Application> result = applicationRepository.findByUser_UserIdAndApplicationStatus(999, ApplicationStatus.APPLIED);
+		List<Application> result = appRepo.findByUser_UserIdAndApplicationStatus(999, ApplicationStatus.APPLIED);
 		result.forEach(app -> System.out.println("***** " + app));
 		assertThat(result).isEmpty();
 	}
 
 	@Test
 	@DisplayName("Returns a list of applications with user id and application id")
-	void testFindApplicationByUserIdAndApplicationId() {
+	void testFindApplicationByUserIdAndId() {
 		// Formulate a sample application for testing
 		Application a = new Application();
 		a.setApplicationStatus(ApplicationStatus.APPLIED);
@@ -72,16 +72,16 @@ public class CatsApplicationTests {
 		course.setCourseId(1);
 		a.setCourse(course);
 
-		applicationRepository.save(a);
-		List<Application> result = applicationRepository.findByUser_UserIdAndApplicationId(1, a.getApplicationId());
+		appRepo.save(a);
+		List<Application> result = appRepo.findByUser_UserIdAndId(1, a.getId());
 		result.forEach(app -> System.out.println("***** " + app));
 		assertThat(result).isNotEmpty();
 	}
 
 	@Test
 	@DisplayName ("Returns an empty list when no applications found with user id and application id")
-	void testFindApplicationByUserIdAndApplicationIdWithNoResults() {
-		List<Application> result = applicationRepository.findByUser_UserIdAndApplicationId(999, 999);
+	void testFindApplicationByUserIdAndIdWithNoResults() {
+		List<Application> result = appRepo.findByUser_UserIdAndId(999, 999);
 		result.forEach(app -> System.out.println("***** " + app));
 		assertThat(result).isEmpty();
 	}

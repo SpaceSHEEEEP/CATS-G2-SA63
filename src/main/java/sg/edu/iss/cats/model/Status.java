@@ -1,6 +1,6 @@
 package sg.edu.iss.cats.model;
 
-public enum ApplicationStatus {
+public enum Status {
     APPLIED,
     UPDATED,
     CANCELLED,

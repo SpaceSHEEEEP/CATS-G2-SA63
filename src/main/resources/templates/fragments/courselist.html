@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <body>
+
+    <th:block th:fragment="courseList(courses)">
+        <table>
+            <thead>
+                <tr>
+                <th>Course</th>
+                <th>Start date</th>
+                <th>End date</th>
+                <th>Course Type</th>
+                <th>Course Duration</th>
+                <th>Training Provider</th>
+                <th>Location</th>
+                <th>Interested?</th>
+            </thead>
+            <tbody>
+
+                <tr th:each="course : ${courses.content}">
+                <td th:text="${course.courseName}"></td>
+                <td th:text="${#temporals.format(course.startDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${#temporals.format(course.endDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${course.courseType}"></td>
+                <td th:text="${course.duration}"></td>
+                <td th:text="${course.trainingProvider}"></td>
+                <td th:text="${course.location}"></td>
+                <td><a th:href="@{/staff/apply(courseId=${course.courseId})}">Apply</a></td>
+
+            </tbody>
+
+        </table>
+    </th:block>
+
+    </body>
+</html>
+

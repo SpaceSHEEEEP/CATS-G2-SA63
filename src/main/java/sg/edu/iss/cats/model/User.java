@@ -23,12 +23,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
     private String name;
-    private BigDecimal allowanceTotal;
-    private BigDecimal budgetedAllowanceRemaining;
-    private BigDecimal actualAllowanceRemaining;
-    private Double daysTotal;
-    private Double budgetedDaysRemaining;
-    private Double actualDaysRemaining;
+    private BigDecimal budgetedAllowance;
+    private BigDecimal actualAllowance;
+    private Double budgetedDays;
+    private Double actualDays;
 
     // need usernames to be unique
     // this is a potential test unit to check when we add the "create 
@@ -55,8 +53,8 @@ public class User {
         if (applications.isEmpty()) return 0;
         Integer count = 0;
         for (Application app : applications) {
-            if (app.getApplicationStatus() == ApplicationStatus.APPLIED || 
-                app.getApplicationStatus() == ApplicationStatus.UPDATED) count++;
+            if (app.getStatus() == Status.APPLIED || 
+                app.getStatus() == Status.UPDATED) count++;
         }
         System.out.println("DEBUG: COUNT WAS CALLED. # OF PENDING APPS: " + count);
         return count;

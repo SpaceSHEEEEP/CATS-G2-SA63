@@ -27,8 +27,8 @@ public class CourseRepositoryTests {
 
   @Test
   @DisplayName("Returns an list of courses based on course type with ascending order of start dates")
-  void testFindByCourseTypeOrderByStartDateAsc() {
-    List<Course> result = courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL);
+  void testFindByCourseTypeInOrderByStartDateAsc() {
+    List<Course> result = courseRepository.findByCourseTypeInOrderByStartDateAsc(List.of(CourseType.INTERNAL));
     result.forEach(c -> System.out.println("***** " + c));
 
     assertThat(result).isNotEmpty();

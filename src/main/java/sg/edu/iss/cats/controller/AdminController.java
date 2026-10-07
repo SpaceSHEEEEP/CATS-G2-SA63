@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
+import sg.edu.iss.cats.dto.CourseApplicantSummary;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.LoginForm;
 import sg.edu.iss.cats.model.User;
@@ -31,8 +32,7 @@ public class AdminController {
 	private final HolidayRepository holidayRepository;
 	private final CourseRepository courseRepository;
 	
-	public AdminController( UserRepository userRepository, HolidayRepository holidayRepository,
-			CourseRepository courseRepository) {
+	public AdminController(UserRepository userRepository, HolidayRepository holidayRepository, CourseRepository courseRepository) {
 		this.userRepository = userRepository;
 		this.holidayRepository = holidayRepository;
 		this.courseRepository = courseRepository;
@@ -59,11 +59,12 @@ public class AdminController {
         model.addAttribute("holidays",
                 holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(
                         firstDay, lastDay));
-        // model.addAttribute("courseSummaries",courseRepository.findCoursesWithApplicantCounts());
 
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         // TODO: get pages WITH application count!! The one below doesn't have application count
-        Page<Course> courseSummaries = courseRepository.findAllByOrderByApplicationsSizeDesc(pageable);
+        // Page<Course> courseSummaries = courseRepository.findAllByOrderByApplicationsSizeDesc(pageable);
+        // model.addAttribute("courseSummaries", courseSummaries);
+        Page<CourseApplicantSummary> courseSummaries = courseRepository.findCoursesWithApplicantCounts(pageable);
         model.addAttribute("courseSummaries", courseSummaries);
         model.addAttribute("pageNum", pageNum);
         model.addAttribute("pageNumLast", courseSummaries.getTotalPages());

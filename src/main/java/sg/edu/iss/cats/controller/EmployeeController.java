@@ -1,5 +1,6 @@
 package sg.edu.iss.cats.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.repository.UserRepository;
 import sg.edu.iss.cats.repository.CourseRepository;
-import sg.edu.iss.cats.repository.ApplicationRepository;
+import sg.edu.iss.cats.repository.AppRepo;
 
 @Controller
 @RequestMapping("/staff") // for employee's stuff
@@ -33,13 +34,13 @@ public class EmployeeController {
 
     private final int pageSize = 10;
 	private final CourseRepository courseRepository;
-	private final ApplicationRepository applicationRepository;
+	private final AppRepo appRepo;
 	private final UserRepository userRepository;
 
-	public EmployeeController(CourseRepository courseRepository, ApplicationRepository applicationRepository,
+	public EmployeeController(CourseRepository courseRepository, AppRepo appRepo,
 			UserRepository userRepository) {
 		this.courseRepository = courseRepository;
-		this.applicationRepository = applicationRepository;
+		this.appRepo = appRepo;
 		this.userRepository = userRepository;
 	}
 
@@ -50,7 +51,7 @@ public class EmployeeController {
 		User user = (User) session.getAttribute("user");
 		if (user == null) return "redirect:/staff/login";
 		
-		List<Application> applications = applicationRepository.findByUser_UserId(user.getUserId());
+		List<Application> applications = appRepo.findByUser_UserId(user.getUserId());
 		model.addAttribute("applications", applications);
 		
 		// Show Team Training only when employees report to this user.
@@ -61,11 +62,27 @@ public class EmployeeController {
 
     @GetMapping ("/courselist")
     public String showInternalCoursesPages(
+            @RequestParam(name = "type", defaultValue = "ALL") String type,
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
             Model model) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
-        Page<Course> coursePage = courseRepository.findByCourseTypeOrderByStartDateAsc(CourseType.INTERNAL, pageable);
-        model.addAttribute("courselist", coursePage);
+        List<CourseType> courseTypes = new ArrayList<>();
+        switch (type) {
+            case "INTERNAL":
+                courseTypes.add(CourseType.INTERNAL);
+                break;
+            case "EXTERNAL":
+                courseTypes.add(CourseType.EXTERNAL);
+                break;
+            case "PROFESSIONAL":
+                courseTypes.add(CourseType.PROFESSIONAL);
+                break;
+            default:
+                courseTypes.addAll(List.of(CourseType.INTERNAL, CourseType.EXTERNAL, CourseType.PROFESSIONAL));
+                break;
+        }
+        Page<Course> coursePage = courseRepository.findByCourseTypeInOrderByStartDateAsc(courseTypes, pageable);
+        model.addAttribute("courses", coursePage);
         model.addAttribute("pageNum", pageNum);
         model.addAttribute("pageNumLast", coursePage.getTotalPages());
         return "courselist";
