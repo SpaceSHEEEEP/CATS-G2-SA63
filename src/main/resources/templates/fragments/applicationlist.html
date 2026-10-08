@@ -32,6 +32,7 @@
             </tbody>
         </table>
         </th:block>
+
         
         <th:block th:fragment="applicationListWithName(applications)">
         <table>
@@ -62,6 +63,45 @@
                 </tr>
             </tbody>
         </table>
+        </th:block>
+
+
+        <!-- replace "application" with "app" like the above fragments -->
+        <th:block th:fragment="applicationDetails(app)">
+        <dl class="details-grid">
+            <dt>Application ID</dt>
+            <dd th:text="${app.id}"></dd>
+
+            <dt>Course Name</dt>
+            <dd th:text="${app.course.courseName}"></dd>
+
+            <dt>Course Type</dt>
+            <dd><span class="badge" th:text="${app.course.courseType}"></span></dd>
+
+            <dt>Start Date</dt>
+            <dd th:text="${app.course.startDate}"></dd>
+
+            <dt>End Date</dt>
+            <dd th:text="${app.course.endDate}"></dd>
+
+            <dt>Duration</dt>
+            <dd th:text="${app.course.duration}"></dd>
+
+            <dt>Training Provider</dt>
+            <dd th:text="${app.course.trainingProvider}"></dd>
+
+            <dt>Location</dt>
+            <dd th:text="${app.course.location}"></dd>
+
+            <dt>Fee</dt>
+            <dd>$<span th:text="${app.course.fee}"></span></dd>
+
+            <dt>Justification</dt>
+            <dd class="full-width" th:text="${app.userReason}"></dd>
+
+            <dt>Status</dt>
+            <dd><span th:text="${app.status}"></span></dd>
+        </dl>
         </th:block>
 
     </body>
