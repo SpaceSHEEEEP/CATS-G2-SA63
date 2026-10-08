@@ -7,6 +7,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,8 +31,15 @@ public class CourseRepositoryTests {
   @Test
   @DisplayName("Returns an list of courses based on course type with ascending order of start dates")
   void testFindByCourseTypeInOrderByStartDateAsc() {
-    List<Course> result = courseRepository.findByCourseTypeInOrderByStartDateAsc(List.of(CourseType.INTERNAL));
-    result.forEach(c -> System.out.println("***** " + c));
+    Pageable pageable = PageRequest.of(0, 10);
+    
+    Page<Course> page = courseRepository.findByCourseTypeInOrderByStartDateAsc(List.of(CourseType.INTERNAL), pageable);
+    page.forEach(c -> System.out.println("***** " + c));
+
+    assertThat(page).isNotEmpty();
+
+    List<Course> result = page.getContent();
+    result.forEach(c -> System.out.println("*****" + c));
 
     assertThat(result).isNotEmpty();
 

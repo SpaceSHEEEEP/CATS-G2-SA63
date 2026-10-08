@@ -1,15 +1,15 @@
     -- insert dummy data into user table
-INSERT INTO user (name, budgeted_allowance, actual_allowance, budgeted_days, actual_days, username, password, email, is_active, is_admin) VALUES
-    ('Bob', 10000, 10000, 10.0, 10.0, 'bobby', 'pw', 'bob@gmail.com', true, false),
-    ('Tim', 10000, 10000, 15.0, 15.0, 'timmy', 'pw', 'tim@gmail.com', true, false),
-    ('Ben', 10000, 10000, 10.5, 10.5, 'benny', 'pw', 'ben@gmail.com', true, false),
-    ('Dan', 9500, 9500, 10.0, 10.0, 'danny', 'pw', 'dan@gmail.com', true, false),
-    ('Sam', 11000, 11000, 10.0, 10.0, 'sammy', 'pw', 'sam@gmail.com', true, false),
-    ('Tom', 12000, 12000, 10.0, 10.0, 'tommy', 'pw', 'tom@gmail.com', true, false),
-    ('Ron', 8500, 8500, 10.0, 10.0, 'ronny', 'pw', 'ron@gmail.com', true, false),
-    ('Son', 10500, 10500, 10.0, 10.0, 'sonny', 'pw', 'son@gmail.com', true, false),
-    ('Ken', 10000, 10000, 10.0, 10.0, 'kenny', 'pw', 'ken@gmail.com', true, false),
-    ('Min', 10000, 10000, 10.0, 10.0, 'minny', 'pw', 'min@gmail.com', true, true); -- Admin User
+INSERT INTO user (name, budgeted_allowance, actual_allowance, budgeted_days, actual_days, username, password, email, is_admin) VALUES
+    ('Bob', 10000, 10000, 10.0, 10.0, 'bobby', 'pw', 'bob@gmail.com', false),
+    ('Tim', 10000, 10000, 15.0, 15.0, 'timmy', 'pw', 'tim@gmail.com', false),
+    ('Ben', 10000, 10000, 10.5, 10.5, 'benny', 'pw', 'ben@gmail.com', false),
+    ('Dan', 9500, 9500, 10.0, 10.0, 'danny', 'pw', 'dan@gmail.com', false),
+    ('Sam', 11000, 11000, 10.0, 10.0, 'sammy', 'pw', 'sam@gmail.com', false),
+    ('Tom', 12000, 12000, 10.0, 10.0, 'tommy', 'pw', 'tom@gmail.com', false),
+    ('Ron', 8500, 8500, 10.0, 10.0, 'ronny', 'pw', 'ron@gmail.com', false),
+    ('Son', 10500, 10500, 10.0, 10.0, 'sonny', 'pw', 'son@gmail.com', false),
+    ('Ken', 10000, 10000, 10.0, 10.0, 'kenny', 'pw', 'ken@gmail.com', false),
+    ('Min', 10000, 10000, 10.0, 10.0, 'minny', 'pw', 'min@gmail.com', true); -- Admin User
     
 -- Management hierarchy
 -- Tim and Tom report to Bob (CEO)
@@ -30,7 +30,8 @@ UPDATE user employee
 
 -- insert dummy data into course table
     INSERT INTO course (course_name, course_type, duration, start_date, end_date, location, training_provider, fee) VALUES 
-    ('Java Programming', 'INTERNAL', 'HALFDAYAM', '2026-10-14', '2026-10-14', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Java OOPJ', 'INTERNAL', 'HALFDAYAM', '2026-10-14', '2026-10-14', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Java EE', 'INTERNAL', 'HALFDAYPM', '2026-10-14', '2026-10-14', 'NUS-ISS', 'NUS-ISS', 0.00),
     ('Web Application Development', 'INTERNAL', 'FULLDAY', '2026-10-15', '2026-10-19', 'NUS-ISS', 'NUS-ISS', 0.00),
     ('Database Design', 'INTERNAL', 'HALFDAYPM', '2026-11-02', '2026-11-02', 'NUS-ISS', 'NUS-ISS', 0.00),
     ('Cloud Computing Fundamentals', 'INTERNAL', 'FULLDAY', '2026-11-10', '2026-11-11', 'NUS-ISS', 'NUS-ISS', 0.00),

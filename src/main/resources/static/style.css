@@ -86,8 +86,8 @@ summary {
 }
 
 .global-error-message {
-    background:#d4edda; 
-    color:red; 
+    background:red; 
+    color: #d4edda; 
     padding:10px; 
     border-radius:4px;
 }

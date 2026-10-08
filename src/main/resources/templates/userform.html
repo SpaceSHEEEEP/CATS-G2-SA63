@@ -1,0 +1,80 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="EN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" th:href="@{/style.css}" />
+    <title>User Form</title>
+  </head>
+
+  <body>
+        <div th:replace="~{fragments/header :: header}"></div>
+        <h3>User Form</h3>
+        <form th:action="@{/admin/createuser}" th:object="${userForm}" method="POST">
+          <!-- error summary banner -->
+          <div class="global-error-banner" th:if="${#fields.hasAnyErrors()}">
+            <p>Summary of Errors</p>
+            <ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"/></ul>
+            <p> Unable to submit application. Please re-enter fields or review again before submitting.</p>
+          </div>
+          <p th:if="${error}" class="field-error-message">Error from service validation: <span th:text="${error}"></span></p>
+
+          <input type="hidden" th:field="*{userId}">
+
+           <!-- User's info-->
+          <div>
+            <fieldset>
+              <label>Name:</label>
+              <input type="text" th:field="*{name}"/>
+              <span class="field-error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"/>
+            </fieldset>
+
+            <fieldset>
+              <label>Username:</label>
+              <input type="text" th:field="*{username}"/>
+              <span class="field-error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"/>
+            </fieldset>
+
+            <fieldset>
+              <label>Email:</label>
+              <input type="email" th:field="*{email}"/>
+              <span class="field-error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"/>
+            </fieldset>
+
+             <fieldset>
+              <label>Administrator:</label>
+              <select id="isAdmin" name="admin">
+                <option value="" th:selected="${userForm.isAdmin==null}">--Select Role--</option>
+                <option value="true" th:selected="${userForm.isAdmin==true}">Yes</option>
+                <option value="false" th:selected="${userForm.isAdmin==false}">No</option>
+              </select>
+              <span class="field-error-message" th:if="${#fields.hasErrors('admin')}" th:errors="*{admin}"/>
+            </fieldset>
+
+             <fieldset>
+              <label>Reports To:</label>
+              <select th:field="*{manager}">
+                <option value="">--Select Manager--</option>
+                <option th:each="mngr:${managers}" th:unless="${mngr.userId == userForm.userId}" th:value="${mngr.userId}" th:text="${mngr.name}"></option>
+              </select>
+              <span class="field-error-message" th:if="${#fields.hasErrors('manager')}" th:errors="*{manager}"/>
+            </fieldset>
+
+            <fieldset>
+              <label>Training Allowance Entitlement:</label>
+              <input type="number" th:field="*{actualAllowance}"/>
+              <span class="field-error-message" th:if="${#fields.hasErrors('actualAllowance')}" th:errors="*{actualAllowance}"/>
+            </fieldset>
+
+            <fieldset>
+              <label>Training Days Entitlement:</label>
+              <input type="number" th:field="*{actualDays}"/>
+              <span class="field-error-message" th:if="${#fields.hasErrors('actualDays')}" th:errors="*{actualDays}"/>
+            </fieldset>
+
+            <button type="submit">Save User</button>
+            <button type="reset">Reset</button>
+          </div>
+        </form>
+  </body>
+  </html>

@@ -7,12 +7,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
 import sg.edu.iss.cats.model.Application;
-import sg.edu.iss.cats.model.ApplicationStatus;
+import sg.edu.iss.cats.model.Status;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.repository.AppRepo;
@@ -30,7 +31,7 @@ public class CatsApplicationTests {
 	void testFindApplicationByUserIdAndStatus() {
 		// Formulate a sample application for testing
 		Application a = new Application();
-		a.setApplicationStatus(ApplicationStatus.APPLIED);
+		a.setStatus(Status.APPLIED);
 		a.setUserReason("Learn more about Java Spring Boot");
 
 		User user = new User();
@@ -43,7 +44,7 @@ public class CatsApplicationTests {
 
 		appRepo.save(a);
 
-		List<Application> result = appRepo.findByUser_UserIdAndApplicationStatus(1, ApplicationStatus.APPLIED);
+		List<Application> result = appRepo.findByUser_UserIdAndStatusIn(1, List.of(Status.APPLIED));
 		result.forEach(app -> System.out.println("***** " + app));
 		assertThat(result).isNotEmpty();
 	}
@@ -51,7 +52,7 @@ public class CatsApplicationTests {
 	@Test
 	@DisplayName("Returns an empty list when no applications found with user id and application status")
 	void testFindApplicationByUserIdAndStatusWithNoResults() {
-		List<Application> result = appRepo.findByUser_UserIdAndApplicationStatus(999, ApplicationStatus.APPLIED);
+		List<Application> result = appRepo.findByUser_UserIdAndStatusIn(999, List.of(Status.APPLIED));
 		result.forEach(app -> System.out.println("***** " + app));
 		assertThat(result).isEmpty();
 	}
@@ -61,7 +62,7 @@ public class CatsApplicationTests {
 	void testFindApplicationByUserIdAndId() {
 		// Formulate a sample application for testing
 		Application a = new Application();
-		a.setApplicationStatus(ApplicationStatus.APPLIED);
+		a.setStatus(Status.APPLIED);
 		a.setUserReason("Learn more about Java Spring Boot");
 
 		User user = new User();
