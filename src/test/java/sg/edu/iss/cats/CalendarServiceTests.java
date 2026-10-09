@@ -22,13 +22,19 @@ import sg.edu.iss.cats.model.CourseDuration;
 import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.model.Holiday;
 import sg.edu.iss.cats.model.User;
+import sg.edu.iss.cats.repository.UserRepository;
 
 class CalendarServiceTests {
 
 	private final AppRepo appRepo = mock(AppRepo.class);
 	private final HolidayRepository holidayRepository = mock(HolidayRepository.class);
 
-	private final CalendarService calendarService = new CalendarService(appRepo, holidayRepository);
+	private final UserRepository userRepository =
+	        mock(UserRepository.class);
+
+	private final CalendarService calendarService =
+	        new CalendarService(
+	                appRepo, holidayRepository, userRepository);
 
 	private final LocalDate start = LocalDate.of(2035, 4, 1);
 	private final LocalDate end = LocalDate.of(2035, 4, 30);
@@ -41,7 +47,7 @@ class CalendarServiceTests {
 
 		when(appRepo.findPersonalCalendarApplications(7, statuses, start, end)).thenReturn(List.of(application));
 
-		assertThat(calendarService.findApplications(7, false, start, end, null)).containsExactly(application);
+		assertThat(calendarService.findApplications(7, false, false, start, end, null)).containsExactly(application);
 
 		verify(appRepo).findPersonalCalendarApplications(7, statuses, start, end);
 		verifyNoMoreInteractions(appRepo);
@@ -53,7 +59,7 @@ class CalendarServiceTests {
 
 		when(appRepo.findApprovedCalendarApplications(start, end)).thenReturn(List.of(application));
 
-		assertThat(calendarService.findApplications(7, true, start, end, null)).containsExactly(application);
+		assertThat(calendarService.findApplications(7, true, false, start, end, null)).containsExactly(application);
 
 		verify(appRepo).findApprovedCalendarApplications(start, end);
 		verifyNoMoreInteractions(appRepo);
@@ -104,7 +110,7 @@ class CalendarServiceTests {
 		when(holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(rangeStart, rangeEnd))
 				.thenReturn(List.of(holiday));
 
-		List<CalendarEventDTO> events = calendarService.findEvents(7, false, rangeStart, rangeEnd, null);
+		List<CalendarEventDTO> events = calendarService.findEvents(7, false, false, rangeStart, rangeEnd, null);
 
 		assertThat(events).extracting(CalendarEventDTO::getStart).containsExactly(LocalDate.of(2026, 10, 9),
 				LocalDate.of(2026, 10, 13));

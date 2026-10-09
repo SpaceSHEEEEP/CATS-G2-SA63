@@ -3,6 +3,7 @@ const calendarElement = document.getElementById("dp");
 const singaporeToday = calendarElement.dataset.today;
 const calendarMessage = document.getElementById("calendar-message");
 const myTrainingButton = document.getElementById("my-training");
+const teamTrainingButton = document.getElementById("team-training");
 const allStaffButton = document.getElementById("all-staff-training");
 const categorySelect = document.getElementById("calendar-category");
 const monthSelect = document.getElementById("calendar-month");
@@ -24,6 +25,7 @@ const durationLabels = {
 };
 
 let allStaff = false;
+let teamTraining = false;
 let latestRequest = 0;
 
 const categoryColours = {
@@ -69,11 +71,18 @@ const calendar = new DayPilot.Month("dp", {
   onBeforeEventRender: (args) => {
     const event = args.data;
     const colours = categoryColours[event.category];
-    const approved = event.status === "APPROVED";
+	const confirmed =
+	  event.status === "APPROVED" || event.status === "COMPLETED";
 
-    event.backColor = approved ? colours.solid : colours.pale;
-    event.fontColor = approved ? "#ffffff" : "#111827";
-    event.borderColor = colours.solid;
+	const inactive =
+	  ["REJECTED", "CANCELLED", "DELETED"].includes(event.status);
+
+	event.backColor = inactive
+	  ? "#e5e7eb"
+	  : confirmed ? colours.solid : colours.pale;
+
+	event.fontColor = confirmed ? "#ffffff" : "#111827";
+	event.borderColor = inactive ? "#6b7280" : colours.solid;
 
 	const sessionLabel = event.duration === "HALFDAYAM"
 	  ? " · AM"
@@ -85,11 +94,15 @@ const calendar = new DayPilot.Month("dp", {
 	  ? ` · ${event.attendeeNames.length} attending`
 	  : ` · ${event.status}`;
 
+	const employeeLabel = teamTraining
+	    ? `${event.employeeName} · `
+	    : "";
+
 	event.text =
-	  `${event.courseName}${sessionLabel}${viewLabel}`;
+	    `${employeeLabel}${event.courseName}${sessionLabel}${viewLabel}`;
 
 	event.toolTip =
-	  `${event.courseName} | ${categoryLabels[event.category]}`
+		`${employeeLabel}${event.courseName} | ${categoryLabels[event.category]}`
 	  + ` | ${durationLabels[event.duration] || "Not specified"}`
 	  + ` | ${event.status}`
 	  + ` | ${event.approvedParticipants} approved participants`;
@@ -135,6 +148,7 @@ function showTrainingDetails(event, attendees = null) {
 	  document.getElementById("details-edit-application");
 
 	const canEdit = !allStaff
+	  && !teamTraining
 	  && (event.status === "APPLIED" || event.status === "UPDATED");
 
 	viewLink.hidden = allStaff;
@@ -169,8 +183,8 @@ function showTrainingDetails(event, attendees = null) {
 
 	const today = singaporeToday;
 
-	// Only offer courses that have not started in the shared view.
-	const canApply = allStaff
+	// Offer future approved courses that the logged-in user has not applied for.
+	const canApply = (allStaff || teamTraining)
 	  && event.status === "APPROVED"
 	  && event.courseStartDate > today
 	  && !event.alreadyApplied;
@@ -260,7 +274,13 @@ function renderCourseList(events) {
       card.style.borderLeftColor = categoryColours[category].solid;
       courseList.append(card);
 
-      const button = addText(card, "button", course.courseName);
+	  const button = addText(
+	    card,
+	    "button",
+	    teamTraining
+	      ? `${course.employeeName} · ${course.courseName}`
+	      : course.courseName
+	  );
       button.type = "button";
       button.className = "calendar-course-title";
 
@@ -362,9 +382,11 @@ async function loadEvents() {
 	
 	courseList.replaceChildren();
 
-	courseListHeading.textContent = allStaff
-	  ? "Approved courses this month"
-	  : "My training this month";
+	courseListHeading.textContent = teamTraining
+	  ? "Team applications this month"
+	  : allStaff
+	    ? "Approved courses this month"
+	    : "My training this month";
 
 	addText(courseList, "p", "Loading courses...");
 	
@@ -389,6 +411,8 @@ async function loadEvents() {
     calendar.visibleEnd().addDays(-1).toString("yyyy-MM-dd")
   );
 
+  url.searchParams.set("teamTraining", String(teamTraining));
+  
   url.searchParams.set("allStaff", String(allStaff));
 
   if (categorySelect.value !== "") {
@@ -441,20 +465,34 @@ async function loadEvents() {
   }
 }
 
-function selectView(showAllStaff) {
+function selectView(showAllStaff, showTeamTraining = false) {
   allStaff = showAllStaff;
+  teamTraining = showTeamTraining;
 
-  myTrainingButton.setAttribute("aria-pressed", String(!allStaff));
+  myTrainingButton.setAttribute(
+    "aria-pressed", String(!allStaff && !teamTraining)
+  );
   allStaffButton.setAttribute("aria-pressed", String(allStaff));
 
-  document.getElementById("calendar-title").textContent = allStaff
-    ? "All Staff Training Calendar"
-    : "My Training Calendar";
+  if (teamTrainingButton) {
+    teamTrainingButton.setAttribute(
+      "aria-pressed", String(teamTraining)
+    );
+  }
+
+  document.getElementById("calendar-title").textContent =
+    teamTraining
+      ? "Team Training Calendar"
+      : allStaff
+        ? "All Staff Training Calendar"
+        : "My Training Calendar";
 
   document.getElementById("calendar-view-description").textContent =
-    allStaff
-      ? "Approved training for all employees."
-      : "Your applied, updated and approved training.";
+    teamTraining
+      ? "All application statuses for your direct subordinates."
+      : allStaff
+        ? "Approved training for all employees."
+        : "Your applied, updated and approved training.";
 
   loadEvents();
 }
@@ -462,6 +500,12 @@ function selectView(showAllStaff) {
 myTrainingButton.addEventListener("click", () => {
   selectView(false);
 });
+
+if (teamTrainingButton) {
+  teamTrainingButton.addEventListener("click", () => {
+    selectView(false, true);
+  });
+}
 
 allStaffButton.addEventListener("click", () => {
   selectView(true);

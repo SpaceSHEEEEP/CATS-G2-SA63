@@ -102,6 +102,13 @@
 	  <button type="button" id="my-training" aria-pressed="true">
 	    My Training
 	  </button>
+	  
+	  <button type="button"
+	          id="team-training"
+	          th:if="${isManager}"
+	          aria-pressed="false">
+	    Team Training
+	  </button>
 
 	  <button type="button" id="all-staff-training" aria-pressed="false">
 	    All Staff Training
@@ -153,10 +160,11 @@
 	  <option value="PROFESSIONAL">Professional Certification</option>
 	</select>
 
-    <p>
-      Approved training uses solid colours.
-      Applied and updated training uses pale colours.
-    </p>
+	<p>
+	  Approved and completed applications use solid colours.
+	  Applied and updated applications use pale colours.
+	  Rejected, cancelled and deleted applications use grey.
+	</p>
 
     <p id="calendar-message" role="status" aria-live="polite"></p>
 

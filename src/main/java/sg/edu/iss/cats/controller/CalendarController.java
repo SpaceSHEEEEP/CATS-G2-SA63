@@ -40,9 +40,13 @@ public class CalendarController {
     @RequestParam(name="year", required=false) Integer year, Model model, HttpSession session) {
         
 		// protect calendar page, only login user can access
-		if (session.getAttribute("user") == null) {
+		User user = (User) session.getAttribute("user");
+
+		if (user == null || user.getUserId() == null) {
 		    return "redirect:/staff/login";
 		}
+
+		model.addAttribute( "isManager", calendarService.canViewTeam(user.getUserId()));
 		// Open the current month when no complete selection is provided. SG TIME BASED for now
 		LocalDate singaporeToday = LocalDate.now(ZoneId.of("Asia/Singapore"));
 		model.addAttribute("singaporeToday", singaporeToday);
@@ -125,6 +129,9 @@ public class CalendarController {
 
 	        @RequestParam(name = "allStaff", defaultValue = "false")
 	        boolean allStaff,
+	        
+	        @RequestParam(name = "teamTraining", defaultValue = "false")
+	        boolean teamTraining,
 
 	        @RequestParam(name = "category", required = false)
 	        CourseType category,
@@ -138,10 +145,20 @@ public class CalendarController {
 	    }
 
 	    try {
-	        // Take identity from the session, never from a browser parameter.
-	        return calendarService.findEvents(user.getUserId(), allStaff, start, end, category);
+	        // Identity comes from the login session.
+	        return calendarService.findEvents(
+	                user.getUserId(), allStaff, teamTraining,
+	                start, end, category);
+	    } catch (SecurityException exception) {
+	        throw new ResponseStatusException(
+	                HttpStatus.FORBIDDEN,
+	                exception.getMessage(),
+	                exception);
 	    } catch (IllegalArgumentException exception) {
-	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                exception.getMessage(),
+	                exception);
 	    }
 	}
 }
