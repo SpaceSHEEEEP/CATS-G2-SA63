@@ -155,6 +155,8 @@
 	      th:data-start="${calendarStart}"
 	      th:data-events-url="@{/staff/calendar/events}"
 	      th:data-login-url="@{/staff/login}"
+		  th:data-view-url="@{/staff/view}"
+		  th:data-edit-url="@{/staff/edit}"
 	    ></div>
 	  </div>
 
@@ -195,6 +197,16 @@
 	    <dt>Approved participants</dt>
 	    <dd id="details-participants"></dd>
 	  </dl>
+	  
+	  <p>
+	    <a id="details-view-application" hidden>
+	      View full application
+	    </a>
+
+	    <a id="details-edit-application" hidden>
+	      Edit application
+	    </a>
+	  </p>
 
 	  <form method="dialog">
 	    <button type="submit" autofocus>Close</button>

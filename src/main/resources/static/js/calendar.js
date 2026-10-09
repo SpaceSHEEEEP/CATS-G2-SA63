@@ -118,6 +118,42 @@ function showTrainingDetails(event, attendees = null) {
   document.getElementById("details-participants").textContent =
     event.approvedParticipants;
 
+	const viewLink =
+	  document.getElementById("details-view-application");
+
+	const editLink =
+	  document.getElementById("details-edit-application");
+
+	const canEdit = !allStaff
+	  && (event.status === "APPLIED" || event.status === "UPDATED");
+
+	viewLink.hidden = allStaff;
+	editLink.hidden = !canEdit;
+
+	// Clear links left over from the previously opened application.
+	viewLink.removeAttribute("href");
+	editLink.removeAttribute("href");
+
+	if (!allStaff) {
+	  const viewUrl = new URL(
+	    calendarElement.dataset.viewUrl,
+	    window.location.origin
+	  );
+
+	  viewUrl.searchParams.set("id", event.applicationId);
+	  viewLink.href = viewUrl.href;
+	}
+
+	if (canEdit) {
+	  const editUrl = new URL(
+	    calendarElement.dataset.editUrl,
+	    window.location.origin
+	  );
+
+	  editUrl.searchParams.set("id", event.applicationId);
+	  editLink.href = editUrl.href;
+	}
+	
   trainingDetails.showModal();
 }
 

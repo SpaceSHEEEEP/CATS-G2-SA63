@@ -4,6 +4,7 @@ import java.util.List;
 import java.time.YearMonth;
 import java.time.Month;
 import java.time.LocalDate;
+import java.util.Locale;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -41,23 +42,27 @@ public class CalendarController {
 		if (session.getAttribute("user") == null) {
 		    return "redirect:/staff/login";
 		}
-		// If no month and year are provided, display current month and year
-        YearMonth selectedYearMonth;
-        if (month == null || month.trim().isEmpty() || year == null) {
-            LocalDate currentDate = LocalDate.now();
-            selectedYearMonth = YearMonth.of(currentDate.getYear(), currentDate.getMonth());
-            year = currentDate.getYear();
-        }
+		// Open the current month when no complete selection is provided.
+		YearMonth selectedYearMonth = YearMonth.now();
 
-        else {
-            // display what was selected
-            // java.time.Month is a built-in enum containing all months in caps
-            // .valueOf searches that enum for matches
-            // converts to upper case to match
-            // YearMonth.of combines the year and month and stores them together, to be used for
-            // subsequent code
-            selectedYearMonth = YearMonth.of(year, java.time.Month.valueOf(month.toUpperCase()));
-        }
+		if (month != null && !month.isBlank() && year != null) {
+
+		    // Keep calendar years positive and within four digits.
+		    if (year < 1 || year > 9999) {
+		        return "redirect:/staff/calendar";
+		    }
+
+		    try {
+		        Month selectedMonth = Month.valueOf(
+		                month.trim().toUpperCase(Locale.ROOT));
+
+		        selectedYearMonth = YearMonth.of(year, selectedMonth);
+
+		    } catch (IllegalArgumentException exception) {
+		        // Invalid month links return to the current calendar.
+		        return "redirect:/staff/calendar";
+		    }
+		}
 
         String nameOfMonth = selectedYearMonth.getMonth().name();
         int numOfDaysInMonth = selectedYearMonth.lengthOfMonth();
