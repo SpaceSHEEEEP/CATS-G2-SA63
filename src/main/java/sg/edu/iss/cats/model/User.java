@@ -12,8 +12,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -22,10 +25,17 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
+
+    @NotBlank(message="Name must not be empty")
     private String name;
+
+    @PositiveOrZero(message="Allowance cannot be negative")
     private BigDecimal budgetedAllowance;
+    @PositiveOrZero(message="Allowance cannot be negative")
     private BigDecimal actualAllowance;
+    @PositiveOrZero(message="Days cannot be negative")
     private Double budgetedDays;
+    @PositiveOrZero(message="Days cannot be negative")
     private Double actualDays;
 
     // need usernames to be unique
@@ -34,8 +44,9 @@ public class User {
     @Column(unique = true) 
     private String username;
     private String password;
-    private boolean isActive;
+    // private boolean isActive;
     private boolean isAdmin;
+    @NotBlank(message="Email must not be empty")
     private String email;
     // private int reportsToId; // using @OneToMany and @ManyToOne now
 
@@ -44,8 +55,10 @@ public class User {
     private List<Application> applications;
 
     // 'mappedBy = "manager" tells Hibernate: "To find the list of subordinates for a user, look at the manager field on the other side."' ~ Gemini
+    @ToString.Exclude
     @OneToMany(mappedBy = "manager", fetch = FetchType.EAGER) // TODO: make lazy next time
     private List<User> subordinates = new ArrayList<>(); // each subordinate get mappedBy manager
+    @ToString.Exclude
     @ManyToOne // the other side
     private User manager;
 

@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -44,10 +45,15 @@ public class Course {
     @NotNull(message = "End date is required")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
+
+    @NotBlank(message = "Location is required")
     private String location;
+    
+    @NotBlank(message = "Training Provider is required")
     private String trainingProvider;
 
     @NotNull(message = "Please input the course fee")
+    @PositiveOrZero(message="Course fee cannot be negative")
     private BigDecimal fee;
 
     // added course duration
