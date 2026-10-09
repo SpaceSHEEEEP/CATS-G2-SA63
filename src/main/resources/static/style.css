@@ -214,3 +214,17 @@ summary {
     border-radius: 4px;
 }
 
+.cats-header {
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.cats-header-title {
+    margin-right: auto;
+}
+
+#calendar-view-description {
+  height: 4.5em;
+  line-height: 1.5;
+  overflow: auto;
+}

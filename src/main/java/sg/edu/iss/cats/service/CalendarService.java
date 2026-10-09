@@ -21,27 +21,38 @@ import sg.edu.iss.cats.repository.HolidayRepository;
 import sg.edu.iss.cats.dto.CalendarEventDTO;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.Holiday;
+import sg.edu.iss.cats.repository.UserRepository;
 
 @Service
 public class CalendarService {
 
 	private final AppRepo appRepo;
 	private final HolidayRepository holidayRepository;
+	private final UserRepository userRepository;
 
 	public CalendarService(
 	        AppRepo appRepo,
-	        HolidayRepository holidayRepository) {
+	        HolidayRepository holidayRepository,
+	        UserRepository userRepository) {
 	    this.appRepo = appRepo;
 	    this.holidayRepository = holidayRepository;
+	    this.userRepository = userRepository;
+	}
+	
+	@Transactional(readOnly = true)
+	public boolean canViewTeam(Integer userId) {
+	    return userId != null
+	            && userRepository.existsByManager_UserId(userId);
 	}
 
     @Transactional(readOnly = true)
     public List<Application> findApplications(
-            Integer loggedInUserId,
-            boolean allStaff,
-            LocalDate startDate,
-            LocalDate endDate,
-            CourseType category) {
+    		Integer loggedInUserId,
+    		boolean allStaff,
+    		boolean teamTraining,
+    		LocalDate startDate,
+    		LocalDate endDate,
+    		CourseType category) {
 
         if (loggedInUserId == null) {
             throw new IllegalArgumentException("A logged-in user is required.");
@@ -58,9 +69,22 @@ public class CalendarService {
                     "Calendar requests cannot exceed 62 days.");
         }
 
+        if (allStaff && teamTraining) {
+            throw new IllegalArgumentException(
+                    "Select only one calendar view.");
+        }
+
         List<Application> applications;
 
-        if (allStaff) {
+        if (teamTraining) {
+            if (!canViewTeam(loggedInUserId)) {
+                throw new SecurityException(
+                        "Only managers can view team applications.");
+            }
+
+            applications = appRepo.findTeamCalendarApplications(
+                    loggedInUserId, startDate, endDate);
+        } else if (allStaff) {
             applications = appRepo.findApprovedCalendarApplications(
                     startDate, endDate);
         } else {
@@ -88,17 +112,31 @@ public class CalendarService {
     
     @Transactional(readOnly = true)
     public List<CalendarEventDTO> findEvents(
-            Integer loggedInUserId,
-            boolean allStaff,
-            LocalDate startDate,
-            LocalDate endDate,
-            CourseType category) {
+    		Integer loggedInUserId,
+    		boolean allStaff,
+    		boolean teamTraining,
+    		LocalDate startDate,
+    		LocalDate endDate,
+    		CourseType category) {
 
         List<Application> applications = findApplications(
-                loggedInUserId, allStaff, startDate, endDate, category);
+                loggedInUserId, allStaff, teamTraining, startDate, endDate, category);
 
         if (applications.isEmpty()) {
             return List.of();
+        }
+        
+        List<Application> personalApplications = (allStaff || teamTraining)
+                ? appRepo.findPersonalCalendarApplications(
+                        loggedInUserId,
+                        List.of(Status.APPLIED, Status.UPDATED, Status.APPROVED),
+                        startDate, endDate)
+                : applications;
+
+        Set<Integer> appliedCourseIds = new HashSet<>();
+
+        for (Application application : personalApplications) {
+            appliedCourseIds.add(application.getCourse().getCourseId());
         }
 
         Set<LocalDate> holidayDates = new HashSet<>();
@@ -172,7 +210,8 @@ public class CalendarService {
                         course.getLocation(),
                         course.getTrainingProvider(),
                         approvedParticipants,
-                		application.getUser().getUserId()));
+                		application.getUser().getUserId(),
+                		appliedCourseIds.contains(course.getCourseId())));
             }
         }
 

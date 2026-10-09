@@ -5,6 +5,7 @@ import java.time.YearMonth;
 import java.time.Month;
 import java.time.LocalDate;
 import java.util.Locale;
+import java.time.ZoneId;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -13,13 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.server.ResponseStatusException;
 
-import sg.edu.iss.cats.dto.CalendarEventDTO;
-import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.service.CalendarService;
 
@@ -39,11 +34,18 @@ public class CalendarController {
     @RequestParam(name="year", required=false) Integer year, Model model, HttpSession session) {
         
 		// protect calendar page, only login user can access
-		if (session.getAttribute("user") == null) {
+		User user = (User) session.getAttribute("user");
+
+		if (user == null || user.getUserId() == null) {
 		    return "redirect:/staff/login";
 		}
-		// Open the current month when no complete selection is provided.
-		YearMonth selectedYearMonth = YearMonth.now();
+
+		model.addAttribute( "isManager", calendarService.canViewTeam(user.getUserId()));
+		// Open the current month when no complete selection is provided. SG TIME BASED for now
+		LocalDate singaporeToday = LocalDate.now(ZoneId.of("Asia/Singapore"));
+		model.addAttribute("singaporeToday", singaporeToday);
+
+		YearMonth selectedYearMonth = YearMonth.from(singaporeToday);
 
 		if (month != null && !month.isBlank() && year != null) {
 
@@ -108,36 +110,4 @@ public class CalendarController {
 		return "calendar";
 	}
 	
-	@GetMapping("/calendar/events")
-	@ResponseBody
-	public List<CalendarEventDTO> getCalendarEvents(
-	        @RequestParam(name = "start")
-	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-	        LocalDate start,
-
-	        @RequestParam(name = "end")
-	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-	        LocalDate end,
-
-	        @RequestParam(name = "allStaff", defaultValue = "false")
-	        boolean allStaff,
-
-	        @RequestParam(name = "category", required = false)
-	        CourseType category,
-
-	        HttpSession session) {
-
-	    User user = (User) session.getAttribute("user");
-
-	    if (user == null || user.getUserId() == null) {
-	        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please log in.");
-	    }
-
-	    try {
-	        // Take identity from the session, never from a browser parameter.
-	        return calendarService.findEvents(user.getUserId(), allStaff, start, end, category);
-	    } catch (IllegalArgumentException exception) {
-	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
-	    }
-	}
 }

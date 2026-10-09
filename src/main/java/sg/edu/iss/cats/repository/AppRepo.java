@@ -79,4 +79,18 @@ public interface AppRepo extends JpaRepository<Application, Integer> {
     List<Application> findApprovedCalendarApplications(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
+    
+    // Team view: all statuses, restricted to the manager's direct subordinates.
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("""
+            SELECT a FROM Application a
+            WHERE a.user.manager.userId = :managerId
+              AND a.course.startDate <= :endDate
+              AND a.course.endDate >= :startDate
+            ORDER BY a.course.startDate, a.user.name, a.id
+            """)
+    List<Application> findTeamCalendarApplications(
+            @Param("managerId") Integer managerId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }

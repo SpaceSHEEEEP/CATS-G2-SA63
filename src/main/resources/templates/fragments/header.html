@@ -4,7 +4,13 @@
 
         <th:block th:fragment="header">
 
-            <header>
+            <header class="cats-header">
+				<strong class="cats-header-title">CATS for NUS-ISS</strong>
+
+				<span th:if="${session.user != null}"
+				      th:text="${'Logged in as ' + session.user.name}">
+				</span>
+				
                 <a th:href="@{/staff/index}">Training</a>
 				<a th:if="${session.user != null and session.user.admin}" th:href="@{/admin}">
 					Administration</a>
