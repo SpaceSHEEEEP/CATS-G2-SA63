@@ -100,6 +100,19 @@ public class CalendarService {
         if (applications.isEmpty()) {
             return List.of();
         }
+        
+        List<Application> personalApplications = allStaff
+                ? appRepo.findPersonalCalendarApplications(
+                        loggedInUserId,
+                        List.of(Status.APPLIED, Status.UPDATED, Status.APPROVED),
+                        startDate, endDate)
+                : applications;
+
+        Set<Integer> appliedCourseIds = new HashSet<>();
+
+        for (Application application : personalApplications) {
+            appliedCourseIds.add(application.getCourse().getCourseId());
+        }
 
         Set<LocalDate> holidayDates = new HashSet<>();
 
@@ -172,7 +185,8 @@ public class CalendarService {
                         course.getLocation(),
                         course.getTrainingProvider(),
                         approvedParticipants,
-                		application.getUser().getUserId()));
+                		application.getUser().getUserId(),
+                		appliedCourseIds.contains(course.getCourseId())));
             }
         }
 

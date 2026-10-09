@@ -33,4 +33,5 @@ public class CalendarEventDTO {
     private final String trainingProvider;
     private final long approvedParticipants;
     private final Integer employeeId;
+    private final boolean alreadyApplied;
 }

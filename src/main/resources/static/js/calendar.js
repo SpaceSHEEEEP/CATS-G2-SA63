@@ -1,4 +1,6 @@
 const calendarElement = document.getElementById("dp");
+// shortcut: Singapore date is captured at page load; refresh after midnight.
+const singaporeToday = calendarElement.dataset.today;
 const calendarMessage = document.getElementById("calendar-message");
 const myTrainingButton = document.getElementById("my-training");
 const allStaffButton = document.getElementById("all-staff-training");
@@ -50,6 +52,14 @@ const calendar = new DayPilot.Month("dp", {
   eventResizeHandling: "Disabled",
   eventDeleteHandling: "Disabled",
   timeRangeSelectedHandling: "Disabled",
+  
+  onBeforeCellRender: (args) => {
+    if (args.cell.start.toString("yyyy-MM-dd") === singaporeToday) {
+      args.cell.properties.backColor = "#fef3c7";
+      args.cell.properties.headerHtml =
+        `${args.cell.start.getDay()} · Today (SG)`;
+    }
+  },
   
   onEventClick: (args) => {
     args.preventDefault();
@@ -157,12 +167,13 @@ function showTrainingDetails(event, attendees = null) {
 	const applyLink =
 	  document.getElementById("details-apply-course");
 
-	const today = DayPilot.Date.today().toString("yyyy-MM-dd");
+	const today = singaporeToday;
 
 	// Only offer courses that have not started in the shared view.
 	const canApply = allStaff
 	  && event.status === "APPROVED"
-	  && event.courseStartDate > today;
+	  && event.courseStartDate > today
+	  && !event.alreadyApplied;
 
 	applyLink.hidden = !canApply;
 	applyLink.removeAttribute("href");
@@ -490,7 +501,7 @@ document.getElementById("next-month").addEventListener("click", () => {
 });
 
 document.getElementById("today-month").addEventListener("click", () => {
-  showMonth(DayPilot.Date.today());
+  showMonth(singaporeToday);
 });
 
 document.getElementById("calendar-month-form")

@@ -5,6 +5,7 @@ import java.time.YearMonth;
 import java.time.Month;
 import java.time.LocalDate;
 import java.util.Locale;
+import java.time.ZoneId;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -42,8 +43,11 @@ public class CalendarController {
 		if (session.getAttribute("user") == null) {
 		    return "redirect:/staff/login";
 		}
-		// Open the current month when no complete selection is provided.
-		YearMonth selectedYearMonth = YearMonth.now();
+		// Open the current month when no complete selection is provided. SG TIME BASED for now
+		LocalDate singaporeToday = LocalDate.now(ZoneId.of("Asia/Singapore"));
+		model.addAttribute("singaporeToday", singaporeToday);
+
+		YearMonth selectedYearMonth = YearMonth.from(singaporeToday);
 
 		if (month != null && !month.isBlank() && year != null) {
 
