@@ -5,21 +5,43 @@ import java.time.YearMonth;
 import java.time.Month;
 import java.time.LocalDate;
 
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ResponseStatusException;
+
+import sg.edu.iss.cats.dto.CalendarEventDTO;
+import sg.edu.iss.cats.model.CourseType;
+import sg.edu.iss.cats.model.User;
+import sg.edu.iss.cats.service.CalendarService;
+
 
 @Controller
 @RequestMapping("/staff")
 public class CalendarController {
+	
+	private final CalendarService calendarService;
+
+	public CalendarController(CalendarService calendarService) {
+	    this.calendarService = calendarService;
+	}
   
 	@GetMapping("/calendar")
 	public String showCalendar(@RequestParam(name="month", required=false) String month,
-    @RequestParam(name="year", required=false) Integer year, Model model) {
-        // If no month and year are provided, display current month and year
+    @RequestParam(name="year", required=false) Integer year, Model model, HttpSession session) {
+        
+		// protect calendar page, only login user can access
+		if (session.getAttribute("user") == null) {
+		    return "redirect:/staff/login";
+		}
+		// If no month and year are provided, display current month and year
         YearMonth selectedYearMonth;
         if (month == null || month.trim().isEmpty() || year == null) {
             LocalDate currentDate = LocalDate.now();
@@ -43,6 +65,7 @@ public class CalendarController {
 
         // Find the 1st day of the month
         LocalDate firstDayOfMonth = selectedYearMonth.atDay(1);
+        model.addAttribute("calendarStart", firstDayOfMonth);
         // and its corresponding day of the week
         int dayOfWeek = firstDayOfMonth.getDayOfWeek().getValue();
 
@@ -78,5 +101,38 @@ public class CalendarController {
         model.addAttribute("months", months);
 
 		return "calendar";
+	}
+	
+	@GetMapping("/calendar/events")
+	@ResponseBody
+	public List<CalendarEventDTO> getCalendarEvents(
+	        @RequestParam(name = "start")
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate start,
+
+	        @RequestParam(name = "end")
+	        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	        LocalDate end,
+
+	        @RequestParam(name = "allStaff", defaultValue = "false")
+	        boolean allStaff,
+
+	        @RequestParam(name = "category", required = false)
+	        CourseType category,
+
+	        HttpSession session) {
+
+	    User user = (User) session.getAttribute("user");
+
+	    if (user == null || user.getUserId() == null) {
+	        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please log in.");
+	    }
+
+	    try {
+	        // Take identity from the session, never from a browser parameter.
+	        return calendarService.findEvents(user.getUserId(), allStaff, start, end, category);
+	    } catch (IllegalArgumentException exception) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
+	    }
 	}
 }
