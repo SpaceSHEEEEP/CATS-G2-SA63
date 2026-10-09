@@ -118,4 +118,59 @@ INSERT INTO holiday (holiday_date, holiday_name) VALUES
     ('2027-08-09', 'National Day'),
     ('2027-10-28', 'Deepavali'),
     ('2027-12-25', 'Christmas Day');
- 
+    
+    
+ -- Calendar demo applications: October 2026.
+-- Resolve users and courses by their seeded names instead of fixed IDs.
+INSERT INTO application (
+    user_id,
+    course_course_id,
+    status,
+    user_reason,
+    manager_reason,
+    has_been_paid
+)
+SELECT
+    u.user_id,
+    c.course_id,
+    demo.application_status,
+    'Develop skills relevant to my work.',
+    CASE
+        WHEN demo.application_status = 'APPROVED'
+        THEN 'Approved for relevant staff development.'
+        ELSE NULL
+    END,
+    false
+FROM (
+    SELECT
+        'benny' AS username,
+        'Java Programming' AS course_name,
+        'APPROVED' AS application_status
+
+    UNION ALL
+    SELECT 'benny', 'Web Application Development', 'APPLIED'
+
+    UNION ALL
+    SELECT 'benny', 'Java PRO Certification', 'APPROVED'
+
+    UNION ALL
+    SELECT 'danny', 'Java Programming', 'APPROVED'
+
+    UNION ALL
+    SELECT 'danny', 'SQL Fundam', 'UPDATED'
+) AS demo
+JOIN user u ON u.username = demo.username
+JOIN course c ON c.course_name = demo.course_name;
+
+-- SQL seeding bypasses ApplicationService, so reserve the matching amounts.
+-- Ben: SGD 600 and 5.5 training days reserved.
+UPDATE user
+SET budgeted_allowance = 9400.00,
+    budgeted_days = 5.0
+WHERE username = 'benny';
+
+-- Dan: SGD 400 and 2.5 training days reserved.
+UPDATE user
+SET budgeted_allowance = 9100.00,
+    budgeted_days = 7.5
+WHERE username = 'danny';
