@@ -121,7 +121,11 @@ INSERT INTO holiday (holiday_date, holiday_name) VALUES
     ('2027-12-25', 'Christmas Day');
     
     
- -- Calendar demo applications: October 2026.
+-- A past course for a realistic completed-application demo.
+INSERT INTO course (course_name, course_type, duration, start_date, end_date, location, training_provider, fee) VALUES
+    ('Git Collaboration Workshop', 'INTERNAL', 'FULLDAY', '2026-10-05', '2026-10-06', 'NUS-ISS', 'NUS-ISS', 0.00);
+
+-- Calendar demo applications: October and November 2026.
 -- Resolve users and courses by their seeded names instead of fixed IDs.
 INSERT INTO application (
     user_id,
@@ -137,8 +141,10 @@ SELECT
     demo.application_status,
     'Develop skills relevant to my work.',
     CASE
-        WHEN demo.application_status = 'APPROVED'
+        WHEN demo.application_status IN ('APPROVED', 'COMPLETED')
         THEN 'Approved for relevant staff development.'
+        WHEN demo.application_status = 'REJECTED'
+        THEN 'Course dates clash with a critical project deadline.'
         ELSE NULL
     END,
     false
@@ -168,15 +174,35 @@ FROM (
 
     UNION ALL
     SELECT 'timmy', 'Agile Scrum Master', 'APPROVED'
+
+    UNION ALL
+    SELECT 'benny', 'SQL Fundam', 'REJECTED'
+
+    UNION ALL
+    SELECT 'benny', 'Advanced Python Programming', 'CANCELLED'
+
+    UNION ALL
+    SELECT 'benny', 'Machine Learning Basics', 'DELETED'
+
+    UNION ALL
+    SELECT 'benny', 'Git Collaboration Workshop', 'COMPLETED'
+
+    UNION ALL
+    SELECT 'timmy', 'Web Application Development', 'REJECTED'
+
+    UNION ALL
+    SELECT 'timmy', 'Machine Learning Basics', 'CANCELLED'
 ) AS demo
 JOIN user u ON u.username = demo.username
 JOIN course c ON c.course_name = demo.course_name;
 
 -- SQL seeding bypasses ApplicationService, so reserve the matching amounts.
--- Ben: SGD 600 and 7.5 training days reserved.
+-- Inactive demo applications do not reserve budget or days.
+-- Ben: SGD 600 and 7.5 days reserved, plus 2 completed days consumed.
 UPDATE user
 SET budgeted_allowance = 9400.00,
-    budgeted_days = 3.0
+    budgeted_days = 1.0,
+    actual_days = 8.5
 WHERE username = 'benny';
 
 -- Dan: SGD 400 and 2.5 training days reserved.
