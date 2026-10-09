@@ -155,7 +155,7 @@ FROM (
     SELECT 'benny', 'Java PRO Certification', 'APPROVED'
 
     UNION ALL
-    SELECT 'danny', 'Java Programming', 'APPROVED'
+    SELECT 'danny', 'Java OOPJ', 'APPROVED'
 
     UNION ALL
     SELECT 'danny', 'SQL Fundam', 'UPDATED'
