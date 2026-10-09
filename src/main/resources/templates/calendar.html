@@ -48,6 +48,16 @@
 	    min-width: 0;
 	  }
 
+      .calendar-credit {
+        margin: 0.25rem 0;
+        font-size: 0.8rem;
+        color: #4b5563;
+      }
+
+      .calendar-credit a {
+        color: inherit;
+      }
+
 	  #course-sidebar {
 	    padding: 1rem;
 	    background: #f8fafc;
@@ -81,11 +91,72 @@
 	    scrollbar-gutter: stable;
 	  }
 
-	  @media (max-width: 900px) {
-	    .training-calendar-layout {
-	      grid-template-columns: 1fr;
-	    }
-	  }
+
+      #calendar-title {
+        margin: 0.75rem 0 0.25rem;
+        font-size: 1.5rem;
+      }
+
+      #calendar-month-heading {
+        margin: 0 0 0.5rem;
+        font-size: 1.1rem;
+      }
+
+      #calendar-view-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      #calendar-view-description {
+        height: 1.5em;
+        line-height: 1.5;
+        margin: 0.4rem 0;
+        overflow: auto;
+      }
+
+      .calendar-toolbar,
+      #calendar-month-form {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .calendar-toolbar .year-month-filter-container {
+        margin: 0;
+      }
+
+      .calendar-status-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem 1rem;
+        margin: 0.25rem 0;
+      }
+
+      #calendar-message {
+        flex: 1 1 20rem;
+        height: 1.5em;
+        line-height: 1.5;
+        margin: 0;
+        overflow: auto;
+      }
+
+      .calendar-legend {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #4b5563;
+      }
+      @media (max-width: 900px) {
+        .training-calendar-layout {
+          grid-template-columns: 1fr;
+        }
+
+        #calendar-view-description {
+          height: 3em;
+        }
+      }
 	</style>
   </head>
 
@@ -94,7 +165,7 @@
 
 	<h1 id="calendar-title">My Training Calendar</h1>
 
-	<h2 id="calendar-month-heading"th:text="${currentMonth + ' ' + currentYear}">
+	<h2 id="calendar-month-heading" th:text="${currentMonth + ' ' + currentYear}">
 	  Selected month
 	</h2>
 
@@ -117,8 +188,10 @@
 
 	<p id="calendar-view-description">
 	  Your applied, updated and approved training.
+	  Click a course to view or edit your application.
 	</p>
 
+	<div class="calendar-toolbar">
 	<div role="group" aria-label="Month navigation">
 	  <button type="button" id="previous-month">Previous month</button>
 	  <button type="button" id="today-month">Today</button>
@@ -160,13 +233,15 @@
 	  <option value="PROFESSIONAL">Professional Certification</option>
 	</select>
 
-	<p>
-	  Approved and completed applications use solid colours.
-	  Applied and updated applications use pale colours.
-	  Rejected, cancelled and deleted applications use grey.
-	</p>
+	</div>
 
-    <p id="calendar-message" role="status" aria-live="polite"></p>
+    <div class="calendar-status-row">
+      <p id="calendar-message" role="status" aria-live="polite"></p>
+      <p class="calendar-legend">
+        <strong>Colours:</strong> Solid = approved/completed ·
+        Pale = pending · Grey = rejected/cancelled/deleted
+      </p>
+    </div>
 
 	<div class="training-calendar-layout">
 	  <div class="training-calendar-main" tabindex="0" role="region" aria-label="Training calendar">
@@ -180,6 +255,10 @@
 		  th:data-apply-url="@{/staff/apply}"
 		  th:data-today="${singaporeToday}"
 	    ></div>
+      <p class="calendar-credit">
+        Calendar powered by
+        <a href="https://javascript.daypilot.org/open-source/">DayPilot Lite</a>
+      </p>
 	  </div>
 
 	  <aside id="course-sidebar" tabindex="0" aria-labelledby="course-list-heading">

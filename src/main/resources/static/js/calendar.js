@@ -376,6 +376,19 @@ function buildCalendarBars(events, sharedView) {
 
 calendar.init();
 
+const calendarPanel = calendarElement.parentElement;
+const courseSidebar = document.getElementById("course-sidebar");
+
+const sidebarResizeObserver = new ResizeObserver(() => {
+  courseSidebar.style.height = `${Math.min(
+    calendarElement.offsetHeight,
+    calendarPanel.clientHeight
+  )}px`;
+});
+
+sidebarResizeObserver.observe(calendarElement);
+sidebarResizeObserver.observe(calendarPanel);
+
 async function loadEvents() {
 	
 	trainingDetails.close();
@@ -489,10 +502,10 @@ function selectView(showAllStaff, showTeamTraining = false) {
 
   document.getElementById("calendar-view-description").textContent =
     teamTraining
-      ? "All application statuses for your direct subordinates."
+      ? "All statuses for your direct subordinates. Click a bar to view the employee’s application."
       : allStaff
-        ? "Approved training for all employees."
-        : "Your applied, updated and approved training.";
+        ? "Approved training across the organisation. Click a course to see its attendees."
+        : "Your applied, updated and approved training. Click a course to view or edit your application.";
 
   loadEvents();
 }
