@@ -171,7 +171,8 @@ public class CalendarService {
                         course.getDuration(),
                         course.getLocation(),
                         course.getTrainingProvider(),
-                        approvedParticipants));
+                        approvedParticipants,
+                		application.getUser().getUserId()));
             }
         }
 

@@ -120,6 +120,7 @@ class CalendarServiceTests {
 			assertThat(event.getCourseStartDate()).isEqualTo(LocalDate.of(2026, 10, 8));
 
 			assertThat(event.getCourseEndDate()).isEqualTo(LocalDate.of(2026, 10, 14));
+			assertThat(event.getEmployeeId()).isEqualTo(7);
 		});
 
 		assertThat(events).extracting(CalendarEventDTO::getId).doesNotHaveDuplicates();

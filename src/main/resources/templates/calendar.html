@@ -36,6 +36,44 @@
 	    margin: 0 0 0.75rem;
 	    overflow-wrap: anywhere;
 	  }
+	  
+	  .training-calendar-layout {
+	    display: grid;
+	    grid-template-columns: minmax(0, 3fr) minmax(16rem, 1fr);
+	    gap: 1.25rem;
+	    align-items: start;
+	  }
+
+	  .training-calendar-main {
+	    min-width: 0;
+	  }
+
+	  #course-sidebar {
+	    padding: 1rem;
+	    background: #f8fafc;
+	    border: 1px solid #ddd;
+	    border-radius: 8px;
+	  }
+
+	  .calendar-course-card {
+	    margin-bottom: 1rem;
+	    padding: 0.75rem;
+	    background: white;
+	    border-left: 4px solid;
+	  }
+
+	  .calendar-course-title {
+	    max-width: 100%;
+	    white-space: normal;
+	    overflow-wrap: anywhere;
+	    text-align: left;
+	  }
+
+	  @media (max-width: 900px) {
+	    .training-calendar-layout {
+	      grid-template-columns: 1fr;
+	    }
+	  }
 	</style>
   </head>
 
@@ -110,18 +148,27 @@
 
     <p id="calendar-message" role="status" aria-live="polite"></p>
 
-    <div
-      id="dp"
-      th:data-start="${calendarStart}"
-      th:data-events-url="@{/staff/calendar/events}"
-      th:data-login-url="@{/staff/login}"
-    ></div>
+	<div class="training-calendar-layout">
+	  <div class="training-calendar-main">
+	    <div
+	      id="dp"
+	      th:data-start="${calendarStart}"
+	      th:data-events-url="@{/staff/calendar/events}"
+	      th:data-login-url="@{/staff/login}"
+	    ></div>
+	  </div>
+
+	  <aside id="course-sidebar" aria-labelledby="course-list-heading">
+	    <h2 id="course-list-heading">My training this month</h2>
+	    <div id="course-list"></div>
+	  </aside>
+	</div>
 	
 	<dialog id="training-details" aria-labelledby="training-details-heading">
 	  <h2 id="training-details-heading">Training details</h2>
 
 	  <dl>
-	    <dt>Employee</dt>
+	    <dt id="details-employee-label">Employee</dt>
 	    <dd id="details-employee"></dd>
 
 	    <dt>Course</dt>

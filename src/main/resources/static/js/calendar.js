@@ -6,6 +6,20 @@ const categorySelect = document.getElementById("calendar-category");
 const monthSelect = document.getElementById("calendar-month");
 const yearSelect = document.getElementById("calendar-year");
 const trainingDetails = document.getElementById("training-details");
+const courseList = document.getElementById("course-list");
+const courseListHeading = document.getElementById("course-list-heading");
+
+const categoryLabels = {
+  INTERNAL: "Internal Training",
+  EXTERNAL: "External Course",
+  PROFESSIONAL: "Professional Certification"
+};
+
+const durationLabels = {
+  FULLDAY: "Full day",
+  HALFDAYAM: "Half day (AM)",
+  HALFDAYPM: "Half day (PM)"
+};
 
 let allStaff = false;
 let latestRequest = 0;
@@ -65,24 +79,13 @@ const calendar = new DayPilot.Month("dp", {
   }
 });
 
-function showTrainingDetails(event) {
-  const categoryLabels = {
-    INTERNAL: "Internal Training",
-    EXTERNAL: "External Course",
-    PROFESSIONAL: "Professional Certification"
-  };
+function showTrainingDetails(event, attendees = null) {
 
-  const durationLabels = {
-    FULLDAY: "Full day",
-    HALFDAYAM: "Half day (AM)",
-    HALFDAYPM: "Half day (PM)"
-  };
+	document.getElementById("details-employee-label").textContent =
+	  attendees ? "Approved attendees" : "Employee";
 
-  document.getElementById("details-employee").textContent =
-    event.employeeName;
-
-  document.getElementById("details-course").textContent =
-    event.courseName;
+	document.getElementById("details-employee").textContent =
+	  attendees ? attendees.join(", ") : event.employeeName;
 
   document.getElementById("details-category").textContent =
     categoryLabels[event.category];
@@ -108,11 +111,121 @@ function showTrainingDetails(event) {
   trainingDetails.showModal();
 }
 
+function groupCourses(events, selectedMonth, sharedView) {
+  const groups = new Map();
+
+  for (const event of events) {
+    // The calendar grid also contains adjacent-month dates.
+    if (new DayPilot.Date(event.start).toString("yyyy-MM")
+        !== selectedMonth) {
+      continue;
+    }
+
+    if (sharedView && event.status !== "APPROVED") {
+      continue;
+    }
+
+    const key = sharedView ? event.courseId : event.applicationId;
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        course: event,
+        attendees: new Map()
+      });
+    }
+
+    groups.get(key).attendees.set(event.employeeId, event.employeeName);
+  }
+
+  return Array.from(groups.values()).sort((a, b) =>
+    a.course.courseStartDate.localeCompare(b.course.courseStartDate)
+      || a.course.courseName.localeCompare(b.course.courseName));
+}
+
+function addText(parent, tag, text) {
+  const element = document.createElement(tag);
+  element.textContent = text;
+  parent.append(element);
+  return element;
+}
+
+function renderCourseList(events) {
+  courseList.replaceChildren();
+
+  const selectedMonth = new DayPilot.Date(calendar.startDate)
+    .toString("yyyy-MM");
+
+  const groups = groupCourses(events, selectedMonth, allStaff);
+
+  if (groups.length === 0) {
+    addText(courseList, "p", "No training in the selected month.");
+    return;
+  }
+
+  for (const [category, label] of Object.entries(categoryLabels)) {
+    const categoryGroups = groups.filter(group =>
+      group.course.category === category);
+
+    if (categoryGroups.length === 0) {
+      continue;
+    }
+
+    addText(courseList, "h3", label);
+
+    for (const group of categoryGroups) {
+      const course = group.course;
+
+      const card = document.createElement("article");
+      card.className = "calendar-course-card";
+      card.style.borderLeftColor = categoryColours[category].solid;
+      courseList.append(card);
+
+      const button = addText(card, "button", course.courseName);
+      button.type = "button";
+      button.className = "calendar-course-title";
+
+      button.addEventListener("click", () => {
+        const attendees = allStaff
+          ? Array.from(group.attendees.values())
+          : null;
+
+        showTrainingDetails(course, attendees);
+      });
+
+      addText(card, "p",
+        `${course.courseStartDate} to ${course.courseEndDate}`
+        + ` · ${durationLabels[course.duration] || "Not specified"}`);
+
+      if (allStaff) {
+        addText(card, "p",
+          `${course.approvedParticipants} approved participants`);
+
+        const list = document.createElement("ul");
+        card.append(list);
+
+        for (const name of group.attendees.values()) {
+          addText(list, "li", name);
+        }
+      } else {
+        addText(card, "p", `Status: ${course.status}`);
+      }
+    }
+  }
+}
+
 calendar.init();
 
 async function loadEvents() {
 	
 	trainingDetails.close();
+	
+	courseList.replaceChildren();
+
+	courseListHeading.textContent = allStaff
+	  ? "Approved courses this month"
+	  : "My training this month";
+
+	addText(courseList, "p", "Loading courses...");
 	
   const requestNumber = ++latestRequest;
 
@@ -166,6 +279,7 @@ async function loadEvents() {
       return;
     }
 
+	renderCourseList(events);
     calendar.update({ events });
 
     calendarMessage.textContent = events.length === 0
@@ -176,6 +290,7 @@ async function loadEvents() {
       return;
     }
 
+	courseList.replaceChildren();
     calendar.update({ events: [] });
     calendarMessage.textContent =
       "Could not load training. Please refresh and try again.";

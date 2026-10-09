@@ -32,4 +32,5 @@ public class CalendarEventDTO {
     private final String location;
     private final String trainingProvider;
     private final long approvedParticipants;
+    private final Integer employeeId;
 }
