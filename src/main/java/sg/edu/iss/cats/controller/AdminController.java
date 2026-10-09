@@ -88,7 +88,7 @@ public class AdminController {
 
         // Check credentials before checking whether this is an admin account.
         if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) 
-            user = userRepository.findByUsername(username.trim());
+            user = userRepository.findByUsername(username.trim()).orElse(null);
 
         if (user == null || !user.isAdmin()) {
             // Keep the page in admin mode after an unsuccessful attempt.

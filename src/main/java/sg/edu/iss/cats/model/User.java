@@ -31,10 +31,11 @@ public class User {
     // need usernames to be unique
     // this is a potential test unit to check when we add the "create 
     // user" additional additional feature in phase 3
-    @Column(unique = true) 
+    @Column(unique = true, nullable = false) 
     private String username;
+    @Column(nullable = false, length = 100)
     private String password;
-    private boolean isActive;
+    private String role;
     private boolean isAdmin;
     private String email;
     // private int reportsToId; // using @OneToMany and @ManyToOne now

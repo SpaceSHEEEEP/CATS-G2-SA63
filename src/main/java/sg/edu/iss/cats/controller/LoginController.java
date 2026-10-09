@@ -50,7 +50,7 @@ public class LoginController {
         }
         
         // Login successful
-        session.setAttribute("user", userRepository.findByUsername(username));
+        session.setAttribute("user", userRepository.findByUsername(username).orElse(null));
 
         return "redirect:/staff/index";
 

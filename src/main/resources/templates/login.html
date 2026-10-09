@@ -7,6 +7,10 @@
 <body>
     <h1 th:text="${adminLogin} ? 'Administrator Login' : 'Staff Login'">Staff Login</h1>
 
+    <!-- spring security? -->
+    <div th:if="${param.error}">Your username or password is incorrect</div>
+    <div th:if="${param.logout}">You have been logged out</div>
+
     <p th:if="${adminLogin}">Sign in with an administrator account to access admin features.</p>
     <p th:unless="${adminLogin}">Sign in to manage your training applications.</p>
 
