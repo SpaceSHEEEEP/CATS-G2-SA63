@@ -30,119 +30,98 @@ class CalendarServiceTests {
 
 	private final CalendarService calendarService = new CalendarService(appRepo, holidayRepository);
 
-    private final LocalDate start = LocalDate.of(2035, 4, 1);
-    private final LocalDate end = LocalDate.of(2035, 4, 30);
+	private final LocalDate start = LocalDate.of(2035, 4, 1);
+	private final LocalDate end = LocalDate.of(2035, 4, 30);
 
-    @Test
-    void personalViewUsesOnlyTheLoggedInUsersQuery() {
-        List<Status> statuses =
-                List.of(Status.APPLIED, Status.UPDATED, Status.APPROVED);
+	@Test
+	void personalViewUsesOnlyTheLoggedInUsersQuery() {
+		List<Status> statuses = List.of(Status.APPLIED, Status.UPDATED, Status.APPROVED);
 
-        Application application = new Application();
+		Application application = new Application();
 
-        when(appRepo.findPersonalCalendarApplications(
-                7, statuses, start, end))
-                .thenReturn(List.of(application));
+		when(appRepo.findPersonalCalendarApplications(7, statuses, start, end)).thenReturn(List.of(application));
 
-        assertThat(calendarService.findApplications(
-                7, false, start, end, null))
-                .containsExactly(application);
+		assertThat(calendarService.findApplications(7, false, start, end, null)).containsExactly(application);
 
-        verify(appRepo).findPersonalCalendarApplications(
-                7, statuses, start, end);
-        verifyNoMoreInteractions(appRepo);
-    }
+		verify(appRepo).findPersonalCalendarApplications(7, statuses, start, end);
+		verifyNoMoreInteractions(appRepo);
+	}
 
-    @Test
-    void sharedViewUsesOnlyTheApprovedQuery() {
-        Application application = new Application();
+	@Test
+	void sharedViewUsesOnlyTheApprovedQuery() {
+		Application application = new Application();
 
-        when(appRepo.findApprovedCalendarApplications(start, end))
-                .thenReturn(List.of(application));
+		when(appRepo.findApprovedCalendarApplications(start, end)).thenReturn(List.of(application));
 
-        assertThat(calendarService.findApplications(
-                7, true, start, end, null))
-                .containsExactly(application);
+		assertThat(calendarService.findApplications(7, true, start, end, null)).containsExactly(application);
 
-        verify(appRepo).findApprovedCalendarApplications(start, end);
-        verifyNoMoreInteractions(appRepo);
-    }
-    
-    @Test
-    void personalEventsExcludeWeekendsAndHolidaysAndCountApprovedStaff() {
-        LocalDate rangeStart = LocalDate.of(2026, 10, 9);
-        LocalDate rangeEnd = LocalDate.of(2026, 10, 13);
+		verify(appRepo).findApprovedCalendarApplications(start, end);
+		verifyNoMoreInteractions(appRepo);
+	}
 
-        Course course = new Course();
-        course.setCourseId(42);
-        course.setCourseName("Java Training");
-        course.setCourseType(CourseType.INTERNAL);
-        course.setStartDate(LocalDate.of(2026, 10, 8));
-        course.setEndDate(LocalDate.of(2026, 10, 14));
-        course.setDuration(CourseDuration.FULLDAY);
+	@Test
+	void personalEventsExcludeWeekendsAndHolidaysAndCountApprovedStaff() {
+		LocalDate rangeStart = LocalDate.of(2026, 10, 9);
+		LocalDate rangeEnd = LocalDate.of(2026, 10, 13);
 
-        User ben = new User();
-        ben.setUserId(7);
-        ben.setName("Ben");
+		Course course = new Course();
+		course.setCourseId(42);
+		course.setCourseName("Java Training");
+		course.setCourseType(CourseType.INTERNAL);
+		course.setStartDate(LocalDate.of(2026, 10, 8));
+		course.setEndDate(LocalDate.of(2026, 10, 14));
+		course.setDuration(CourseDuration.FULLDAY);
 
-        User dan = new User();
-        dan.setUserId(8);
-        dan.setName("Dan");
+		User ben = new User();
+		ben.setUserId(7);
+		ben.setName("Ben");
 
-        Application ownApplication = new Application();
-        ownApplication.setId(100);
-        ownApplication.setUser(ben);
-        ownApplication.setCourse(course);
-        ownApplication.setStatus(Status.APPLIED);
+		User dan = new User();
+		dan.setUserId(8);
+		dan.setName("Dan");
 
-        Application approvedApplication = new Application();
-        approvedApplication.setId(101);
-        approvedApplication.setUser(dan);
-        approvedApplication.setCourse(course);
-        approvedApplication.setStatus(Status.APPROVED);
+		Application ownApplication = new Application();
+		ownApplication.setId(100);
+		ownApplication.setUser(ben);
+		ownApplication.setCourse(course);
+		ownApplication.setStatus(Status.APPLIED);
 
-        Holiday holiday = new Holiday();
-        holiday.setHolidayDate(LocalDate.of(2026, 10, 12));
-        holiday.setHolidayName("Test holiday");
+		Application approvedApplication = new Application();
+		approvedApplication.setId(101);
+		approvedApplication.setUser(dan);
+		approvedApplication.setCourse(course);
+		approvedApplication.setStatus(Status.APPROVED);
 
-        when(appRepo.findPersonalCalendarApplications(
-                7,
-                List.of(Status.APPLIED, Status.UPDATED, Status.APPROVED),
-                rangeStart, rangeEnd))
-                .thenReturn(List.of(ownApplication));
+		Holiday holiday = new Holiday();
+		holiday.setHolidayDate(LocalDate.of(2026, 10, 12));
+		holiday.setHolidayName("Test holiday");
 
-        when(appRepo.findApprovedCalendarApplications(rangeStart, rangeEnd))
-                .thenReturn(List.of(approvedApplication));
+		when(appRepo.findPersonalCalendarApplications(7, List.of(Status.APPLIED, Status.UPDATED, Status.APPROVED),
+				rangeStart, rangeEnd)).thenReturn(List.of(ownApplication));
 
-        when(holidayRepository
-                .findByHolidayDateBetweenOrderByHolidayDateAsc(
-                        rangeStart, rangeEnd))
-                .thenReturn(List.of(holiday));
+		when(appRepo.findApprovedCalendarApplications(rangeStart, rangeEnd)).thenReturn(List.of(approvedApplication));
 
-        List<CalendarEventDTO> events = calendarService.findEvents(
-                7, false, rangeStart, rangeEnd, null);
+		when(holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(rangeStart, rangeEnd))
+				.thenReturn(List.of(holiday));
 
-        assertThat(events)
-                .extracting(CalendarEventDTO::getStart)
-                .containsExactly(
-                        LocalDate.of(2026, 10, 9),
-                        LocalDate.of(2026, 10, 13));
+		List<CalendarEventDTO> events = calendarService.findEvents(7, false, rangeStart, rangeEnd, null);
 
-        assertThat(events)
-                .extracting(CalendarEventDTO::getEnd)
-                .containsExactly(
-                        LocalDate.of(2026, 10, 10),
-                        LocalDate.of(2026, 10, 14));
+		assertThat(events).extracting(CalendarEventDTO::getStart).containsExactly(LocalDate.of(2026, 10, 9),
+				LocalDate.of(2026, 10, 13));
 
-        assertThat(events).allSatisfy(event -> {
-            assertThat(event.getEmployeeName()).isEqualTo("Ben");
-            assertThat(event.getStatus()).isEqualTo(Status.APPLIED);
-            assertThat(event.getApprovedParticipants()).isEqualTo(1L);
-            assertThat(event.getDuration()).isEqualTo(CourseDuration.FULLDAY);
-        });
+		assertThat(events).extracting(CalendarEventDTO::getEnd).containsExactly(LocalDate.of(2026, 10, 10),
+				LocalDate.of(2026, 10, 14));
 
-        assertThat(events)
-                .extracting(CalendarEventDTO::getId)
-                .doesNotHaveDuplicates();
-    }
+		assertThat(events).allSatisfy(event -> {
+			assertThat(event.getEmployeeName()).isEqualTo("Ben");
+			assertThat(event.getStatus()).isEqualTo(Status.APPLIED);
+			assertThat(event.getApprovedParticipants()).isEqualTo(1L);
+			assertThat(event.getDuration()).isEqualTo(CourseDuration.FULLDAY);
+			assertThat(event.getCourseStartDate()).isEqualTo(LocalDate.of(2026, 10, 8));
+
+			assertThat(event.getCourseEndDate()).isEqualTo(LocalDate.of(2026, 10, 14));
+		});
+
+		assertThat(events).extracting(CalendarEventDTO::getId).doesNotHaveDuplicates();
+	}
 }

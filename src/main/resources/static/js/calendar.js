@@ -5,6 +5,7 @@ const allStaffButton = document.getElementById("all-staff-training");
 const categorySelect = document.getElementById("calendar-category");
 const monthSelect = document.getElementById("calendar-month");
 const yearSelect = document.getElementById("calendar-year");
+const trainingDetails = document.getElementById("training-details");
 
 let allStaff = false;
 let latestRequest = 0;
@@ -35,6 +36,11 @@ const calendar = new DayPilot.Month("dp", {
   eventResizeHandling: "Disabled",
   eventDeleteHandling: "Disabled",
   timeRangeSelectedHandling: "Disabled",
+  
+  onEventClick: (args) => {
+    args.preventDefault();
+    showTrainingDetails(args.e.data);
+  },
 
   onBeforeEventRender: (args) => {
     const event = args.data;
@@ -59,9 +65,55 @@ const calendar = new DayPilot.Month("dp", {
   }
 });
 
+function showTrainingDetails(event) {
+  const categoryLabels = {
+    INTERNAL: "Internal Training",
+    EXTERNAL: "External Course",
+    PROFESSIONAL: "Professional Certification"
+  };
+
+  const durationLabels = {
+    FULLDAY: "Full day",
+    HALFDAYAM: "Half day (AM)",
+    HALFDAYPM: "Half day (PM)"
+  };
+
+  document.getElementById("details-employee").textContent =
+    event.employeeName;
+
+  document.getElementById("details-course").textContent =
+    event.courseName;
+
+  document.getElementById("details-category").textContent =
+    categoryLabels[event.category];
+
+  document.getElementById("details-period").textContent =
+    `${event.courseStartDate} to ${event.courseEndDate}`;
+
+  document.getElementById("details-duration").textContent =
+    durationLabels[event.duration] || "Not specified";
+
+  document.getElementById("details-status").textContent =
+    event.status;
+
+  document.getElementById("details-location").textContent =
+    event.location || "Not specified";
+
+  document.getElementById("details-provider").textContent =
+    event.trainingProvider || "Not specified";
+
+  document.getElementById("details-participants").textContent =
+    event.approvedParticipants;
+
+  trainingDetails.showModal();
+}
+
 calendar.init();
 
 async function loadEvents() {
+	
+	trainingDetails.close();
+	
   const requestNumber = ++latestRequest;
 
   calendar.update({ events: [] });

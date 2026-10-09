@@ -18,6 +18,24 @@
 	    outline: 2px solid #111827;
 	    font-weight: bold;
 	  }
+	  #training-details {
+	    width: min(32rem, calc(100vw - 3rem));
+	    box-sizing: border-box;
+	    max-height: 85vh;
+	    overflow: auto;
+	    padding: 1.25rem;
+	    border: 1px solid #ccc;
+	    border-radius: 8px;
+	  }
+
+	  #training-details dt {
+	    font-weight: bold;
+	  }
+
+	  #training-details dd {
+	    margin: 0 0 0.75rem;
+	    overflow-wrap: anywhere;
+	  }
 	</style>
   </head>
 
@@ -98,5 +116,43 @@
       th:data-events-url="@{/staff/calendar/events}"
       th:data-login-url="@{/staff/login}"
     ></div>
+	
+	<dialog id="training-details" aria-labelledby="training-details-heading">
+	  <h2 id="training-details-heading">Training details</h2>
+
+	  <dl>
+	    <dt>Employee</dt>
+	    <dd id="details-employee"></dd>
+
+	    <dt>Course</dt>
+	    <dd id="details-course"></dd>
+
+	    <dt>Category</dt>
+	    <dd id="details-category"></dd>
+
+	    <dt>Course period</dt>
+	    <dd id="details-period"></dd>
+
+	    <dt>Session</dt>
+	    <dd id="details-duration"></dd>
+
+	    <dt>Status</dt>
+	    <dd id="details-status"></dd>
+
+	    <dt>Location</dt>
+	    <dd id="details-location"></dd>
+
+	    <dt>Training provider</dt>
+	    <dd id="details-provider"></dd>
+
+	    <dt>Approved participants</dt>
+	    <dd id="details-participants"></dd>
+	  </dl>
+
+	  <form method="dialog">
+	    <button type="submit" autofocus>Close</button>
+	  </form>
+	</dialog>
+	
   </body>
 </html>

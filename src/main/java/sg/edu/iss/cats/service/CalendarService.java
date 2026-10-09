@@ -160,6 +160,8 @@ public class CalendarService {
                         text,
                         date,
                         date.plusDays(1), // DayPilot's end date is exclusive.
+                        course.getStartDate(),
+                        course.getEndDate(),
                         application.getId(),
                         course.getCourseId(),
                         employeeName,

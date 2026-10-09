@@ -18,6 +18,9 @@ public class CalendarEventDTO {
     private final String text;
     private final LocalDate start;
     private final LocalDate end;
+    // Calendar entry dates describe one day. these describe the full course.
+    private final LocalDate courseStartDate;
+    private final LocalDate courseEndDate;
 
     private final Integer applicationId;
     private final Integer courseId;
