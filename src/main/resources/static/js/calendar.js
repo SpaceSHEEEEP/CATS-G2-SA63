@@ -53,7 +53,7 @@ const calendar = new DayPilot.Month("dp", {
   
   onEventClick: (args) => {
     args.preventDefault();
-    showTrainingDetails(args.e.data);
+    showTrainingDetails(args.e.data, args.e.data.attendeeNames);
   },
 
   onBeforeEventRender: (args) => {
@@ -65,17 +65,24 @@ const calendar = new DayPilot.Month("dp", {
     event.fontColor = approved ? "#ffffff" : "#111827";
     event.borderColor = colours.solid;
 
-    const duration = event.duration === "HALFDAYAM"
-      ? "AM"
-      : event.duration === "HALFDAYPM"
-        ? "PM"
-        : "Full day";
+	const sessionLabel = event.duration === "HALFDAYAM"
+	  ? " · AM"
+	  : event.duration === "HALFDAYPM"
+	    ? " · PM"
+	    : "";
 
-    event.text =
-      `${event.text} | ${event.category} | ${duration} | ${event.status}`;
+	const viewLabel = event.attendeeNames
+	  ? ` · ${event.attendeeNames.length} attending`
+	  : ` · ${event.status}`;
 
-    event.toolTip =
-      `${event.courseName} — ${event.approvedParticipants} approved participants`;
+	event.text =
+	  `${event.courseName}${sessionLabel}${viewLabel}`;
+
+	event.toolTip =
+	  `${event.courseName} | ${categoryLabels[event.category]}`
+	  + ` | ${durationLabels[event.duration] || "Not specified"}`
+	  + ` | ${event.status}`
+	  + ` | ${event.approvedParticipants} approved participants`;
   }
 });
 
@@ -86,6 +93,9 @@ function showTrainingDetails(event, attendees = null) {
 
 	document.getElementById("details-employee").textContent =
 	  attendees ? attendees.join(", ") : event.employeeName;
+	  
+	document.getElementById("details-course").textContent =
+	  event.courseName;
 
   document.getElementById("details-category").textContent =
     categoryLabels[event.category];
@@ -213,6 +223,67 @@ function renderCourseList(events) {
   }
 }
 
+function buildCalendarBars(events, sharedView) {
+  const groups = new Map();
+
+  for (const event of events) {
+    if (sharedView && event.status !== "APPROVED") {
+      continue;
+    }
+
+    const key = sharedView ? event.courseId : event.applicationId;
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        sample: event,
+        dates: new Set(),
+        attendees: new Map()
+      });
+    }
+
+    const group = groups.get(key);
+
+    group.dates.add(
+      new DayPilot.Date(event.start).toString("yyyy-MM-dd")
+    );
+
+    group.attendees.set(event.employeeId, event.employeeName);
+  }
+
+  const bars = [];
+
+  for (const [key, group] of groups) {
+    const dates = Array.from(group.dates).sort();
+    let currentBar = null;
+
+    for (const date of dates) {
+      const end = new DayPilot.Date(date)
+        .addDays(1)
+        .toString("yyyy-MM-dd");
+
+      if (currentBar && currentBar.end === date) {
+        currentBar.end = end;
+        continue;
+      }
+
+      currentBar = {
+        ...group.sample,
+        id: `${sharedView ? "course" : "application"}-${key}-${date}`,
+        text: group.sample.courseName,
+        start: date,
+        end,
+        attendeeNames: sharedView
+          ? Array.from(group.attendees.values())
+          : null
+      };
+
+      bars.push(currentBar);
+    }
+  }
+
+  return bars;
+}
+
 calendar.init();
 
 async function loadEvents() {
@@ -280,7 +351,9 @@ async function loadEvents() {
     }
 
 	renderCourseList(events);
-    calendar.update({ events });
+	
+	const bars = buildCalendarBars(events, allStaff);
+	calendar.update({ events: bars });
 
     calendarMessage.textContent = events.length === 0
       ? "No matching training in this calendar view."
