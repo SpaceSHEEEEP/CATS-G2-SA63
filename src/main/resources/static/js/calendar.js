@@ -154,6 +154,29 @@ function showTrainingDetails(event, attendees = null) {
 	  editLink.href = editUrl.href;
 	}
 	
+	const applyLink =
+	  document.getElementById("details-apply-course");
+
+	const today = DayPilot.Date.today().toString("yyyy-MM-dd");
+
+	// Only offer courses that have not started in the shared view.
+	const canApply = allStaff
+	  && event.status === "APPROVED"
+	  && event.courseStartDate > today;
+
+	applyLink.hidden = !canApply;
+	applyLink.removeAttribute("href");
+
+	if (canApply) {
+	  const applyUrl = new URL(
+	    calendarElement.dataset.applyUrl,
+	    window.location.origin
+	  );
+
+	  applyUrl.searchParams.set("courseId", event.courseId);
+	  applyLink.href = applyUrl.href;
+	}
+	
   trainingDetails.showModal();
 }
 
