@@ -145,7 +145,7 @@ SELECT
 FROM (
     SELECT
         'benny' AS username,
-        'Java Programming' AS course_name,
+        'Java OOPJ' AS course_name,
         'APPROVED' AS application_status
 
     UNION ALL
@@ -159,15 +159,24 @@ FROM (
 
     UNION ALL
     SELECT 'danny', 'SQL Fundam', 'UPDATED'
+    
+    UNION ALL
+    SELECT 'timmy', 'Java EE', 'APPROVED'
+
+    UNION ALL
+    SELECT 'benny', 'Cloud Computing Fundamentals', 'APPROVED'
+
+    UNION ALL
+    SELECT 'timmy', 'Agile Scrum Master', 'APPROVED'
 ) AS demo
 JOIN user u ON u.username = demo.username
 JOIN course c ON c.course_name = demo.course_name;
 
 -- SQL seeding bypasses ApplicationService, so reserve the matching amounts.
--- Ben: SGD 600 and 5.5 training days reserved.
+-- Ben: SGD 600 and 7.5 training days reserved.
 UPDATE user
 SET budgeted_allowance = 9400.00,
-    budgeted_days = 5.0
+    budgeted_days = 3.0
 WHERE username = 'benny';
 
 -- Dan: SGD 400 and 2.5 training days reserved.
@@ -175,3 +184,9 @@ UPDATE user
 SET budgeted_allowance = 9100.00,
     budgeted_days = 7.5
 WHERE username = 'danny';
+
+-- Tim: SGD 1200 and 2.5 training days reserved.
+UPDATE user
+SET budgeted_allowance = 8800.00,
+    budgeted_days = 12.5
+WHERE username = 'timmy';
