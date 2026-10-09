@@ -36,8 +36,8 @@ public class Application {
     private Status status;
 
     @Column(nullable=false)
-    @Size(max=1000, message="Reason cannot exceed 1000 characters.")
-    @NotBlank(message="Please provide a reason or justification for your application.")
+    @Size(max=1000, message="Your reason provided cannot exceed 1000 characters")
+    @NotBlank(message="Please provide a reason or justification for your application")
     private String userReason;
     private String managerReason;
     private Boolean hasBeenPaid;
