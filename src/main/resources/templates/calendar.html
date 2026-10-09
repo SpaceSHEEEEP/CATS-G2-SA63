@@ -1,54 +1,222 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" lang="EN">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link rel="stylesheet" th:href="@{/style.css}" />
-    <title>Calendar</title>
+    <title>Training Calendar</title>
+
+    <script
+      th:src="@{/js/daypilot/daypilot-all.min.js}"
+      defer
+    ></script>
+    <script th:src="@{/js/calendar.js}" defer></script>
+	
+	<style>
+	  #calendar-view-buttons button[aria-pressed="true"] {
+	    outline: 2px solid #111827;
+	    font-weight: bold;
+	  }
+	  #training-details {
+	    width: min(32rem, calc(100vw - 3rem));
+	    box-sizing: border-box;
+	    max-height: 85vh;
+	    overflow: auto;
+	    padding: 1.25rem;
+	    border: 1px solid #ccc;
+	    border-radius: 8px;
+	  }
+
+	  #training-details dt {
+	    font-weight: bold;
+	  }
+
+	  #training-details dd {
+	    margin: 0 0 0.75rem;
+	    overflow-wrap: anywhere;
+	  }
+	  
+	  .training-calendar-layout {
+	    display: grid;
+	    grid-template-columns: minmax(0, 3fr) minmax(16rem, 1fr);
+	    gap: 1.25rem;
+	    align-items: start;
+	  }
+
+	  .training-calendar-main {
+	    min-width: 0;
+	  }
+
+	  #course-sidebar {
+	    padding: 1rem;
+	    background: #f8fafc;
+	    border: 1px solid #ddd;
+	    border-radius: 8px;
+	  }
+
+	  .calendar-course-card {
+	    margin-bottom: 1rem;
+	    padding: 0.75rem;
+	    background: white;
+	    border-left: 4px solid;
+	  }
+
+	  .calendar-course-title {
+	    max-width: 100%;
+	    white-space: normal;
+	    overflow-wrap: anywhere;
+	    text-align: left;
+	  }
+
+	  @media (max-width: 900px) {
+	    .training-calendar-layout {
+	      grid-template-columns: 1fr;
+	    }
+	  }
+	</style>
   </head>
 
   <body>
-    <div th:replace="~{fragments/header :: header}" />
-    <h1 th:text="${currentMonth}">Current Month</h1>
+    <div th:replace="~{fragments/header :: header}"></div>
 
-    <div class = "year-month-filter-container">
-      <!-- dropdown to navigate across years and months -->
-      <div>
-        <form th:action="@{/staff/calendar}" method="GET">
-          <label>Year: </label>
-          <select name="year">
-            <option value="">--Select A Year--</option>
-            <option th:each="yr:${years}" th:value="${yr}" th:text="${yr}" th:selected="${yr==currentYear}"></option>
-          </select>
+	<h1 id="calendar-title">My Training Calendar</h1>
 
-          <label>Month: </label>
-          <select name="month">
-            <option value="">--Select A Month--</option>
-            <option th:each="mth:${months}" th:value="${mth}" th:text="${mth}"></option>
-          </select>
-          <button type="submit">Select</button>
-        </form>
-      </div>
+	<h2 id="calendar-month-heading"th:text="${currentMonth + ' ' + currentYear}">
+	  Selected month
+	</h2>
+
+	<div id="calendar-view-buttons" role="group" aria-label="Training view">
+	  <button type="button" id="my-training" aria-pressed="true">
+	    My Training
+	  </button>
+
+	  <button type="button" id="all-staff-training" aria-pressed="false">
+	    All Staff Training
+	  </button>
+	</div>
+
+	<p id="calendar-view-description">
+	  Your applied, updated and approved training.
+	</p>
+
+	<div role="group" aria-label="Month navigation">
+	  <button type="button" id="previous-month">Previous month</button>
+	  <button type="button" id="today-month">Today</button>
+	  <button type="button" id="next-month">Next month</button>
+	</div>
+
+    <div class="year-month-filter-container">
+      <form id="calendar-month-form" th:action="@{/staff/calendar}" method="get">
+        <label for="calendar-year">Year:</label>
+        <select id="calendar-year" name="year">
+          <option
+            th:each="yr : ${years}"
+            th:value="${yr}"
+            th:text="${yr}"
+            th:selected="${yr == currentYear}"
+          ></option>
+        </select>
+
+        <label for="calendar-month">Month:</label>
+        <select id="calendar-month" name="month">
+          <option
+            th:each="mth : ${months}"
+            th:value="${mth}"
+            th:text="${mth}"
+            th:selected="${mth.toUpperCase() == currentMonth}"
+          ></option>
+        </select>
+
+        <button type="submit">Select</button>
+      </form>
     </div>
+	
+	<label for="calendar-category">Course category:</label>
 
-    <!-- calendar container -->
-    <div class="calendar-container">
-      <div class="static-days-header">
-        <div>Sun</div>
-        <div>Mon</div>
-        <div>Tue</div>
-        <div>Wed</div>
-        <div>Thu</div>
-        <div>Fri</div>
-        <div>Sat</div>
-      </div>
+	<select id="calendar-category">
+	  <option value="">All categories</option>
+	  <option value="INTERNAL">Internal Training</option>
+	  <option value="EXTERNAL">External Course</option>
+	  <option value="PROFESSIONAL">Professional Certification</option>
+	</select>
 
-      <div class="calendar-grid-section">
-        <div class="blank" th:each="blank:${blanks}"></div>
-        <div class="day" th:each="day:${days}">
-          <span th:text="${day}">1</span>
-        </div>
-      </div>
-    </div>
+    <p>
+      Approved training uses solid colours.
+      Applied and updated training uses pale colours.
+    </p>
+
+    <p id="calendar-message" role="status" aria-live="polite"></p>
+
+	<div class="training-calendar-layout">
+	  <div class="training-calendar-main">
+	    <div
+	      id="dp"
+	      th:data-start="${calendarStart}"
+	      th:data-events-url="@{/staff/calendar/events}"
+	      th:data-login-url="@{/staff/login}"
+		  th:data-view-url="@{/staff/view}"
+		  th:data-edit-url="@{/staff/edit}"
+		  th:data-apply-url="@{/staff/apply}"
+	    ></div>
+	  </div>
+
+	  <aside id="course-sidebar" aria-labelledby="course-list-heading">
+	    <h2 id="course-list-heading">My training this month</h2>
+	    <div id="course-list"></div>
+	  </aside>
+	</div>
+	
+	<dialog id="training-details" aria-labelledby="training-details-heading">
+	  <h2 id="training-details-heading">Training details</h2>
+
+	  <dl>
+	    <dt id="details-employee-label">Employee</dt>
+	    <dd id="details-employee"></dd>
+
+	    <dt>Course</dt>
+	    <dd id="details-course"></dd>
+
+	    <dt>Category</dt>
+	    <dd id="details-category"></dd>
+
+	    <dt>Course period</dt>
+	    <dd id="details-period"></dd>
+
+	    <dt>Session</dt>
+	    <dd id="details-duration"></dd>
+
+	    <dt>Status</dt>
+	    <dd id="details-status"></dd>
+
+	    <dt>Location</dt>
+	    <dd id="details-location"></dd>
+
+	    <dt>Training provider</dt>
+	    <dd id="details-provider"></dd>
+
+	    <dt>Approved participants</dt>
+	    <dd id="details-participants"></dd>
+	  </dl>
+	  
+	  <p>
+	    <a id="details-view-application" hidden>
+	      View full application
+	    </a>
+
+	    <a id="details-edit-application" hidden>
+	      Edit application
+	    </a>
+		
+		<a id="details-apply-course" hidden>
+		  Apply to this course
+		</a>
+	  </p>
+
+	  <form method="dialog">
+	    <button type="submit" autofocus>Close</button>
+	  </form>
+	</dialog>
+	
   </body>
 </html>
