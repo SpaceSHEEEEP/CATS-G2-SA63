@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.Status;
@@ -47,73 +47,54 @@ public class ApplicationController {
     }
 
 	@GetMapping("/apply")
-	// public String showApplicationForm(@PathVariable int courseId, Model model) {
 	public String showForm(
+            @AuthenticationPrincipal User user,
             @RequestParam(name = "courseId", required = false) Integer courseId, 
-            HttpSession session,
             Model model) {
 
+        if (user == null) return "redirect:/staff/login";
+
         Application app = new Application();
-
-        // Can only apply if logged in
-        if (session.getAttribute("user") == null) return "redirect:/staff/login";
-        else {
-            User sessionUser = (User) session.getAttribute("user");
-            app.setUser(userRepository.findById(sessionUser.getUserId()).orElse(null));
-        }
-
-        // If got here via "apply" in internal courses list, do this to prefill form
+        app.setUser(userRepository.findById(user.getUserId()).orElse(null));
         if (courseId != null) app.setCourse(courseRepository.findById(courseId).orElse(null));
-
 		model.addAttribute("applicationForm", app);
 	    return "applyform";
     }
     
     @PostMapping("/submitapplication")
     public String submitForm(
+            @AuthenticationPrincipal User user,
             @Valid @ModelAttribute("applicationForm") Application form, 
             BindingResult result, 
             Model model, 
-            RedirectAttributes ra,
-            HttpSession session) {
+            RedirectAttributes ra) {
 
-        // Can only apply if logged in
-        User sessionUser = (User) session.getAttribute("user");
-        if (sessionUser == null) return "redirect:/login";
-        form.setUser(userRepository.findById(sessionUser.getUserId()).orElse(null));
-        // need the above because spring mvc remakes a new object after every state change
+        if (user == null) return "redirect:/login";
 
-        // Check for valid annotations in the Application, Course Model.
+        // need below because spring mvc remakes a new object after every state change
+        form.setUser(userRepository.findById(user.getUserId()).orElse(null));
         if (result.hasErrors()) return "applyform";
+        // Check for valid annotations in the Application, Course Model.
 
         try {
-            applicationService.saveApplication(form, sessionUser.getUserId());
+            applicationService.saveApplication(form, user.getUserId());
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             return "applyform";
         }
 
-        // Flash Attribute for success message
         ra.addFlashAttribute("successmsg", "Application '" + form.getId() + "' submitted successfully!");
-
-        // do this to trigger countPendingApplications() again, so get most updated info
-        sessionUser = userRepository.findById(sessionUser.getUserId()).orElse(null);
-        session.setAttribute("user", sessionUser); 
-
         return "redirect:/staff/index";
     }
 
     @GetMapping("/edit")
     public String editForm(
+            @AuthenticationPrincipal User user,
             @RequestParam(name = "id", required = true) Integer id,
-            Model model,
-            HttpSession session) {
+            Model model) {
 
         // check if user is logged in
-        User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/staff/login";
-
-        // check if the application exists and that this user made the application
         List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
         if (applications.isEmpty()) return "redirect:/staff/index";
 
@@ -123,9 +104,11 @@ public class ApplicationController {
     }
 
     @GetMapping("/view")
-    public String viewApplication(@RequestParam(name = "id", required = true) Integer id, Model model, HttpSession session) {
+    public String viewApplication(
+            @AuthenticationPrincipal User user,
+            @RequestParam(name = "id", required = true) Integer id,
+            Model model) {
 		    
-    	User user = (User) session.getAttribute("user");
     	if (user == null) return "redirect:/staff/login";
 		
         // TODO: leave better comments
@@ -155,19 +138,15 @@ public class ApplicationController {
 
     @PostMapping("/delete")
     public String deleteApplication(
+            @AuthenticationPrincipal User user,
             @RequestParam(name = "id", required = true) Integer id,
-            HttpSession session,
             Model model,
             RedirectAttributes ra) {
 
-        // check if user is logged in
-        User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/staff/login";
 
-        // check if the application exists and that this user made the application
         List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
         if (applications.isEmpty()) return "redirect:/staff/index";
-
         // else, application exists, delete it
         // included try-catch for the controller for exception handling from the service
          try {
@@ -177,21 +156,17 @@ public class ApplicationController {
             return "redirect:/staff/index";
         }
             
-        // update the user object in the session to reflect changes
-        User sessionUser = userRepository.findById(user.getUserId()).orElse(null);
-        session.setAttribute("user", sessionUser);
-        
-        // Flash Attribute for success message
         ra.addFlashAttribute("successmsg", "Application '" + id + "' deleted successfully!");
-
         return "redirect:/staff/index";
     }
     
     @PostMapping("/completed")
     public String completedApplication(
-    	@RequestParam(name = "id", required = true) Integer id, Model model, HttpSession session, RedirectAttributes ra) {
+            @AuthenticationPrincipal User user,
+            @RequestParam(name = "id", required = true) Integer id,
+            Model model,
+            RedirectAttributes ra) {
 		    
-    	User user = (User) session.getAttribute("user");
     	if (user == null) return "redirect:/staff/login";
 		
 		List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
@@ -203,19 +178,17 @@ public class ApplicationController {
         // checks that the application status is APPROVED first
         if (completedApplication.getStatus() == Status.APPROVED){
             try {
-            applicationService.completeApplication(completedApplication, user.getUserId());
-        } catch (RuntimeException e) {
-            ra.addAttribute("errormsg", e.getMessage());
-            return "redirect:/staff/index";
+                applicationService.completeApplication(completedApplication, user.getUserId());
+            } catch (RuntimeException e) {
+                ra.addAttribute("errormsg", e.getMessage());
+                return "redirect:/staff/index";
+            }
         }
-        }
-        // update the user object in the session to reflect changes
-        User sessionUser = userRepository.findById(user.getUserId()).orElse(null);
-        session.setAttribute("user", sessionUser);
-        
+
         // Flash Attribute for success message
         ra.addFlashAttribute("successmsg", "Application '" + id + "' is marked as COMPLETED successfully!");
-
+        
+        // TODO: add survey form!!!
         // added a completeApplication method in ApplicationService, not sure which to go for so leave the original version below here first.
         /* 
 	    //html if logic for only when status == approved, then can call this method to change to completed
@@ -224,4 +197,5 @@ public class ApplicationController {
         */
         return "redirect:/staff/index";
     }
+    
 }

@@ -1,9 +1,5 @@
 package sg.edu.iss.cats.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,11 +13,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter 
+@Setter 
 @NoArgsConstructor
 public class Application {
 

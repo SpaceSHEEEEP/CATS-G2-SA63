@@ -3,6 +3,7 @@ package sg.edu.iss.cats.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,13 +40,14 @@ public class AdminController {
 
 	}
 
-	@GetMapping
-	public String ShowAdmin(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum, Model model, HttpSession session) {
-		User user = (User) session.getAttribute("user");
+	@GetMapping("/dashboard")
+	public String showAdmin(
+            @AuthenticationPrincipal User user,
+            @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+            Model model) {
 
-        if (user == null) return "redirect:/admin/login";
-
-        if (!user.isAdmin()) return "redirect:/staff/index";
+        if (user == null)                         return "redirect:/admin/login";
+        if (!user.getRole().equals("ROLE_ADMIN")) return "redirect:/staff/index";
 
         // Load current user records
         model.addAttribute("users", userRepository.findAll());
@@ -57,8 +59,7 @@ public class AdminController {
 
         model.addAttribute("holidayYear", year);
         model.addAttribute("holidays",
-                holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(
-                        firstDay, lastDay));
+                holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(firstDay, lastDay));
 
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         // TODO: get pages WITH application count!! The one below doesn't have application count
@@ -68,39 +69,44 @@ public class AdminController {
         model.addAttribute("courseSummaries", courseSummaries);
         model.addAttribute("pageNum", pageNum);
         model.addAttribute("pageNumLast", courseSummaries.getTotalPages());
+        model.addAttribute("user", userRepository.findById(user.getUserId()).orElseThrow());
         
         return "admin";
 	}
 	
 	@GetMapping("/login")
-	public String ShowAdminLogin(Model model) {
+	public String showAdminLogin(Model model) {
 		model.addAttribute("login", new LoginForm());
-		model.addAttribute("adminLogin", true);
+		model.addAttribute("adminLogin", true); // TODO: check what this is for
 		return "login";
 	}
 	
-	@PostMapping("/login")
-	public String processLogin( @ModelAttribute LoginForm loginForm, Model model, HttpSession session) {
-		String username = loginForm.getUsername();
-        String password = loginForm.getPassword();
-
-        User user = null;
-
-        // Check credentials before checking whether this is an admin account.
-        if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) 
-            user = userRepository.findByUsername(username.trim()).orElse(null);
-
-        if (user == null || !user.isAdmin()) {
-            // Keep the page in admin mode after an unsuccessful attempt.
-            model.addAttribute("login", new LoginForm());
-            model.addAttribute("adminLogin", true);
-            model.addAttribute("msg",
-                    "Unable to log in with these administrator details.");
-            return "login";
-        }
-        
-        session.setAttribute("user", user);
-        return "redirect:/admin";
-	}
+	// @PostMapping("/login")
+	// public String processLogin( 
+	//            @ModelAttribute LoginForm loginForm,
+	//            Model model,
+	//            HttpSession session) {
+	//
+	// 	String username = loginForm.getUsername();
+	//        String password = loginForm.getPassword();
+	//
+	//        User user = null;
+	//
+	//        // Check credentials before checking whether this is an admin account.
+	//        if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) 
+	//            user = userRepository.findByUsername(username.trim()).orElse(null);
+	//
+	//        if (user == null || !user.isAdmin()) {
+	//            // Keep the page in admin mode after an unsuccessful attempt.
+	//            model.addAttribute("login", new LoginForm());
+	//            model.addAttribute("adminLogin", true);
+	//            model.addAttribute("msg",
+	//                    "Unable to log in with these administrator details.");
+	//            return "login";
+	//        }
+	//
+	//        session.setAttribute("user", user);
+	//        return "redirect:/admin/dashboard";
+	// }
 	
 }

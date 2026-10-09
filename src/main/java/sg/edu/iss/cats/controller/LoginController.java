@@ -30,31 +30,32 @@ public class LoginController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String processLogin(@ModelAttribute LoginForm loginForm, Model model, RedirectAttributes ra, HttpSession session) {
-        // get username and password from login form
-        // .trim() to remove whitespaces from strings
-        String username = loginForm.getUsername().trim();
-        String password = loginForm.getPassword().trim();
-
-        if (!userRepository.existsByUsername(username)) {
-            model.addAttribute("msg", "The user with username you just entered does not exist");
-            model.addAttribute("login", loginForm);
-            return "login";
-        }
-
-        if (!userRepository.existsByUsernameAndPassword(username, password)) {
-            model.addAttribute("msg", "The password you entered is incorrect");
-            model.addAttribute("login", loginForm);
-            return "login";
-        }
-        
-        // Login successful
-        session.setAttribute("user", userRepository.findByUsername(username).orElse(null));
-
-        return "redirect:/staff/index";
-
-    }
+    // @PostMapping("/login")
+    // public String processLogin(@ModelAttribute LoginForm loginForm, Model model, RedirectAttributes ra, HttpSession session) {
+    //     // get username and password from login form
+    //     // .trim() to remove whitespaces from strings
+    //     System.out.println("DEBUG: processLogin was called!!");
+    //     String username = loginForm.getUsername();
+    //     String password = loginForm.getPassword();
+    //
+    //     if (!userRepository.existsByUsername(username)) {
+    //         model.addAttribute("msg", "The user with username you just entered does not exist");
+    //         model.addAttribute("login", loginForm);
+    //         return "login";
+    //     }
+    //
+    //     if (!userRepository.existsByUsernameAndPassword(username, password)) {
+    //         model.addAttribute("msg", "The password you entered is incorrect");
+    //         model.addAttribute("login", loginForm);
+    //         return "login";
+    //     }
+    //
+    //     // Login successful
+    //     // session.setAttribute("user", userRepository.findByUsername(username).orElse(null));
+    //
+    //     return "redirect:/staff/index";
+    //
+    // }
 
     @GetMapping("/clear_session")
     public String clearSession(HttpSession session) {

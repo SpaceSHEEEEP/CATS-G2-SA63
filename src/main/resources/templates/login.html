@@ -9,6 +9,7 @@
 
     <!-- spring security? -->
     <div th:if="${param.error}">Your username or password is incorrect</div>
+    <div th:if="${param.adminDenied}">You cannot log in via the admin login page. Please sign in via the staff login page</div>
     <div th:if="${param.logout}">You have been logged out</div>
 
     <p th:if="${adminLogin}">Sign in with an administrator account to access admin features.</p>
@@ -17,6 +18,9 @@
     <form th:object="${login}"
           th:action="${adminLogin} ? @{/admin/login} : @{/staff/login}"
           method="post">
+
+        <!-- REQUIRED FOR SPRING SECURITY POST REQUESTS -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
         <fieldset>
             <label for="username">Username</label>

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.hibernate.annotations.Formula;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.Entity;
@@ -17,11 +16,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter 
+@Setter 
 @NoArgsConstructor
 public class Course {
 

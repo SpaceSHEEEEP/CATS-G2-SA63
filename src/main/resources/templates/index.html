@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<HTML lang="en" xmlns:th="http://www.thymeleaf.org"> 
+<HTML lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> 
 	<head>
         <title>My Training</title>
         <link rel="stylesheet" th:href="@{/style.css}"/>
@@ -7,13 +7,8 @@
 	<body>
         <div th:replace="~{fragments/header :: header}"></div>
 
-        <div th:if="${session.user}">
-            <h1>My Training</h1>
-            <p>Welcome <span th:text="${session.user.name}"></span>.</p>
-        </div>
-        <div th:unless="${session.user}">
-          <h1>Welcome! This is the index page</h1>
-        </div>
+        <h1>My Training</h1>
+        <p th:text="${'Welcome ' + user.name + '!'}"></p>
 
         <div class="actions">
             <a th:href="@{/staff/courselist}">View internal courses</a>
@@ -23,17 +18,17 @@
         </div>
 
         <!-- display user details -->
-        <div th:if ="${session.user}" class="user-statistics-container">
+        <div class="user-statistics-container">
           <div class="user-days-statistics">
-            <p th:text="'Actual Days Left: ' + ${session.user.actualDays}"></p>
-            <p th:text="'Budgeted Days Left: ' + ${session.user.budgetedDays}"></p>
+            <p th:text="'Actual Days Left: ' + ${user.actualDays}"></p>
+            <p th:text="'Budgeted Days Left: ' + ${user.budgetedDays}"></p>
           </div>
           <div class="user-allowance-statistics">
-            <p th:text="'Actual Allowance Remaining: $' + ${session.user.actualAllowance}"></p>
-            <p th:text="'Budgeted Allowance Remaining: $' + ${session.user.budgetedAllowance}"></p>
+            <p th:text="'Actual Allowance Remaining: $' + ${user.actualAllowance}"></p>
+            <p th:text="'Budgeted Allowance Remaining: $' + ${user.budgetedAllowance}"></p>
           </div>
           <div class="user-applications-statistics">
-            <p th:text="'Number of Pending Applications: ' + ${session.user.countPendingApplications()}"></p>
+            <p th:text="'Number of Pending Applications: ' + ${user.countPendingApplications()}"></p>
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Administration</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
@@ -9,7 +9,7 @@
     <div th:replace="~{fragments/header :: header}"></div>
 
     <h1>Administration</h1>
-    <p th:text="'Welcome Admin ' + ${session.user.name} + '!'"></p>
+    <p th:text="${'Welcome Admin ' + user.name + '!'}"></p>
 	
 	<h2>Users</h2>
 	<p th:if="${#lists.isEmpty(users)}">No users found.</p>
@@ -70,12 +70,12 @@
 
     <div class = "pagination">
         <div>
-        <a th:if="${pageNum > 0}" th:href="@{/admin(pageNum=${pageNum-1})}">Prev page</a>
-        <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin(pageNum=${pageNum+1})}">Next page</a>
+        <a th:if="${pageNum > 0}" th:href="@{/admin/dashboard(pageNum=${pageNum-1})}">Prev page</a>
+        <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin/dashboard(pageNum=${pageNum+1})}">Next page</a>
         </div>
         
         <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
-            <a th:href="@{/admin(pageNum=${i})}" th:text="${i + 1}"></a>
+            <a th:href="@{/admin/dashboard(pageNum=${i})}" th:text="${i + 1}"></a>
         </th:block>
     </div>
 	

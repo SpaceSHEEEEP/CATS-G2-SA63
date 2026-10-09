@@ -7,6 +7,7 @@ import java.util.Map;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import jakarta.servlet.http.HttpSession;
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.Status;
 import sg.edu.iss.cats.model.User;
@@ -35,14 +35,12 @@ public class ManagerController {
 	}
 
 	@GetMapping("/applications")
-	public String showApplications(Model model, HttpSession session) {
-		User user = (User) session.getAttribute("user");
+	public String showApplications(
+            @AuthenticationPrincipal User user, 
+            Model model) {
 
-        // needs to be logged in
-		if (user == null) return "redirect:/staff/login";
-
-        // needs to be manager
-		if (!userRepository.existsByManager_UserId(user.getUserId())) return "redirect:/staff/index";
+		if (user == null)                           return "redirect:/staff/login";
+        if (!user.getRole().equals("ROLE_MANAGER")) return "redirect:/staff/index";
 
 		List<Application> subordinateApplications = appRepo
 				.findByUser_Manager_UserIdOrderByUser_NameAscIdAsc(user.getUserId());
@@ -65,14 +63,12 @@ public class ManagerController {
 	}
 	
     @GetMapping("/history")
-    public String showSubordinateHistory(Model model, HttpSession session) {
+    public String showSubordinateHistory(
+            @AuthenticationPrincipal User user,
+            Model model) {
 
-        // Need to be logged in
-		User user = (User) session.getAttribute("user");
-		if (user == null) return "redirect:/staff/login";
-
-		// Need to be a manager
-		if (!userRepository.existsByManager_UserId(user.getUserId())) return "redirect:/staff/index";
+		if (user == null)                           return "redirect:/staff/login";
+        if (!user.getRole().equals("ROLE_MANAGER")) return "redirect:/staff/index";
 
         // Give me a list of subordinates
         List<User> subordinates = userRepository.findAllByManager_UserId(user.getUserId());
@@ -86,20 +82,19 @@ public class ManagerController {
         model.addAttribute("subordinatesApplications", subordinatesApplications);
 
         return "history";
-
     }
 
 	@GetMapping("/applications/search")
 	public String searchApplications(
+            @AuthenticationPrincipal User manager,
 	        @RequestParam(name = "employeeName") String employeeName,
-					@RequestParam(name = "startDate", required = false) LocalDate startDate,
+            @RequestParam(name = "startDate", required = false) LocalDate startDate,
 	        @RequestParam(name = "endDate", required = false) LocalDate endDate,
 	        @RequestParam(name = "courseType") String courseType,
-	        HttpSession session,
 	        Model model) {
 
-	    User manager = (User) session.getAttribute("user");
-	    if (manager == null) return "redirect:/staff/login";
+		if (manager == null)                           return "redirect:/staff/login";
+        if (!manager.getRole().equals("ROLE_MANAGER")) return "redirect:/staff/index";
 
 	    List<Application> applications = appRepo
             .findByUser_Manager_UserIdOrderByUser_NameAscIdAsc(manager.getUserId());
@@ -175,13 +170,13 @@ public class ManagerController {
 	
 	@PostMapping("/application/status")
 	public String changeStatus(
+            @AuthenticationPrincipal User manager,
 	        @RequestParam(name = "id") Integer id,
 	        @RequestParam(name = "managerReason", required = true) String managerReason,
-	        @RequestParam(name = "status") String status,
-	        HttpSession session) {
+	        @RequestParam(name = "status") String status) {
 
-	    User manager = (User) session.getAttribute("user");
-	    if (manager == null) return "redirect:/staff/login";
+		if (manager == null)                           return "redirect:/staff/login";
+        if (!manager.getRole().equals("ROLE_MANAGER")) return "redirect:/staff/index";
 
 	    Application app = appRepo.findById(id).orElse(null);
 	    if (app == null) return "redirect:/manager/applications";
@@ -195,5 +190,4 @@ public class ManagerController {
 
 	    return "redirect:/manager/applications";
 	}
-    
 }
