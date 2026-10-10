@@ -70,12 +70,12 @@
 
     <div class = "pagination">
         <div>
-        <a th:if="${pageNum > 0}" th:href="@{/admin/dashboard(pageNum=${pageNum-1})}">Prev page</a>
-        <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin/dashboard(pageNum=${pageNum+1})}">Next page</a>
+        <a th:if="${pageNum > 0}" th:href="@{/admin(pageNum=${pageNum-1})}">Prev page</a>
+        <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin(pageNum=${pageNum+1})}">Next page</a>
         </div>
         
         <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
-            <a th:href="@{/admin/dashboard(pageNum=${i})}" th:text="${i + 1}"></a>
+            <a th:href="@{/admin(pageNum=${i})}" th:text="${i + 1}"></a>
         </th:block>
     </div>
 	

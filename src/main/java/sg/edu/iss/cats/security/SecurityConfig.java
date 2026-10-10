@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .successHandler((request, response, authentication) -> {
                     boolean isAdmin = authentication.getAuthorities().stream()
                                                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-                    if (isAdmin) response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+                    if (isAdmin) response.sendRedirect(request.getContextPath() + "/admin");
                     else {
                         new SecurityContextLogoutHandler().logout(request, response, authentication);
                         response.sendRedirect(request.getContextPath() + "/staff/login?adminDenied");

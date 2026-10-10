@@ -41,7 +41,7 @@ public class AdminController {
 
 	}
 
-	@GetMapping("/dashboard")
+	@GetMapping("/")
 	public String showAdmin(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
@@ -81,33 +81,4 @@ public class AdminController {
 		model.addAttribute("adminLogin", true); // TODO: check what this is for
 		return "login";
 	}
-	
-	// @PostMapping("/login")
-	// public String processLogin( 
-	//            @ModelAttribute LoginForm loginForm,
-	//            Model model,
-	//            HttpSession session) {
-	//
-	// 	String username = loginForm.getUsername();
-	//        String password = loginForm.getPassword();
-	//
-	//        User user = null;
-	//
-	//        // Check credentials before checking whether this is an admin account.
-	//        if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) 
-	//            user = userRepository.findByUsername(username.trim()).orElse(null);
-	//
-	//        if (user == null || !user.isAdmin()) {
-	//            // Keep the page in admin mode after an unsuccessful attempt.
-	//            model.addAttribute("login", new LoginForm());
-	//            model.addAttribute("adminLogin", true);
-	//            model.addAttribute("msg",
-	//                    "Unable to log in with these administrator details.");
-	//            return "login";
-	//        }
-	//
-	//        session.setAttribute("user", user);
-	//        return "redirect:/admin/dashboard";
-	// }
-	
 }
