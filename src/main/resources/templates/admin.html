@@ -2,12 +2,13 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Administration</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
 </head>
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
     <h1>Administration</h1>
-    <p>Welcome <span th:text="${session.user.name}"></span>.</p>
+    <p th:text="'Welcome Admin ' + ${session.user.name} + '!'"></p>
 	
 	<h2>Users</h2>
 
@@ -46,9 +47,23 @@
 	<h2>Courses</h2>
 	<p>Ordered by number of applicants, highest first.</p>
 
-	<p th:if="${#lists.isEmpty(courseSummaries)}">
-	    No courses recorded.
-	</p>
+	<div th:if="${session.user.admin}">
+		<p>Download 'All Users' list</p>
+		<form th:action="@{/api/emailUsers}" method="post">
+
+			Send To: 
+			<input type="email"
+			name="E-Mail Recipient"
+			placeholder="Enter recipient email"
+			required>
+
+			<p></p>
+		    <button type="submit">
+			This generate a CSV file sends it to your E-Mail
+		    </button>
+		</form>
+		
+	</div>
 
 	<table th:unless="${#lists.isEmpty(courseSummaries)}">
 	    <thead>

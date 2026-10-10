@@ -20,6 +20,10 @@ public class TelegramRestController {
 
 	@Autowired
 	private CourseRepository courseRepository;
+	
+	public TelegramRestController(CourseRepository courseRepository) {
+		this.courseRepository = courseRepository;
+	}
 
 	@GetMapping("/courses")
 	public List<CourseDTO> getCourses() {

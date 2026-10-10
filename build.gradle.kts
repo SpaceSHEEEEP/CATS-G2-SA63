@@ -39,6 +39,12 @@ dependencies {
 	//for telegram API
 	implementation("org.telegram:telegrambots-longpolling:9.2.0")
 	implementation("org.telegram:telegrambots-client:9.2.0")
+	
+	//for CSV generator
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
+
+	//for creating email
+	implementation("org.springframework.boot:spring-boot-starter-mail")
 }
 
 tasks.withType<Test> {

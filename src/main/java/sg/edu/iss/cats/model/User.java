@@ -45,7 +45,7 @@ public class User {
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<User> subordinates = new ArrayList<>(); // each subordinate get mappedBy manager
     @ManyToOne // the other side
-    private User manager;
+    public User manager;
 
     public Integer countPendingApplications() {
         if (applications.isEmpty()) return 0;
