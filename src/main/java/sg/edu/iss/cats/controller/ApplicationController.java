@@ -203,7 +203,6 @@ public class ApplicationController {
         }
 
         // Flash Attribute for success message
-        // TODO: this stopped working?
         ra.addFlashAttribute("successmsg", "Application '" + id + "' is marked as COMPLETED successfully!");
         
         return "redirect:/staff/index";

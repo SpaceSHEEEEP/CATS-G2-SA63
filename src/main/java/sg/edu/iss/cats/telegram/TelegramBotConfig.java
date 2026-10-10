@@ -6,7 +6,7 @@ import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 
 import jakarta.annotation.PostConstruct;
 
-// @Configuration
+@Configuration
 public class TelegramBotConfig {
 
     private final String botToken;

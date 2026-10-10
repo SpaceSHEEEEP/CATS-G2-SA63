@@ -13,7 +13,7 @@ import sg.edu.iss.cats.dto.CourseDTO;
 
 import org.springframework.web.client.RestClient;
 
-// @Component
+@Component
 //LongPollingSingleThreadUpdateConsumer inheriting this allows the class to know "how to deal with updates received from Telegram"
 public class CatsTelegramBot implements LongPollingSingleThreadUpdateConsumer {
 
