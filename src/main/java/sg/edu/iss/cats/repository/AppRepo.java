@@ -12,9 +12,15 @@ import org.springframework.data.jpa.repository.EntityGraph;
 
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.Status;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AppRepo extends JpaRepository<Application, Integer> {
 
+
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("SELECT a FROM Application a")
+    List<Application> findAllForReporting();
     // This finds a user's applications that has some status
     public List<Application> findByUser_UserIdAndStatusIn(Integer userId, Collection<Status> statuses);
 
@@ -41,6 +47,24 @@ public interface AppRepo extends JpaRepository<Application, Integer> {
     // Find all applications belonging to one employee.
     @EntityGraph(attributePaths = {"user", "course"})
     List<Application> findByUser_UserId(Integer userId);
+
+    boolean existsByCourse_CourseId(Integer courseId);
+
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("SELECT a FROM Application a WHERE a.user.userId = :userId " +
+           "AND a.course.startDate <= :end AND a.course.endDate >= :start ORDER BY a.course.startDate, a.id")
+    Page<Application> findCurrentYearPersonal(@Param("userId") Integer userId,
+            @Param("start") LocalDate start, @Param("end") LocalDate end, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("SELECT a FROM Application a WHERE a.user.manager.userId = :managerId " +
+           "AND a.course.startDate <= :end AND a.course.endDate >= :start ORDER BY a.user.name, a.id")
+    Page<Application> findCurrentYearTeam(@Param("managerId") Integer managerId,
+            @Param("start") LocalDate start, @Param("end") LocalDate end, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "course"})
+    Page<Application> findByUser_Manager_UserIdAndStatusIn(Integer managerId,
+            Collection<Status> statuses, Pageable pageable);
 
     // Load direct subordinates' applications, ordered by employee name.
     @EntityGraph(attributePaths = {"user", "course"})
@@ -79,7 +103,20 @@ public interface AppRepo extends JpaRepository<Application, Integer> {
     List<Application> findApprovedCalendarApplications(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
-    
+
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("SELECT a FROM Application a WHERE a.user.manager.userId = :managerId " +
+           "AND a.status <> sg.edu.iss.cats.model.Status.DELETED " +
+           "AND (:name = '' OR LOWER(a.user.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+           "AND (:fromDate IS NULL OR a.course.endDate >= :fromDate) " +
+           "AND (:toDate IS NULL OR a.course.startDate <= :toDate) " +
+           "AND (:category IS NULL OR a.course.courseType = :category) " +
+           "ORDER BY a.user.name, a.id")
+    Page<Application> searchTeam(@Param("managerId") Integer managerId,
+            @Param("name") String name, @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate,
+            @Param("category") sg.edu.iss.cats.model.CourseType category, Pageable pageable);
+
     // Team view: all statuses, restricted to the manager's direct subordinates.
     @EntityGraph(attributePaths = {"user", "course"})
     @Query("""

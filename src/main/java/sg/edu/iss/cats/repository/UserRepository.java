@@ -13,6 +13,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User,Integer> {
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from User u where u.userId = :id")
+    Optional<User> findLockedById(@org.springframework.data.repository.query.Param("id") Integer id);
+
     public boolean existsByUsername(String username);
     // for user editing by admin
     public boolean existsByUsernameAndUserIdNot(String username, Integer userId);

@@ -38,7 +38,7 @@
                                applicationResult.status.name() == 'COMPLETED'}">
 
             <th:block th:if="${viewer == 'mine'}">
-                <th:block th:if="${applicationResult.status.name() == 'APPLIED'}"> 
+                <th:block th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}">
                     <div th:replace="~{fragments/formactions :: editOrDelete(app=${applicationResult})}"></div>
                 </th:block>
 
@@ -48,12 +48,28 @@
             </th:block>
 
             <th:block th:if="${viewer == 'manager'}">
+                <section th:if="${approvalBudget}">
+                    <h3>Subordinate annual training utilisation</h3>
+                    <p>Year <span th:text="${approvalBudget.year}"></span> — days committed:
+                    <span th:text="${approvalBudget.daysCommitted}"></span>, days completed:
+                    <span th:text="${approvalBudget.daysCompleted}"></span>, days remaining:
+                    <span th:text="${approvalBudget.daysRemaining}"></span>, fees committed:
+                    <span th:text="${approvalBudget.feesCommitted}"></span>, budget remaining:
+                    <span th:text="${approvalBudget.budgetRemaining}"></span>.</p>
+                </section>
+                <h3>Other subordinates' approved courses overlapping this period</h3>
+                <p th:if="${#lists.isEmpty(overlappingApprovedCourses)}">No overlapping approved courses.</p>
+                <ul><li th:each="other : ${overlappingApprovedCourses}"
+                    th:text="${other.user.name + ': ' + other.course.courseName + ' (' + other.course.startDate + ' to ' + other.course.endDate + ')'}"></li></ul>
                 <th:block th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}">
                     <div th:replace="~{fragments/formactions :: approveOrReject(app=${applicationResult})}"></div>
                 </th:block>
             </th:block>
 
         </th:block>
+        <p th:if="${viewer == 'mine' and applicationResult.status.name() == 'COMPLETED' and applicationResult.course.courseType.name() != 'INTERNAL' and applicationResult.course.fee.signum() > 0}">
+          <a th:href="@{/staff/claim(applicationId=${applicationResult.id})}">Claim course fee reimbursement</a>
+        </p>
     </div>
 
 </body>

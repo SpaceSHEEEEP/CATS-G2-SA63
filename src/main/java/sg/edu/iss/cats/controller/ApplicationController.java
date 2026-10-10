@@ -26,7 +26,9 @@ import sg.edu.iss.cats.repository.AppRepo;
 import sg.edu.iss.cats.repository.CommentRepository;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.UserRepository;
-import sg.edu.iss.cats.service.ApplicationService;
+import sg.edu.iss.cats.service.ApplicationWorkflowService;
+import sg.edu.iss.cats.service.TrainingAccountService;
+import sg.edu.iss.cats.model.Role;
 
 @Controller
 @RequestMapping("/staff")
@@ -34,21 +36,21 @@ public class ApplicationController {
 
     private final AppRepo appRepo;
     private final CourseRepository courseRepository;
-    private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-    private final ApplicationService applicationService;
+    private final ApplicationWorkflowService applicationService;
+    private final TrainingAccountService accounts;
 
     public ApplicationController(
             AppRepo appRepo,
-            CourseRepository courseRepository, 
-            CommentRepository commentRepository, 
-            ApplicationService applicationService,
-            UserRepository userRepository) {
+            CourseRepository courseRepository,
+            ApplicationWorkflowService applicationService,
+            UserRepository userRepository,
+            TrainingAccountService accounts) {
         this.appRepo = appRepo;
         this.courseRepository = courseRepository;
-        this.commentRepository = commentRepository;
         this.applicationService = applicationService;
         this.userRepository = userRepository;
+        this.accounts = accounts;
     }
 
 	@GetMapping("/apply")
@@ -61,8 +63,16 @@ public class ApplicationController {
 
         Application app = new Application();
         app.setUser(userRepository.findById(user.getUserId()).orElse(null));
-        if (courseId != null) app.setCourse(courseRepository.findById(courseId).orElse(null));
-		model.addAttribute("applicationForm", app);
+        Course selectedCourse = courseId == null ? null : courseRepository.findById(courseId).orElse(null);
+        if (selectedCourse != null && !Boolean.TRUE.equals(selectedCourse.getArchived())) {
+            app.setCourse(selectedCourse);
+        } else {
+            Course custom = new Course();
+            custom.setDuration(sg.edu.iss.cats.model.CourseDuration.FULLDAY);
+            custom.setFee(java.math.BigDecimal.ZERO);
+            app.setCourse(custom);
+        }
+        model.addAttribute("applicationForm", app);
 	    return "applyform";
     }
     
@@ -78,8 +88,7 @@ public class ApplicationController {
 
         // need below because spring mvc remakes a new object after every state change
         form.setUser(userRepository.findById(user.getUserId()).orElse(null));
-        if (result.hasErrors()) return "applyform";
-        // Check for valid annotations in the Application, Course Model.
+        // Bean validation runs before the transactional business checks.
         if (result.hasErrors()) return "applyform";
 
          // Check if it is a new application or an existing application (editing)
@@ -101,29 +110,17 @@ public class ApplicationController {
     }
 
     @GetMapping("/edit")
-    public String editForm(
-            @AuthenticationPrincipal User user,
-            @RequestParam(name = "id", required = true) Integer id,
-            Model model) {
-            Model model,
-            RedirectAttributes ra,
-            HttpSession session) {
-
-        // check if user is logged in
+    public String editForm(@AuthenticationPrincipal User user,
+            @RequestParam("id") Integer id, Model model, RedirectAttributes ra) {
         if (user == null) return "redirect:/staff/login";
         List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
         if (applications.isEmpty()) return "redirect:/staff/index";
-
-        // checks for application status - only allow editing when status is applied or updated
-        // from the list, it will only return one if there is matching or none so get the first record with index 0 using get()
-        // if the status is not APPLIED or UPDATED, prevent editing
-        if (applications.get(0).getStatus() != Status.APPLIED && applications.get(0).getStatus() != Status.UPDATED) {
-            ra.addFlashAttribute("errormsg", "You can no longer edit this application. Please apply for a new one");
+        Application application = applications.get(0);
+        if (application.getStatus() != Status.APPLIED && application.getStatus() != Status.UPDATED) {
+            ra.addFlashAttribute("errormsg", "Only applied or updated applications may be edited");
             return "redirect:/staff/index";
         }
-
-        // else, application exists
-        model.addAttribute("applicationForm", applications.get(0));
+        model.addAttribute("applicationForm", application);
         return "applyform";
     }
 
@@ -137,10 +134,13 @@ public class ApplicationController {
 		
         // TODO: leave better comments
         // TODO: maybe rewrite this
-		List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
-		if (!applications.isEmpty()) {
+        List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
+        if (!applications.isEmpty()) {
             model.addAttribute("applicationResult", applications.get(0));
             model.addAttribute("viewer", "mine");
+            model.addAttribute("canComplete", applications.get(0).getStatus() == Status.APPROVED
+                    && applications.get(0).getCourse().getEndDate().isBefore(
+                       java.time.LocalDate.now(java.time.ZoneId.of("Asia/Singapore"))));
             // TODO: fix this!
             if (applications.get(0).getStatus() != Status.COMPLETED) model.addAttribute("comment", new Comment(applications.get(0)));
             else {
@@ -150,20 +150,26 @@ public class ApplicationController {
             return "applyresult";
         }
 
-        // if the application isnt mine but its my subordinates, and im the manager,
+        // Manager-only subordinate access, checked from the persisted hierarchy.
         Application app = appRepo.findById(id).orElse(null);
-        if (app == null) return "redirect:/staff/index"; // cant find app
-        List<User> subordinates = user.getSubordinates();
-        for (User sub : subordinates) {
-            if (app.getUser().getUserId().equals(sub.getUserId())) {
-                model.addAttribute("applicationResult", app);
-                model.addAttribute("viewer", "manager");
-                return "applyresult";
-            }
+        if (app == null || user.getRole() != Role.ROLE_MANAGER
+                || app.getUser().getManager() == null
+                || !app.getUser().getManager().getUserId().equals(user.getUserId())) {
+            return "redirect:/staff/index";
         }
-		
-        // its not mine nor my subordinates'
-        return "redirect:/staff/index";
+        var budget = accounts.summary(app.getUser(), java.time.LocalDate.now().getYear());
+        model.addAttribute("approvalBudget", budget);
+        var overlaps = appRepo.findByUser_Manager_UserIdOrderByUser_NameAscIdAsc(user.getUserId()).stream()
+                .filter(other -> !other.getId().equals(app.getId()))
+                .filter(other -> !other.getUser().getUserId().equals(app.getUser().getUserId()))
+                .filter(other -> other.getStatus() == Status.APPROVED)
+                .filter(other -> !other.getCourse().getStartDate().isAfter(app.getCourse().getEndDate())
+                        && !other.getCourse().getEndDate().isBefore(app.getCourse().getStartDate()))
+                .toList();
+        model.addAttribute("overlappingApprovedCourses", overlaps);
+        model.addAttribute("applicationResult", app);
+        model.addAttribute("viewer", "manager");
+        return "applyresult";
     }
 
     @PostMapping("/delete")
@@ -191,39 +197,30 @@ public class ApplicationController {
     }
     
     @PostMapping("/completed")
-    public String completedApplication(
-            @AuthenticationPrincipal User user,
-            @RequestParam(name = "id", required = true) Integer id,
-            @RequestParam(name = "commentText") String commentText,
-            Model model,
+    public String completedApplication(@AuthenticationPrincipal User user,
+            @RequestParam("id") Integer id,
+            @RequestParam("commentText") String commentText,
             RedirectAttributes ra) {
-		    
-    	if (user == null) return "redirect:/staff/login";
-		
-		List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
-		if (applications.isEmpty()) return "redirect:/staff/index";
-
-	    Application completedApplication = applications.get(0);
-	    
-        // included try-catch for the controller for exception handling from the service
-        // checks that the application status is APPROVED first
-        if (completedApplication.getStatus() == Status.APPROVED){
-            try {
-                applicationService.completeApplication(completedApplication, user.getUserId());
-
-                Comment comment = new Comment(completedApplication);
-                comment.setCommentText(commentText);
-                System.out.println("DEBUG: " + comment);
-                commentRepository.save(comment);
-            } catch (RuntimeException e) {
-                ra.addAttribute("errormsg", e.getMessage());
-                return "redirect:/staff/index";
-            }
+        if (user == null) return "redirect:/staff/login";
+        try {
+            applicationService.completeApplication(id, user.getUserId(), commentText);
+            ra.addFlashAttribute("successmsg", "Application '" + id + "' completed successfully");
+        } catch (RuntimeException ex) {
+            ra.addFlashAttribute("errormsg", ex.getMessage());
         }
+        return "redirect:/staff/index";
+    }
 
-        // Flash Attribute for success message
-        ra.addFlashAttribute("successmsg", "Application '" + id + "' is marked as COMPLETED successfully!");
-        
+    @PostMapping("/cancel")
+    public String cancelApplication(@AuthenticationPrincipal User user,
+            @RequestParam("id") Integer id, RedirectAttributes ra) {
+        if (user == null) return "redirect:/staff/login";
+        try {
+            applicationService.cancelApplication(id, user.getUserId());
+            ra.addFlashAttribute("successmsg", "Application '" + id + "' cancelled");
+        } catch (RuntimeException ex) {
+            ra.addFlashAttribute("errormsg", ex.getMessage());
+        }
         return "redirect:/staff/index";
     }
     

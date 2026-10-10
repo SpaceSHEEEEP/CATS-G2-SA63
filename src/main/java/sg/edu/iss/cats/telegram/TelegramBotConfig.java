@@ -12,28 +12,28 @@ public class TelegramBotConfig {
     private final String botToken;
     private final CatsTelegramBot catsTelegramBot;
 
-    public TelegramBotConfig(
-            @Value("${telegram.bot.token}") String botToken,
-            CatsTelegramBot catsTelegramBot) {
+    private TelegramBotsLongPollingApplication botsApplication;
 
+    public TelegramBotConfig(
+            @Value("${telegram.bot.token:}") String botToken,
+            CatsTelegramBot catsTelegramBot) {
         this.botToken = botToken;
         this.catsTelegramBot = catsTelegramBot;
     }
 
     @PostConstruct
     public void registerBot() {
+        if (botToken.isBlank()) return; // Telegram integration is optional.
         try {
-            TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
-            
-            botsApplication.registerBot(
-                    botToken,
-                    catsTelegramBot
-            );
-
-            System.out.println("Telegram bot registered!");
-
+            botsApplication = new TelegramBotsLongPollingApplication();
+            botsApplication.registerBot(botToken, catsTelegramBot);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Telegram bot registration failed", e);
         }
+    }
+
+    @jakarta.annotation.PreDestroy
+    public void stopBot() throws Exception {
+        if (botsApplication != null) botsApplication.close();
     }
 }

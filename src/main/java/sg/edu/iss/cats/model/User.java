@@ -56,21 +56,26 @@ public class User implements UserDetails{
     private String username;
     @Column(nullable = false, length = 100)
     private String password;
-    @Enumerated (EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private Role role;
-    // TODO: delete isAdmin and replace it with the above
+    // Legacy flag retained for seeded data; role is the authority source.
     private boolean isAdmin;
+    @Enumerated(EnumType.STRING)
+    private Designation designation = Designation.PROFESSIONAL;
+    // NULL means enabled to preserve older seed data that did not set this column.
+    private Boolean active;
     @NotBlank(message="Email must not be empty")
+    @jakarta.validation.constraints.Email
     private String email;
     // private int reportsToId; // using @OneToMany and @ManyToOne now
 
-    // FetchType is EAGEr because I want .countPendingApplications() to work
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER) // each application gets mapped to a "user"
-    private List<Application> applications;
+    // Collections are lazy to avoid expensive and conflicting bag fetches.
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) // each application gets mapped to a "user"
+    private List<Application> applications = new ArrayList<>();
 
     // 'mappedBy = "manager" tells Hibernate: "To find the list of subordinates for a user, look at the manager field on the other side."' ~ Gemini
     @ToString.Exclude
-    @OneToMany(mappedBy = "manager", fetch = FetchType.EAGER) // TODO: make lazy next time
+    @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY) // loaded explicitly by manager queries
     private List<User> subordinates = new ArrayList<>(); // each subordinate get mappedBy manager
     @ToString.Exclude
     @ManyToOne // the other side
@@ -90,10 +95,10 @@ public class User implements UserDetails{
     // To implement UserDetails
     @Override  
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return role == null ? List.of() : List.of(new SimpleGrantedAuthority(role.name()));
     }
     @Override public boolean isAccountNonExpired()     {return true;}
     @Override public boolean isAccountNonLocked()      {return true;}
     @Override public boolean isCredentialsNonExpired() {return true;}
-    @Override public boolean isEnabled()               {return true;}
+    @Override public boolean isEnabled()               {return active == null || active;}
 }

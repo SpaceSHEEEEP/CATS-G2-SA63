@@ -9,15 +9,22 @@
 
         <div th:replace="~{fragments/header :: header}"></div>
 
-        <h2>Subordinate Course Application History</h2>
-
-        <p th:if="${#lists.isEmpty(subordinatesApplications)}">Your subordinates have no applications.</p>
-        <div th:unless="${#lists.isEmpty(subordinatesApplications)}" th:each="applications : ${subordinatesApplications}">
-            <details th:unless="${#lists.isEmpty(applications)}">
-                <summary th:text="${applications[0].user.name}"></summary>
-                <div th:replace="~{fragments/applicationlist :: applicationList(${applications})}"></div>
-            </details>
-        </div>
+        <h2>Subordinate course history (<span th:text="${year}"></span>)</h2>
+        <p th:if="${#maps.isEmpty(subordinateGroups)}">No applications this year.</p>
+        <details th:each="group : ${subordinateGroups}">
+          <summary th:text="${group.key}"></summary>
+          <div th:replace="~{fragments/applicationlist :: applicationList(${group.value})}"></div>
+        </details>
+        <form method="get" th:action="@{/manager/history}">
+          <label>Results per page <select name="pageSize" onchange="this.form.submit()">
+            <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
+          </select></label>
+        </form>
+        <nav aria-label="Subordinate history pages">
+          <a th:if="${pageNum > 0}" th:href="@{/manager/history(pageNum=${pageNum-1},pageSize=${pageSize})}">Previous</a>
+          <span th:text="|${pageNum+1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
+          <a th:if="${pageNum+1 < totalPages}" th:href="@{/manager/history(pageNum=${pageNum+1},pageSize=${pageSize})}">Next</a>
+        </nav>
         
     </body>
 </html>

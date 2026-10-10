@@ -24,7 +24,8 @@ public class TelegramRestController {
 	@GetMapping("/courses")
 	public List<CourseDTO> getCourses() {
 
-	    List<Course> courses = courseRepository.findAll();
+	    List<Course> courses = courseRepository.findAll().stream()
+                .filter(c -> !Boolean.TRUE.equals(c.getArchived())).toList();
 	    List<CourseDTO> courseDTOs = new ArrayList<>();
 
 	    for (Course course : courses) {
@@ -50,12 +51,10 @@ public class TelegramRestController {
 	public CourseDTO getCourse(
 	        @PathVariable(name = "courseId") Integer courseId) {
 
-	    Course course = courseRepository.findById(courseId)
-	            .orElse(null);
-
-	    if (course == null) {
-	        return null;
-	    }
+        Course course = courseRepository.findById(courseId)
+                .filter(c -> !Boolean.TRUE.equals(c.getArchived()))
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Course not found"));
 	    return new CourseDTO(
         		course.getCourseId(),
                 course.getCourseName(),

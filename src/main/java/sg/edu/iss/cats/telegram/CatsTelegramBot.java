@@ -9,45 +9,44 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import sg.edu.iss.cats.dto.CourseDTO;
-
-import org.springframework.web.client.RestClient;
+import sg.edu.iss.cats.model.Course;
+import sg.edu.iss.cats.repository.CourseRepository;
+import java.util.Set;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Component
-//LongPollingSingleThreadUpdateConsumer inheriting this allows the class to know "how to deal with updates received from Telegram"
 public class CatsTelegramBot implements LongPollingSingleThreadUpdateConsumer {
-
     private final TelegramClient telegramClient;
-    private final RestClient restClient;
+    private final CourseRepository courses;
+    private final Set<Long> allowedChats;
 
-    public CatsTelegramBot(
-            @Value("${telegram.bot.token}") String botToken) {
-
-        this.telegramClient = new OkHttpTelegramClient(botToken);
-        this.restClient = RestClient.create("http://localhost:8080");
+    public CatsTelegramBot(@Value("${telegram.bot.token:}") String botToken,
+            @Value("${telegram.allowed-chat-ids:}") String chatIds, CourseRepository courses) {
+        this.telegramClient = botToken.isBlank() ? null : new OkHttpTelegramClient(botToken);
+        this.courses = courses;
+        this.allowedChats = Arrays.stream(chatIds.split(","))
+                .map(String::trim).filter(s -> !s.isBlank())
+                .map(Long::parseLong).collect(Collectors.toUnmodifiableSet());
     }
 
     
     
     @Override
     public void consume(Update update) {
-    	
-        // Check that the update contains a text message
+        if (telegramClient == null || update == null) return;
         if (update.hasMessage() && update.getMessage().hasText()) {
-
-            String messageText = update.getMessage().getText();
+            String messageText = update.getMessage().getText().trim();
             Long chatId = update.getMessage().getChatId();
-            
-            System.out.println("TELEGRAM RECEIVED: [" + messageText + "]");
+            // Deny by default: course catalogue is staff information.
+            if (!allowedChats.contains(chatId)) return;
 
             // Check if user entered /courses
             if (messageText.equals("/courses")) {
                 try {
-                    CourseDTO[] courses = restClient.get()
-                            .uri("/api/courses")
-                            .retrieve()
-                            .body(CourseDTO[].class);
-
+                    var availableCourses = courses.findAll().stream()
+                            .filter(c -> !Boolean.TRUE.equals(c.getArchived()))
+                            .limit(30).toList();
                     String response = 
                     		"Welcome to CourseBot!\n"
                     		+"Click links below to view individual course details:\n\n"
@@ -55,7 +54,7 @@ public class CatsTelegramBot implements LongPollingSingleThreadUpdateConsumer {
 //                    		+ "\t\t - e.g. /course1\n\n"
                     		+ "These are our available courses:\n\n";
 
-                    for (CourseDTO course : courses) {
+                    for (Course course : availableCourses) {
 
                         response += 
                         		"[/course" + course.getCourseId() + "] "
@@ -86,14 +85,10 @@ public class CatsTelegramBot implements LongPollingSingleThreadUpdateConsumer {
 
                 try {
 
-                	String courseId =
-                	        messageText.substring("/course".length());
-
-                	CourseDTO course = restClient.get()
-                	        .uri("/api/courses/" + courseId)
-                	        .retrieve()
-                	        .body(CourseDTO.class);
-
+                    int courseId = Integer.parseInt(messageText.substring("/course".length()));
+                    Course course = courses.findById(courseId)
+                            .filter(c -> !Boolean.TRUE.equals(c.getArchived()))
+                            .orElseThrow(() -> new IllegalArgumentException("Unknown course"));
                     String response =
                             "Course Details\n\n"
                             + "Course Name: " + course.getCourseName() + "\n"

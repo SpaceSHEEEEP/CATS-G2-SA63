@@ -19,15 +19,15 @@
         <!-- display user details -->
         <div class="user-statistics-container">
           <div class="user-days-statistics">
-            <p th:text="'Actual Days Left: ' + ${user.actualDays}"></p>
-            <p th:text="'Budgeted Days Left: ' + ${user.budgetedDays}"></p>
+            <p th:text="'Actual Days Left: ' + ${trainingSummary.dayLimit - trainingSummary.daysCompleted}"></p>
+            <p th:text="'Budgeted Days Left: ' + ${trainingSummary.daysRemaining}"></p>
           </div>
           <div class="user-allowance-statistics">
-            <p th:text="'Actual Allowance Remaining: $' + ${user.actualAllowance}"></p>
-            <p th:text="'Budgeted Allowance Remaining: $' + ${user.budgetedAllowance}"></p>
+            <p th:text="'Actual Allowance Remaining: $' + ${trainingSummary.feeLimit.subtract(trainingSummary.feesCompleted)}"></p>
+            <p th:text="'Budgeted Allowance Remaining: $' + ${trainingSummary.budgetRemaining}"></p>
           </div>
           <div class="user-applications-statistics">
-            <p th:text="'Number of Pending Applications: ' + ${user.countPendingApplications()}"></p>
+            <p th:text="'Number of Pending Applications: ' + ${pendingCount}"></p>
           </div>
         </div>
 
@@ -37,12 +37,21 @@
         <!-- display error message for exception handling -->
         <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
 
-        <!-- user's personal course history -->
-        <p th:if="${#lists.isEmpty(applications)}">You have not applied for any courses.</p>
-        <span th:unless=${#lists.isEmpty(applications)}>
-            <h2>Personal Course History</h2>
-            <span th:replace="~{fragments/applicationlist :: applicationList(${applications})}"></span>
-        </span>
+        <!-- Current-year history only; links preserve selected page size. -->
+        <h2>Personal Course History (<span th:text="${year}"></span>)</h2>
+        <p th:if="${#lists.isEmpty(applications)}">You have no course records this year.</p>
+        <div th:unless="${#lists.isEmpty(applications)}"
+            th:replace="~{fragments/applicationlist :: applicationList(${applications})}"></div>
+        <form method="get" th:action="@{/staff/index}">
+            <label>Results per page <select name="pageSize" onchange="this.form.submit()">
+              <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
+            </select></label>
+        </form>
+        <nav aria-label="Personal application pages">
+            <a th:if="${pageNum > 0}" th:href="@{/staff/index(pageNum=${pageNum - 1},pageSize=${pageSize})}">Previous</a>
+            <span th:text="|${pageNum + 1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
+            <a th:if="${pageNum + 1 < totalPages}" th:href="@{/staff/index(pageNum=${pageNum + 1},pageSize=${pageSize})}">Next</a>
+        </nav>
 
   </body>
 </html>

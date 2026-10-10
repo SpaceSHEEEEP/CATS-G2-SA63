@@ -49,18 +49,15 @@
         
         <th:block th:fragment="cancelOrComplete(app, comment)">
             <div class="actions">
-            <!-- TODO: do survey first, then mark as complete -->
-            <!-- so action send to staff/survey etc etc -->
-
-            <form th:action="@{/staff/completed(id=${app.id})}" th:object="${comment}" method="post">
-
-                <fieldset>
-                    <label for="commentText">Comments about your experience</label>
-                    <textarea name="commentText" rows="5" maxlength="1000" required></textarea>
-                </fieldset>
-
-                <button type="submit">COMPLETED</button>
-            </form>
+              <form th:action="@{/staff/cancel(id=${app.id})}" method="post">
+                <button type="submit">Cancel approved application</button>
+              </form>
+              <form th:if="${canComplete}"
+                    th:action="@{/staff/completed(id=${app.id})}" method="post">
+                <fieldset><label>Comments about your experience</label>
+                  <textarea name="commentText" rows="5" maxlength="1000" required></textarea></fieldset>
+                <button type="submit">Mark completed</button>
+              </form>
             </div>
         </th:block>
 

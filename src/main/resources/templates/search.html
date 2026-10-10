@@ -13,13 +13,10 @@
 
     <h1>Application Search Results</h1>
     
-    <!-- Exclude applications which statuses are deleted  -->
-    <p th:text="'Number of results: ' + ${searchApplications.?[Status.name()!='DELETED'].size()}"></p>
-
-    <!-- Show 'No applications found.' if there are zero applications that are of statuses 'APPLIED' or 'EDITED' -->
-    <p th:if="${searchApplications.?[Status.name()!='DELETED'].isEmpty()}">No applications found.</p>
-
-    <table th:unless="${searchApplications.?[Status.name()!='DELETED'].isEmpty()}">
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+    <p th:text="'Results on this page: ' + ${#lists.size(searchApplications)}"></p>
+    <p th:if="${#lists.isEmpty(searchApplications)}">No applications found.</p>
+    <table th:unless="${#lists.isEmpty(searchApplications)}">
         <thead>
             <tr>
                 <th>Employee</th>
@@ -36,7 +33,7 @@
 
         <tbody>
 
-            <tr th:each="app : ${searchApplications}" th:unless="${app.Status.name() == 'DELETED'}">
+            <tr th:each="app : ${searchApplications}">
                 <td th:text="${app.user.name}"></td>
                 <td th:text="${app.course.courseName}"></td>
                 <td th:text="${app.course.courseType}"></td>
@@ -44,7 +41,7 @@
                 <td th:text="${app.course.endDate}"></td>
                 <td th:text="${app.course.fee}"></td>
                 <td th:text="${app.userReason}"></td>
-                <td th:text="${app.Status}"></td>
+                <td th:text="${app.status}"></td>
 				<td th:text="${app.managerReason}"></td>
             </tr>
 
@@ -52,25 +49,22 @@
 
     </table>
 
-    <br>
-
-    <!-- Note: do not adjust the format here -->
-    <h1>Staff Reports</h1>
-    <h3>Staff Personal Details</h3>
-    <pre>
-        UserID,Name,Email
-        <th:block th:each="r:${personalDetailsRows}">[[${r}]]</th:block>
-    </pre>
-
-    <h3>Overview of Allowance Balances</h3>
-    <pre>
-        UserID,Name,CourseID,CourseName,Fee,AllowanceRemaining
-        <th:block th:each="r:${rows}">[[${r}]]</th:block>
-    </pre>
-
-    <br>
-
-    <a th:href="@{/manager/applications}">Back to Pending Applications</a>
+    <form method="get" th:action="@{/manager/applications/search}">
+      <input type="hidden" name="employeeName" th:value="${employeeName}" />
+      <input type="hidden" name="startDate" th:value="${startDate}" />
+      <input type="hidden" name="endDate" th:value="${endDate}" />
+      <input type="hidden" name="courseType" th:value="${courseType}" />
+      <label>Results per page <select name="pageSize" onchange="this.form.submit()">
+        <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
+      </select></label>
+    </form>
+    <nav aria-label="Manager search pages">
+      <a th:if="${pageNum > 0}" th:href="@{/manager/applications/search(employeeName=${employeeName},startDate=${startDate},endDate=${endDate},courseType=${courseType},pageSize=${pageSize},pageNum=${pageNum - 1})}">Previous</a>
+      <span th:text="|${pageNum + 1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
+      <a th:if="${pageNum + 1 < totalPages}" th:href="@{/manager/applications/search(employeeName=${employeeName},startDate=${startDate},endDate=${endDate},courseType=${courseType},pageSize=${pageSize},pageNum=${pageNum + 1})}">Next</a>
+    </nav>
+    <p><a th:href="@{/manager/reports}">Accurate training, budget and claims reports</a></p>
+    <a th:href="@{/manager/applications}">Back to pending applications</a>
 
 </body>
 </html>
