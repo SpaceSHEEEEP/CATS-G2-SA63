@@ -23,194 +23,125 @@ import sg.edu.iss.cats.model.Role;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.repository.AppRepo;
 import sg.edu.iss.cats.repository.UserRepository;
+import sg.edu.iss.cats.service.ApplicationWorkflowService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import java.util.LinkedHashMap;
 
 @Controller 
 @RequestMapping("/manager") // for manager stuff
 public class ManagerController {
 
-	private final UserRepository userRepository;
-	private final AppRepo appRepo;
+    private final UserRepository userRepository;
+    private final AppRepo appRepo;
+    private final ApplicationWorkflowService workflows;
 
-	public ManagerController(UserRepository userRepository, AppRepo appRepo) {
-		this.userRepository = userRepository;
-		this.appRepo = appRepo;
-	}
+    public ManagerController(UserRepository userRepository, AppRepo appRepo,
+                             ApplicationWorkflowService workflows) {
+        this.userRepository = userRepository;
+        this.appRepo = appRepo;
+        this.workflows = workflows;
+    }
 
-	@GetMapping("/applications")
-	public String showApplications(
-            @AuthenticationPrincipal User user, 
+    private int safeSize(int requested) { return List.of(10, 20, 25).contains(requested) ? requested : 10; }
+
+    @GetMapping("/applications")
+    public String showApplications(@AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "0") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize,
             Model model) {
-
-		if (user == null)                         return "redirect:/staff/login";
-        if (user.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
-
-		List<Application> subordinateApplications = appRepo
-				.findByUser_Manager_UserIdOrderByUser_NameAscIdAsc(user.getUserId());
-
-		// Pending applications are the subset awaiting a manager's decision.
-		List<Application> pendingApplications = new ArrayList<>();
-		for (Application application : subordinateApplications) {
-			if (application.getStatus() == Status.APPLIED ||
-				application.getStatus() == Status.UPDATED) {
-				pendingApplications.add(application);
-			}
-		}
-
-		model.addAttribute("pendingApplications", pendingApplications);
-        // TODO: change findByUser_Manager_UserIdOrderByUser_NameAscIdAsc so that it limits to 4, 
-        // instead of me getting all applications, then limit to 4 like this. more performant
-		model.addAttribute("subordinateApplications", subordinateApplications.subList(0, Math.min(subordinateApplications.size(), 4)));
-
-		return "pendingapplications";
-	}
+        if (user == null || user.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
+        pageSize = safeSize(pageSize);
+        pageNum = Math.max(0, pageNum);
+        Page<Application> page = appRepo.findByUser_Manager_UserIdAndStatusIn(user.getUserId(),
+                List.of(Status.APPLIED, Status.UPDATED), PageRequest.of(pageNum, pageSize));
+        Map<String, List<Application>> grouped = new LinkedHashMap<>();
+        page.getContent().stream()
+                .sorted(java.util.Comparator.comparing(a -> a.getUser().getName()))
+                .forEach(a -> grouped.computeIfAbsent(a.getUser().getName(), key -> new ArrayList<>()).add(a));
+        model.addAttribute("pendingGroups", grouped);
+        model.addAttribute("pageNum", pageNum);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("pageSizes", List.of(10, 20, 25));
+        model.addAttribute("totalPages", page.getTotalPages());
+        return "pendingapplications";
+    }
 	
     @GetMapping("/history")
-    public String showSubordinateHistory(
-            @AuthenticationPrincipal User user,
+    public String showSubordinateHistory(@AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "0") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize,
             Model model) {
-
-		if (user == null)                         return "redirect:/staff/login";
-        if (user.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
-
-        // Give me a list of subordinates
-        List<User> subordinates = userRepository.findAllByManager_UserId(user.getUserId());
-
-        // for each subordinate, gimme a list of his/her applications
-        List<List<Application>> subordinatesApplications = new ArrayList<>();
-        for (User u : subordinates) {
-            if (!appRepo.existsByUser_UserId(u.getUserId())) continue;
-            subordinatesApplications.add(appRepo.findByUser_UserId(u.getUserId()));
+        if (user == null || user.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
+        int year = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Singapore")).getYear();
+        pageSize = safeSize(pageSize);
+        pageNum = Math.max(0, pageNum);
+        Page<Application> page = appRepo.findCurrentYearTeam(user.getUserId(),
+                LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31),
+                PageRequest.of(pageNum, pageSize));
+        Map<String, List<Application>> grouped = new LinkedHashMap<>();
+        for (Application application : page.getContent()) {
+            grouped.computeIfAbsent(application.getUser().getName(), key -> new ArrayList<>()).add(application);
         }
-        model.addAttribute("subordinatesApplications", subordinatesApplications);
-
+        model.addAttribute("subordinateGroups", grouped);
+        model.addAttribute("year", year);
+        model.addAttribute("pageNum", pageNum);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("pageSizes", List.of(10, 20, 25));
+        model.addAttribute("totalPages", page.getTotalPages());
         return "history";
     }
 
-	@GetMapping("/applications/search")
-	public String searchApplications(
-          @AuthenticationPrincipal User manager,
-	        @RequestParam(name = "employeeName") String employeeName,
-          @RequestParam(name = "startDate", required = false) LocalDate startDate,
-	        @RequestParam(name = "endDate", required = false) LocalDate endDate,
-	        @RequestParam(name = "courseType") String courseType,
-	        Model model) {
-
-		if (manager == null)                         return "redirect:/staff/login";
-        if (manager.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
-
-	    List<Application> applications = appRepo
-            .findByUser_Manager_UserIdOrderByUser_NameAscIdAsc(manager.getUserId());
-
-	    List<Application> searchApplications = new ArrayList<>();
-
-			List<String> userDetailsList = new ArrayList<>();
-			List<Integer> userIdTrackingList = new ArrayList<>(); // prevent duplicated entries for the user personal details
-			List<String> userDetailsAndAllowanceRemainingList = new ArrayList<>();
-			Map<Integer, BigDecimal> userIdToAllowance = new HashMap<>();
-			
-			boolean startDateEmpty = (startDate == null);
-			boolean endDateEmpty = (endDate == null);
-
-	    for (Application app : applications) {
-	        Course course = app.getCourse();
-	        
-	        // lower case to make search not case sensitive
-	        boolean nameMatch = employeeName.isBlank() || app.getUser().getName().toLowerCase().contains(employeeName.toLowerCase());
-	        
-            boolean start = startDateEmpty || course.getEndDate().compareTo(startDate)>=0;
-            boolean end = endDateEmpty || course.getStartDate().compareTo(endDate)<=0;
-            boolean dateMatch = start && end;
-
-	        boolean typeMatch = courseType.equals("ALL") || course.getCourseType().name().equals(courseType);
-	        
-	        if (nameMatch && dateMatch && typeMatch) {
-                searchApplications.add(app);
-
-                // if application is not DELETED, prepare the details
-                if (!app.getStatus().equals(Status.DELETED)) {
-                    Integer userId = app.getUser().getUserId();
-                    BigDecimal fee = app.getCourse().getFee();
-
-                    // if the hash map does not contain the user ID as key
-                    if (!userIdToAllowance.containsKey(userId)) {
-                        // fill in the map with user id and the user's actual allowance
-                        userIdToAllowance.put(userId, app.getUser().getActualAllowance());
-                    }
-
-                    // return the value (allowance) which the specific key (userId) is mapped and subtract fee to obtain remaining budget
-                    BigDecimal budgetRemaining = userIdToAllowance.get(userId).subtract(fee);
-
-                    // update the hash map
-                    userIdToAllowance.put(userId, budgetRemaining);
-
-                    // Construct csv style for user personal details
-                    // Check first if the user id is new or duplicate
-                    // If the user id is new, add it into the tracking list and display it
-                    if (!userIdTrackingList.contains(userId)) {
-                        userIdTrackingList.add(userId);
-                        String personalDetailsRow = String.format("%d,%s,%s", userId, app.getUser().getName(), 
-                                                                  app.getUser().getEmail());
-                        userDetailsList.add(personalDetailsRow);
-                    }
-
-                    // Construct csv style for user application details and allowance remaining
-                    String row = String.format("%d,%s,%d,%s,%.2f,%.2f", userId, app.getUser().getName(), 
-                                               course.getCourseId(), course.getCourseName(), fee, budgetRemaining);
-
-                    userDetailsAndAllowanceRemainingList.add(row);									
-                }
-            }
-	    }
-	    
-	    System.out.println("Search results count: " + searchApplications.size());
-	    model.addAttribute("searchApplications", searchApplications);
-			model.addAttribute("personalDetailsRows", userDetailsList);
-			model.addAttribute("rows", userDetailsAndAllowanceRemainingList);
-
+    @GetMapping("/applications/search")
+    public String searchApplications(@AuthenticationPrincipal User manager,
+            @RequestParam(defaultValue = "") String employeeName,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(defaultValue = "ALL") String courseType,
+            @RequestParam(defaultValue = "0") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize,
+            Model model) {
+        if (manager == null || manager.getRole() != Role.ROLE_MANAGER)
+            return "redirect:/staff/index";
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+            model.addAttribute("error", "End date must not precede start date");
+        }
+        sg.edu.iss.cats.model.CourseType category;
+        try {
+            category = courseType.equals("ALL") ? null : sg.edu.iss.cats.model.CourseType.valueOf(courseType);
+        } catch (IllegalArgumentException ex) {
+            category = null;
+        }
+        pageSize = safeSize(pageSize);
+        pageNum = Math.max(0, pageNum);
+        Page<Application> page = appRepo.searchTeam(manager.getUserId(), employeeName,
+                startDate, endDate, category, PageRequest.of(pageNum, pageSize));
+        model.addAttribute("searchApplications", page.getContent());
+        model.addAttribute("pageNum", pageNum);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("pageSizes", List.of(10, 20, 25));
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("employeeName", employeeName);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("courseType", courseType);
         return "search";
-	}
+    }
 	
-	@PostMapping("/application/status")
-	public String changeStatus(
-          @AuthenticationPrincipal User manager,
-	        @RequestParam(name = "id") Integer id,
-	        @RequestParam(name = "managerReason", required = true) String managerReason,
-	        @RequestParam(name = "status") String status,
-	        HttpSession session,
-					RedirectAttributes ra) {
-
-		if (manager == null)                         return "redirect:/staff/login";
-        if (manager.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
-
-	    Application app = appRepo.findById(id).orElse(null);
-	    if (app == null) return "redirect:/manager/applications";
-
-			// Check if managerReason field is filled
-			if (managerReason == null || managerReason.trim().isEmpty()){
-				ra.addFlashAttribute("errormsg", "Please provide a reason or justification for your approval/rejection");
-				return "redirect:/staff/view?id=" + id;
-			}
-
-			// Check if managerReason length exceeds 1000 characters
-			if (managerReason.length() > 1000) {
-				ra.addFlashAttribute("errormsg", "Please limit your reason or justification within 1000 characters");
-				return "redirect:/staff/view?id=" + id;
-			}
-
-	    if (status.equals("APPROVED")) app.setStatus(Status.APPROVED);
-        else if (status.equals("REJECTED")) app.setStatus(Status.REJECTED);
-
-	    app.setManagerReason(managerReason);
-
-	    appRepo.save(app);
-
-			// Flash Attribute for success message
-			if (app.getStatus() == Status.APPROVED){
-				ra.addFlashAttribute("successmsg", "You have approved '" + app.getId() + "' sucessfully!");
-			} else {
-				ra.addFlashAttribute("successmsg", "You have rejected '" + app.getId() + "' successfully!");
-			}
-
-	    return "redirect:/manager/applications";
-	}
+    @PostMapping("/application/status")
+    public String changeStatus(@AuthenticationPrincipal User manager,
+            @RequestParam("id") Integer id,
+            @RequestParam("managerReason") String reason,
+            @RequestParam("status") String status,
+            RedirectAttributes ra) {
+        if (manager == null || manager.getRole() != Role.ROLE_MANAGER)
+            return "redirect:/staff/index";
+        try {
+            workflows.decide(manager.getUserId(), id, Status.valueOf(status), reason);
+            ra.addFlashAttribute("successmsg", "Application " + id + " " + status.toLowerCase());
+        } catch (RuntimeException ex) {
+            ra.addFlashAttribute("errormsg", ex.getMessage());
+        }
+        return "redirect:/manager/applications";
+    }
 }

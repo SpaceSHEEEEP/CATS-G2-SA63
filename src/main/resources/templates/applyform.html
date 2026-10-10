@@ -83,7 +83,12 @@
     
           <fieldset>
             <label>Course Duration:</label>
-            <input type="text" th:name="course.duration" th:value="*{course.duration ?: 'FULLDAY'}" th:readonly="true" />
+            <select th:field="*{course.duration}" required>
+              <option value="FULLDAY">Full day</option>
+              <option value="HALFDAYAM">Half day (AM; internal training only)</option>
+              <option value="HALFDAYPM">Half day (PM; internal training only)</option>
+            </select>
+            <small>Only internal training may be half-day. One half-day session must start and end on the same date.</small>
             <span class="field-error-message" th:if="${#fields.hasErrors('course.duration')}" th:errors="*{course.duration}"/>
           </fieldset>
   

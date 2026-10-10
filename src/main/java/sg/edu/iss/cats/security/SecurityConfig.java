@@ -18,7 +18,7 @@ public class SecurityConfig {
 
     @Bean 
     @Order(1)
-    public SecurityFilterChain adminFilterChain(HttpSecurity http) {
+    public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception {
         return http
             .securityMatcher("/admin/**")
             .authorizeHttpRequests(auth -> auth
@@ -50,16 +50,13 @@ public class SecurityConfig {
 
     @Bean 
     @Order(2)
-    public SecurityFilterChain userFilterChain(HttpSecurity http) {
+    public SecurityFilterChain userFilterChain(HttpSecurity http) throws Exception {
         return http
             .authorizeHttpRequests(auth -> auth
-                // All users can see these
                 .requestMatchers("/staff/login", "/admin/login", "/style.css", "/error").permitAll()
-
-                // ONLy managers 
-                .requestMatchers(HttpMethod.GET, "/manager/**").hasRole("MANAGER")
-
-                // any other urls, user just needs to be authenticated
+                .requestMatchers("/manager/**").hasRole("MANAGER")
+                .requestMatchers("/staff/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
+                .requestMatchers("/api/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

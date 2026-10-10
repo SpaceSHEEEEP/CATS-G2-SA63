@@ -37,47 +37,54 @@
 
               <fieldset>
                 <label>Username:</label>
-                <input type="text" th:field="*{username}"/>
+                <input type="text" th:field="*{username}" required />
                 <span class="field-error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"/>
               </fieldset>
 
               <fieldset>
                 <label>Email:</label>
-                <input type="email" th:field="*{email}"/>
+                <input type="email" th:field="*{email}" required />
                 <span class="field-error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"/>
               </fieldset>
 
-              <h3>User Role</h3>
-              <fieldset>
-                <label>Administrator:</label>
-                <select id="isAdmin" name="admin">
-                  <option value="" th:selected="${userForm.isAdmin==null}">--Select Role--</option>
-                  <option value="true" th:selected="${userForm.isAdmin==true}">Yes</option>
-                  <option value="false" th:selected="${userForm.isAdmin==false}">No</option>
+              <fieldset><label>Password <small>(required for new users; leave blank to retain on edit)</small>:</label>
+                <input type="password" th:field="*{password}" minlength="10" autocomplete="new-password" />
+              </fieldset>
+
+              <h3>User role and approval hierarchy</h3>
+              <fieldset><label>Role:</label>
+                <select th:field="*{role}" required>
+                  <option value="ROLE_EMPLOYEE">Employee</option>
+                  <option value="ROLE_MANAGER">Manager</option>
+                  <option value="ROLE_ADMIN">Administrator</option>
                 </select>
-                <span class="field-error-message" th:if="${#fields.hasErrors('admin')}" th:errors="*{admin}"/>
               </fieldset>
-
-              <fieldset>
-                <label>Reports To:</label>
-                <select th:field="*{manager}">
-                  <option value="">--Select Manager--</option>
-                  <option th:each="mngr:${managers}" th:unless="${mngr.userId == userForm.userId}" th:value="${mngr.userId}" th:text="${mngr.name}"></option>
+              <fieldset><label>Designation:</label>
+                <select th:field="*{designation}" required>
+                  <option value="ADMINISTRATIVE">Administrative</option>
+                  <option value="PROFESSIONAL">Professional</option>
                 </select>
-                <span class="field-error-message" th:if="${#fields.hasErrors('manager')}" th:errors="*{manager}"/>
+              </fieldset>
+              <fieldset><label>Reports to:</label>
+                <select th:field="*{managerId}">
+                  <option value="">No supervisor</option>
+                  <option th:each="mngr : ${managers}" th:unless="${mngr.userId == userForm.userId}"
+                          th:value="${mngr.userId}" th:text="${mngr.name}"></option>
+                </select>
+              </fieldset>
+              <fieldset><label>Account enabled:</label>
+                <input type="checkbox" th:field="*{enabled}" />
               </fieldset>
 
-              <h3>User's Training Days & Allowance</h3>
-              <fieldset>
-                <label>Training Days Entitlement:</label>
-                <input type="number" th:field="*{actualDays}"/>
-                <span class="field-error-message" th:if="${#fields.hasErrors('actualDays')}" th:errors="*{actualDays}"/>
+              <h3>Annual training allocation</h3>
+              <fieldset><label>Calendar year:</label>
+                <input type="number" th:field="*{year}" min="2000" max="9999" required />
               </fieldset>
-
-              <fieldset>
-                <label>Training Allowance Entitlement:</label>
-                <input type="number" th:field="*{actualAllowance}"/>
-                <span class="field-error-message" th:if="${#fields.hasErrors('actualAllowance')}" th:errors="*{actualAllowance}"/>
+              <fieldset><label>Annual training days entitlement:</label>
+                <input type="number" th:field="*{annualDays}" step="0.5" min="0" required />
+              </fieldset>
+              <fieldset><label>Annual training allowance (SGD):</label>
+                <input type="number" th:field="*{annualAllowance}" step="0.01" min="0" required />
               </fieldset>
 
               <div class="form-buttons">

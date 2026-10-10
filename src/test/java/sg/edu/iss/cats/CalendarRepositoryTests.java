@@ -46,8 +46,8 @@ class CalendarRepositoryTests {
     @Test
     @DisplayName("Personal calendar stays private; shared calendar shows approved only")
     void calendarQueriesRespectVisibilityAndDateOverlap() {
-        User ben = userRepository.findByUsername("benny");
-        User dan = userRepository.findByUsername("danny");
+        User ben = userRepository.findByUsername("benny").orElseThrow();
+        User dan = userRepository.findByUsername("danny").orElseThrow();
 
         assertThat(ben).isNotNull();
         assertThat(dan).isNotNull();

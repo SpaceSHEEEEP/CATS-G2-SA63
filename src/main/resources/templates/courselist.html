@@ -13,22 +13,23 @@
     <a th:href="@{courselist(type='EXTERNAL')}">EXTERNAL</a>
     <a th:href="@{courselist(type='PROFESSIONAL')}">PROFESSIONAL</a>
 
-    <h1>Internal Courses</h1>
-    <p th:if="${#lists.isEmpty(courselist)}">No Courses Available.</p>
-    <th:block h:unless="${#lists.isEmpty(courselist)}">
+    <h1>Course catalogue</h1>
+    <p th:if="${courses.isEmpty()}">No courses available.</p>
+    <th:block th:unless="${courses.isEmpty()}">
         <div th:replace="~{fragments/courselist :: courseList(courses=${courses})}" />
     </th:block>
 
-    <div class = "pagination">
-        <div>
-        <a th:if="${pageNum > 0}" th:href="@{/staff/courselist(pageNum=${pageNum-1})}">Prev page</a>
-        <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/staff/courselist(pageNum=${pageNum+1})}">Next page</a>
-        </div>
-        
-        <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
-            <a th:href="@{/staff/courselist(pageNum=${i})}" th:text="${i + 1}"></a>
-        </th:block>
-    </div>
+    <form method="get" th:action="@{/staff/courselist}">
+      <input type="hidden" name="type" th:value="${selectedType}" />
+      <label>Results per page <select name="pageSize" onchange="this.form.submit()">
+        <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
+      </select></label>
+    </form>
+    <nav class="pagination" aria-label="Course catalogue pages">
+      <a th:if="${pageNum > 0}" th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum-1},pageSize=${pageSize})}">Previous</a>
+      <span th:text="|${pageNum+1} / ${pageNumLast == 0 ? 1 : pageNumLast}|"></span>
+      <a th:if="${pageNum+1 < pageNumLast}" th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum+1},pageSize=${pageSize})}">Next</a>
+    </nav>
 
   </body>
 </html>

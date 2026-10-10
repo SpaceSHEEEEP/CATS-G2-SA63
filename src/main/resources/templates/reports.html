@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><title>Manager Training Reports</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+  <h1>Organisation-wide manager training reports</h1>
+  <p th:if="${error}" th:text="${error}" role="alert"></p>
+  <form method="get" th:action="@{/manager/reports}">
+    <label>From <input type="date" name="startDate" th:value="${from}" /></label>
+    <label>To <input type="date" name="endDate" th:value="${to}" /></label>
+    <label>Category <select name="category"><option value="">All</option>
+      <option th:each="type : ${T(sg.edu.iss.cats.model.CourseType).values()}"
+        th:value="${type}" th:text="${type}" th:selected="${type == category}"></option></select></label>
+    <label>Employee ID <input type="number" name="employeeId" th:value="${employeeId}" /></label>
+    <label>Budget/claims year <input type="number" name="year" min="2000" max="9999" th:value="${year}" /></label>
+    <button type="submit">Generate reports</button>
+  </form>
+  <h2>Approved/completed training attendance</h2>
+  <table><thead><tr><th>Employee</th><th>Course</th><th>Category</th><th>Start</th><th>End</th><th>Status</th><th>Fee</th></tr></thead>
+  <tbody><tr th:each="application : ${attendees}">
+    <td th:text="${application.user.name}"></td><td th:text="${application.course.courseName}"></td>
+    <td th:text="${application.course.courseType}"></td><td th:text="${application.course.startDate}"></td>
+    <td th:text="${application.course.endDate}"></td><td th:text="${application.status}"></td>
+    <td th:text="${application.course.fee}"></td></tr></tbody></table>
+  <h2>Employee annual budget and days utilisation</h2>
+  <table><thead><tr><th>Employee</th><th>Days limit</th><th>Days committed</th><th>Days completed</th><th>Days remaining</th><th>Fee limit</th><th>Fees committed</th><th>Fees completed</th><th>Budget remaining</th><th>Claims reimbursed</th><th>Claims pending</th></tr></thead>
+  <tbody><tr th:each="row : ${budgets}"><td th:text="${row.employee.name}"></td>
+    <td th:text="${row.summary.dayLimit}"></td><td th:text="${row.summary.daysCommitted}"></td>
+    <td th:text="${row.summary.daysCompleted}"></td><td th:text="${row.summary.daysRemaining}"></td>
+    <td th:text="${row.summary.feeLimit}"></td><td th:text="${row.summary.feesCommitted}"></td>
+    <td th:text="${row.summary.feesCompleted}"></td><td th:text="${row.summary.budgetRemaining}"></td>
+    <td th:text="${row.claimsApproved}"></td><td th:text="${row.claimsPending}"></td></tr></tbody></table>
+  <h2>Course-fee reimbursement claims</h2>
+  <table><thead><tr><th>Employee</th><th>Course</th><th>Submitted</th><th>Amount</th><th>Status</th><th>Decision reason</th><th>Evidence</th><th>Decision</th></tr></thead>
+  <tbody><tr th:each="claim : ${claims}"><td th:text="${claim.employee.name}"></td>
+    <td th:text="${claim.application.course.courseName}"></td><td th:text="${claim.submittedOn}"></td>
+    <td th:text="${claim.amount}"></td><td th:text="${claim.status}"></td>
+    <td th:text="${claim.managerReason}"></td>
+    <td><a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}">Receipt</a> ·
+        <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}">Certificate</a></td>
+    <td><form th:if="${claim.status.name() == 'SUBMITTED'}" method="post" th:action="@{/manager/claims/decision}">
+      <input type="hidden" name="claimId" th:value="${claim.id}" />
+      <textarea name="reason" maxlength="1000" required placeholder="Decision reason"></textarea>
+      <button type="submit" name="status" value="APPROVED">Approve</button>
+      <button type="submit" name="status" value="REJECTED">Reject</button>
+    </form></td></tr></tbody></table>
+</body></html>

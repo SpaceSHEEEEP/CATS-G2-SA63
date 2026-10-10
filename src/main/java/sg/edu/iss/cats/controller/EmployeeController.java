@@ -31,46 +31,64 @@ import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.repository.UserRepository;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.AppRepo;
+import sg.edu.iss.cats.service.TrainingAccountService;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Controller
 @RequestMapping("/staff") // for employee's stuff
 public class EmployeeController {
 
-    private final int pageSize = 10;
-	private final CourseRepository courseRepository;
-	private final AppRepo appRepo;
-	private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
+    private final AppRepo appRepo;
+    private final UserRepository userRepository;
+    private final TrainingAccountService accounts;
 
-	public EmployeeController(
-            CourseRepository courseRepository, 
-            AppRepo appRepo,
-			UserRepository userRepository) {
-		this.courseRepository = courseRepository;
-		this.appRepo = appRepo;
-		this.userRepository = userRepository;
-	}
+    public EmployeeController(CourseRepository courseRepository, AppRepo appRepo,
+            UserRepository userRepository, TrainingAccountService accounts) {
+        this.courseRepository = courseRepository;
+        this.appRepo = appRepo;
+        this.userRepository = userRepository;
+        this.accounts = accounts;
+    }
 
-	@GetMapping("/index")
-	public String showIndex(
-            @AuthenticationPrincipal User user, 
+    private int safeSize(int requested) { return List.of(10, 20, 25).contains(requested) ? requested : 10; }
+
+    @GetMapping("/index")
+    public String showIndex(@AuthenticationPrincipal User user,
+            @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
             Model model) {
-
         if (user == null) return "redirect:/staff/login";
-    
-        List<Application> applications = appRepo.findByUser_UserId(user.getUserId());
-        model.addAttribute("applications", applications);
-        model.addAttribute("isManager", userRepository.existsByManager_UserId(user.getUserId()));
-        model.addAttribute("user", userRepository.findById(user.getUserId()).orElseThrow());
-
+        int year = LocalDate.now(ZoneId.of("Asia/Singapore")).getYear();
+        pageSize = safeSize(pageSize);
+        pageNum = Math.max(0, pageNum);
+        Page<Application> history = appRepo.findCurrentYearPersonal(user.getUserId(),
+                LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31),
+                PageRequest.of(pageNum, pageSize));
+        User persisted = userRepository.findById(user.getUserId()).orElseThrow();
+        model.addAttribute("applications", history.getContent());
+        model.addAttribute("trainingSummary", accounts.summary(persisted, year));
+        model.addAttribute("pendingCount", appRepo.findByUser_UserIdAndStatusIn(user.getUserId(),
+                List.of(sg.edu.iss.cats.model.Status.APPLIED, sg.edu.iss.cats.model.Status.UPDATED)).size());
+        model.addAttribute("isManager", persisted.getRole() == sg.edu.iss.cats.model.Role.ROLE_MANAGER);
+        model.addAttribute("user", persisted);
+        model.addAttribute("pageNum", pageNum);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("pageSizes", List.of(10, 20, 25));
+        model.addAttribute("totalPages", history.getTotalPages());
+        model.addAttribute("year", year);
         return "index";
-	}
+    }
 
-    @GetMapping ("/courselist")
+    @GetMapping("/courselist")
     public String showInternalCoursesPages(
             @RequestParam(name = "type", defaultValue = "ALL") String type,
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
             Model model) {
-
+        pageSize = safeSize(pageSize);
+        pageNum = Math.max(0, pageNum);
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         List<CourseType> courseTypes = new ArrayList<>();
 
@@ -89,9 +107,12 @@ public class EmployeeController {
                 break;
         }
 
-        Page<Course> coursePage = courseRepository.findByCourseTypeInOrderByStartDateAsc(courseTypes, pageable);
+        Page<Course> coursePage = courseRepository.findActiveCoursesByType(courseTypes, pageable);
         model.addAttribute("courses", coursePage);
         model.addAttribute("pageNum", pageNum);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("selectedType", type);
+        model.addAttribute("pageSizes", List.of(10, 20, 25));
         model.addAttribute("pageNumLast", coursePage.getTotalPages());
         return "courselist";
     }

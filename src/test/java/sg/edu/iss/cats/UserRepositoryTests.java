@@ -29,14 +29,13 @@ public class UserRepositoryTests {
 	    assertThat(exists).isTrue();
 	}
 	
-	@Test
-	@DisplayName("Returns true when Bobby's password matches")
-	void bobbyPasswordMatches() {
-	    boolean matches = userRepository.existsByUsernameAndPassword(
-	            "bobby", "pw");
-
-	    assertThat(matches).isTrue();
-	}
+    @Test
+    @DisplayName("Seeded credentials use a BCrypt hash, never plaintext")
+    void seededPasswordIsEncoded() {
+        User user = userRepository.findByUsername("bobby").orElseThrow();
+        assertThat(user.getPassword()).startsWith("$2");
+        assertThat(user.getPassword()).isNotEqualTo("pw");
+    }
 	
 	@Test
 	@DisplayName("FALSE when Bobby's pass dont matches")
@@ -66,7 +65,7 @@ public class UserRepositoryTests {
 	@Test
 	@DisplayName("Returns User Object when the username exists")
 	void findUserByUsername() {
-	    User user = userRepository.findByUsername("bobby");
+        User user = userRepository.findByUsername("bobby").orElseThrow();
 
 	    assertThat(user).isNotNull();
 	    assertThat(user.getUsername()).isEqualTo("bobby");
@@ -75,9 +74,7 @@ public class UserRepositoryTests {
 	@Test
 	@DisplayName("Does not return any User Object when the username does not exist")
 	void findUserByUsernameDoesNotExist() {
-	    User user = userRepository.findByUsername("mr.brightside");
-
-	    assertThat(user).isNull();
+        assertThat(userRepository.findByUsername("mr.brightside")).isEmpty();
 	}
 
 	@Test

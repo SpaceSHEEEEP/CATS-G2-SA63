@@ -57,10 +57,13 @@ public class Course {
     @PositiveOrZero(message="Course fee cannot be negative")
     private BigDecimal fee;
 
-    // added course duration
+    // Half-day sessions are only permitted for single-day internal training.
     @Enumerated(EnumType.STRING)
-    // @NotNull (message = "Course duration is required")
+    @NotNull(message = "Course duration is required")
     private CourseDuration duration;
+    // Existing historical applications keep their snapshots after catalogue edits.
+    // NULL means active for courses created before this flag was introduced.
+    private Boolean archived;
 
     // map course to application 
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)

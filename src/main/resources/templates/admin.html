@@ -17,16 +17,18 @@
     <!-- display success message for every application made or deleted -->
     <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
 	
-	<h2>Users</h2>
-	<p th:if="${#lists.isEmpty(users)}">No users found.</p>
+    <h2>Users</h2>
+    <p><a th:href="@{/admin/createuser}">Create employee</a></p>
+    <p th:if="${#lists.isEmpty(users)}">No users found.</p>
 	<table th:unless="${#lists.isEmpty(users)}">
 	    <thead>
 	        <tr>
 	            <th>Name</th>
 				<th>Username</th>
-	            <th>Email</th>
-	            <th>Administrator</th>
-				<th>Reports To</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Enabled</th>
+                <th>Reports To</th>
 	            <th>Remaining Budget (SGD)</th>
 	            <th>Days Remaining</th>
                 <th>Modify</th>
@@ -37,8 +39,9 @@
 	        <tr th:each="staff : ${users}">
 	            <td th:text="${staff.name}"></td>
 				<td th:text="${staff.username}"></td>
-	            <td th:text="${staff.email}"></td>
-	            <td th:text="${staff.admin} ? 'Yes' : 'No'"></td>
+                <td th:text="${staff.email}"></td>
+                <td th:text="${staff.role}"></td>
+                <td th:text="${staff.enabled ? 'Yes' : 'No'}"></td>
                 <td th:text="${staff.manager == null} ? '-' : ${staff.manager.name}"></td>
                 <td th:text="${staff.actualAllowance == null} ? 'Not set' : ${#numbers.formatDecimal(staff.actualAllowance, 1, 2)}"></td>
 	            <td th:text="${staff.actualDays}"></td>
@@ -53,7 +56,7 @@
 	</table>
 
     <h2>Courses</h2>
-    <p>TODO: Ordered by number of applicants, highest first.</p>
+    <p><a th:href="@{/admin/course/new}">Add catalogue course</a></p>
     <p th:if="${#lists.isEmpty(courseSummaries.content)}">No courses recorded.</p>
     <table th:unless="${#lists.isEmpty(courseSummaries.content)}">
         <thead>
@@ -66,6 +69,7 @@
                 <th>Location</th>
                 <th>Training Provider</th>
                 <th>Fee (SGD)</th>
+                <th>Modify</th><th>Archive</th>
             </tr>
         </thead>
         <tbody>
@@ -78,6 +82,9 @@
                 <td th:text="${summary.course.location}"></td>
                 <td th:text="${summary.course.trainingProvider}"></td>
                 <td th:text="${summary.course.fee == null} ? 'Not set' : ${#numbers.formatDecimal(summary.course.fee, 1, 2)}"></td>
+                <td><a th:href="@{/admin/course/edit(courseId=${summary.course.courseId})}">Edit</a></td>
+                <td><form th:action="@{/admin/course/archive(courseId=${summary.course.courseId})}" method="post">
+                  <button type="submit" th:disabled="${summary.course.archived}">Archive</button></form></td>
             </tr>
         </tbody>
     </table>

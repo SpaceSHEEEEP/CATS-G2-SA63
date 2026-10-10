@@ -38,18 +38,24 @@
 		</form>
 
 	
-    <h2>Pending Approvals</h2>
-    <p th:if="${#lists.isEmpty(pendingApplications)}">No applications awaiting approval.</p>
-    <div th:unless="${#lists.isEmpty(pendingApplications)}">
-        <div th:replace="~{fragments/applicationlist :: applicationListWithName(${pendingApplications})}"></div>
-    </div>
-
-    <h2>Subordinate Course Application History</h2>
-    <p th:if="${#lists.isEmpty(subordinateApplications)}">Your subordinates never made any applications.</p>
-    <div th:unless="${#lists.isEmpty(subordinateApplications)}">
-        <div th:replace="~{fragments/applicationlist :: applicationListWithName(${subordinateApplications})}"></div>
-        <a th:href="@{/manager/history}">See all</a>
-    </div>
+    <h2>Pending approvals by subordinate</h2>
+    <p th:if="${#maps.isEmpty(pendingGroups)}">No applications awaiting approval.</p>
+    <section th:each="group : ${pendingGroups}">
+        <h3 th:text="${group.key}"></h3>
+        <div th:replace="~{fragments/applicationlist :: applicationListWithName(${group.value})}"></div>
+    </section>
+    <form th:action="@{/manager/applications}" method="get">
+      <label>Results per page <select name="pageSize" onchange="this.form.submit()">
+        <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
+      </select></label>
+    </form>
+    <nav aria-label="Pending approval pages">
+      <a th:if="${pageNum > 0}" th:href="@{/manager/applications(pageNum=${pageNum - 1},pageSize=${pageSize})}">Previous</a>
+      <span th:text="|${pageNum + 1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
+      <a th:if="${pageNum + 1 < totalPages}" th:href="@{/manager/applications(pageNum=${pageNum + 1},pageSize=${pageSize})}">Next</a>
+    </nav>
+    <p><a th:href="@{/manager/history}">Subordinate course history</a>
+       · <a th:href="@{/manager/reports}">Training and budget reports</a></p>
 
 </body>
 </html>
