@@ -11,9 +11,8 @@
         <p th:text="${'Welcome ' + user.name + '!'}"></p>
 
         <div class="actions">
-            <a th:href="@{/staff/courselist}">View internal courses</a>
-            <a th:if="${isManager}" th:href="@{/manager/applications}">Team Training</a>
-            <a th:href="@{/staff/apply}">Apply for a course</a>
+            <a th:href="@{/staff/courselist}">View Courses</a>  
+            <a th:href="@{/staff/apply}">Apply for a Course</a>
             <a th:href="@{/staff/calendar}">View Calendar</a>
         </div>
 
@@ -32,7 +31,7 @@
           </div>
         </div>
 
-        <!-- display success message for every application made or deleted -->
+        <!-- display success message for every application made, updated, deleted and completed -->
         <div th:if="${successmsg}" th:text="${successmsg}" class="global-success-message"></div>
 
         <!-- display error message for exception handling -->

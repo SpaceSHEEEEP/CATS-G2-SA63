@@ -80,6 +80,10 @@ public class ApplicationController {
         form.setUser(userRepository.findById(user.getUserId()).orElse(null));
         if (result.hasErrors()) return "applyform";
         // Check for valid annotations in the Application, Course Model.
+        if (result.hasErrors()) return "applyform";
+
+         // Check if it is a new application or an existing application (editing)
+        boolean isNewApp = (form.getId()==null);
 
         try {
             applicationService.saveApplication(form, user.getUserId());
@@ -88,7 +92,11 @@ public class ApplicationController {
             return "applyform";
         }
 
-        ra.addFlashAttribute("successmsg", "Application '" + form.getId() + "' submitted successfully!");
+        if (isNewApp) {
+            ra.addFlashAttribute("successmsg", "Application '" + form.getId() + "' submitted successfully!");
+        } else {
+            ra.addFlashAttribute("successmsg", "Application '" + form.getId() + "' updated successfully!");
+        }
         return "redirect:/staff/index";
     }
 
@@ -97,11 +105,22 @@ public class ApplicationController {
             @AuthenticationPrincipal User user,
             @RequestParam(name = "id", required = true) Integer id,
             Model model) {
+            Model model,
+            RedirectAttributes ra,
+            HttpSession session) {
 
         // check if user is logged in
         if (user == null) return "redirect:/staff/login";
         List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
         if (applications.isEmpty()) return "redirect:/staff/index";
+
+        // checks for application status - only allow editing when status is applied or updated
+        // from the list, it will only return one if there is matching or none so get the first record with index 0 using get()
+        // if the status is not APPLIED or UPDATED, prevent editing
+        if (applications.get(0).getStatus() != Status.APPLIED && applications.get(0).getStatus() != Status.UPDATED) {
+            ra.addFlashAttribute("errormsg", "You can no longer edit this application. Please apply for a new one");
+            return "redirect:/staff/index";
+        }
 
         // else, application exists
         model.addAttribute("applicationForm", applications.get(0));

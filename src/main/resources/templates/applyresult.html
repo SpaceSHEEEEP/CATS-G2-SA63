@@ -10,6 +10,9 @@
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
+    <!-- display error message if managerReason is not filled -->
+    <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
+
     <h1>Application Details</h1>
 
     <div class="details-card">

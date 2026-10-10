@@ -20,6 +20,8 @@ import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.LoginForm;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -91,7 +93,14 @@ public class AdminController {
         if (user == null) return "redirect:/admin/login";
         if (!user.isAdmin()) return "redirect:/staff/index";
 
-        model.addAttribute("userForm", new User());
+        User form = new User();
+
+        // Prefill default settings
+        form.setAdmin(false);
+        form.setActualDays(10.0);
+        form.setActualAllowance(BigDecimal.valueOf(10000));
+
+        model.addAttribute("userForm", form);
 
         // return all managers in the current user repository
         List<User> managers = userRepository.findAllManagers();

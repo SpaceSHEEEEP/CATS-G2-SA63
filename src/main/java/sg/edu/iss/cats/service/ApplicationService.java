@@ -86,11 +86,29 @@ public class ApplicationService {
             courseRepository.saveAndFlush(newCourse); // hibernate doesn't always save immediately, need immediate for next step
             application.setCourse(newCourse);
         }
+        // if it is not a new course, ensure that fields do not deviate from the original version
         else {
-            // delete these. it works
+            Course existingCourse = courseRepository.findById(c.getCourseId()).orElseThrow(() -> new RuntimeException("Course not found"));
+
+            // take existing course records first and perform the matching - all must match
+            boolean isMatching = existingCourse.getCourseName().equalsIgnoreCase(c.getCourseName()) && 
+            existingCourse.getCourseType() == c.getCourseType() && 
+            existingCourse.getStartDate().equals(c.getStartDate()) && 
+            existingCourse.getEndDate().equals(c.getEndDate()) && 
+            existingCourse.getLocation().equalsIgnoreCase(c.getLocation()) && 
+            existingCourse.getTrainingProvider().equalsIgnoreCase(c.getTrainingProvider()) && 
+            existingCourse.getFee().compareTo(c.getFee()) == 0 && 
+            existingCourse.getDuration() == c.getDuration();
+
+            // if it doesn't match
+            if (!isMatching) {
+                throw new RuntimeException("Unable to submit. Your application details do not match with the course details from the existing database.");
+            }
+
+            /*// delete these. it works
             System.out.println("DEBUG - Course ID: " + (c != null ? c.getCourseId() : "Course is null"));
             System.out.println("DEBUG - Course Name: " + (c != null ? c.getCourseName() : "N/A"));
-            System.out.println("DEBUG - Course Type: " + (c != null ? c.getCourseType() : "N/A"));
+            System.out.println("DEBUG - Course Type: " + (c != null ? c.getCourseType() : "N/A"));*/
         }
 
         // VALIDATION
