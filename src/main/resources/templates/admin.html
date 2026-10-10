@@ -11,6 +11,12 @@
     <h1>Administration</h1>
     <p th:text="${'Welcome Admin ' + user.name + '!'}"></p>
 	
+    <!-- display success message for every application made or deleted -->
+    <div th:if="${successmsg}" th:text="${successmsg}" class="global-success-message"></div>
+
+    <!-- display success message for every application made or deleted -->
+    <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
+	
 	<h2>Users</h2>
 	<p th:if="${#lists.isEmpty(users)}">No users found.</p>
 	<table th:unless="${#lists.isEmpty(users)}">
@@ -23,6 +29,8 @@
 				<th>Reports To</th>
 	            <th>Remaining Budget (SGD)</th>
 	            <th>Days Remaining</th>
+                <th>Modify</th>
+                <th>Remove</th>
 	        </tr>
 	    </thead>
 	    <tbody>
@@ -34,67 +42,73 @@
                 <td th:text="${staff.manager == null} ? '-' : ${staff.manager.name}"></td>
                 <td th:text="${staff.actualAllowance == null} ? 'Not set' : ${#numbers.formatDecimal(staff.actualAllowance, 1, 2)}"></td>
 	            <td th:text="${staff.actualDays}"></td>
+                <td><a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a></td>
+                <td>
+                    <form th:action="@{/admin/deleteuser(userId=${staff.userId})}" method="POST">
+                        <button type="submit">X</button>
+                    </form>
+                </td>
 	        </tr>
 	    </tbody>
 	</table>
 
-	<h2>Courses</h2>
-	<p>TODO: Ordered by number of applicants, highest first.</p>
-	<p th:if="${#lists.isEmpty(courseSummaries.content)}">No courses recorded.</p>
-	<table th:unless="${#lists.isEmpty(courseSummaries.content)}">
-	    <thead>
-	        <tr>
-	            <th>Course Name</th>
-	            <th>Category</th>
-	            <th>Start Date</th>
-	            <th>End Date</th>
-	            <th>Applicants</th>
-	            <th>Location</th>
-	            <th>Training Provider</th>
-	            <th>Fee (SGD)</th>
-	        </tr>
-	    </thead>
-	    <tbody>
-	        <tr th:each="summary : ${courseSummaries.content}">
-	            <td th:text="${summary.course.courseName}"></td>
-	            <td th:text="${summary.course.courseType}"></td>
-	            <td th:text="${#temporals.format(summary.course.startDate, 'dd-MM-yyyy')}"></td>
-	            <td th:text="${#temporals.format(summary.course.endDate, 'dd-MM-yyyy')}"></td>
-	            <td th:text="${summary.applicantCount}"></td>
-	            <td th:text="${summary.course.location}"></td>
-	            <td th:text="${summary.course.trainingProvider}"></td>
+    <h2>Courses</h2>
+    <p>TODO: Ordered by number of applicants, highest first.</p>
+    <p th:if="${#lists.isEmpty(courseSummaries.content)}">No courses recorded.</p>
+    <table th:unless="${#lists.isEmpty(courseSummaries.content)}">
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Category</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Applicants</th>
+                <th>Location</th>
+                <th>Training Provider</th>
+                <th>Fee (SGD)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="summary : ${courseSummaries.content}">
+                <td th:text="${summary.course.courseName}"></td>
+                <td th:text="${summary.course.courseType}"></td>
+                <td th:text="${#temporals.format(summary.course.startDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${#temporals.format(summary.course.endDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${summary.applicantCount}"></td>
+                <td th:text="${summary.course.location}"></td>
+                <td th:text="${summary.course.trainingProvider}"></td>
                 <td th:text="${summary.course.fee == null} ? 'Not set' : ${#numbers.formatDecimal(summary.course.fee, 1, 2)}"></td>
-	        </tr>
-	    </tbody>
-	</table>
+            </tr>
+        </tbody>
+    </table>
 
-    <div class = "pagination">
-        <div>
-        <a th:if="${pageNum > 0}" th:href="@{/admin(pageNum=${pageNum-1})}">Prev page</a>
-        <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin(pageNum=${pageNum+1})}">Next page</a>
+        <div class = "pagination">
+            <div>
+            <a th:if="${pageNum > 0}" th:href="@{/admin(pageNum=${pageNum-1})}">Prev page</a>
+            <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin(pageNum=${pageNum+1})}">Next page</a>
+            </div>
+            
+            <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
+                <a th:href="@{/admin(pageNum=${i})}" th:text="${i + 1}"></a>
+            </th:block>
         </div>
-        
-        <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
-            <a th:href="@{/admin(pageNum=${i})}" th:text="${i + 1}"></a>
-        </th:block>
-    </div>
-	
-	<h2 th:text="'Public Holidays — ' + ${holidayYear}">Public Holidays</h2>
-	<p th:if="${#lists.isEmpty(holidays)}">No public holidays recorded for this year.</p>
-	<table th:unless="${#lists.isEmpty(holidays)}">
-	    <thead>
-	        <tr>
-	            <th>Holiday Name</th>
-	            <th>Date</th>
-	        </tr>
-	    </thead>
-	    <tbody>
-	        <tr th:each="holiday : ${holidays}">
-	            <td th:text="${holiday.holidayName}"></td>
-	            <td th:text="${#temporals.format(holiday.holidayDate, 'dd-MM-yyyy')}"></td>
-	        </tr>
-	    </tbody>
-	</table>
+    
+    <h2 th:text="'Public Holidays — ' + ${holidayYear}">Public Holidays</h2>
+    <p th:if="${#lists.isEmpty(holidays)}">No public holidays recorded for this year.</p>
+    <table th:unless="${#lists.isEmpty(holidays)}">
+        <thead>
+            <tr>
+                <th>Holiday Name</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="holiday : ${holidays}">
+                <td th:text="${holiday.holidayName}"></td>
+                <td th:text="${#temporals.format(holiday.holidayDate, 'dd-MM-yyyy')}"></td>
+            </tr>
+        </tbody>
+    </table>
 
 </body>
 </html>

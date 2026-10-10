@@ -24,6 +24,9 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.ToString;
 
 @Entity
 @Getter 
@@ -33,10 +36,17 @@ public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
+
+    @NotBlank(message="Name must not be empty")
     private String name;
+
+    @PositiveOrZero(message="Allowance cannot be negative")
     private BigDecimal budgetedAllowance;
+    @PositiveOrZero(message="Allowance cannot be negative")
     private BigDecimal actualAllowance;
+    @PositiveOrZero(message="Days cannot be negative")
     private Double budgetedDays;
+    @PositiveOrZero(message="Days cannot be negative")
     private Double actualDays;
 
     // need usernames to be unique
@@ -48,7 +58,9 @@ public class User implements UserDetails{
     private String password;
     @Enumerated (EnumType.STRING)
     private Role role;
+    // TODO: delete isAdmin and replace it with the above
     private boolean isAdmin;
+    @NotBlank(message="Email must not be empty")
     private String email;
     // private int reportsToId; // using @OneToMany and @ManyToOne now
 
@@ -57,8 +69,10 @@ public class User implements UserDetails{
     private List<Application> applications;
 
     // 'mappedBy = "manager" tells Hibernate: "To find the list of subordinates for a user, look at the manager field on the other side."' ~ Gemini
+    @ToString.Exclude
     @OneToMany(mappedBy = "manager", fetch = FetchType.EAGER) // TODO: make lazy next time
     private List<User> subordinates = new ArrayList<>(); // each subordinate get mappedBy manager
+    @ToString.Exclude
     @ManyToOne // the other side
     private User manager;
 

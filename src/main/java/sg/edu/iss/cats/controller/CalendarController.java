@@ -3,38 +3,67 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.YearMonth;
 import java.time.LocalDate;
+import java.time.Month;
+import java.util.Locale;
+import java.time.ZoneId;
 
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import sg.edu.iss.cats.model.User;
+import sg.edu.iss.cats.service.CalendarService;
+
+
 @Controller
 @RequestMapping("/staff")
 public class CalendarController {
+	
+	private final CalendarService calendarService;
+
+	public CalendarController(CalendarService calendarService) {
+	    this.calendarService = calendarService;
+	}
   
 	@GetMapping("/calendar")
-	public String showCalendar(@RequestParam(name="month", required=false) String month,
-    @RequestParam(name="year", required=false) Integer year, Model model) {
-        // If no month and year are provided, display current month and year
-        YearMonth selectedYearMonth;
-        if (month == null || month.trim().isEmpty() || year == null) {
-            LocalDate currentDate = LocalDate.now();
-            selectedYearMonth = YearMonth.of(currentDate.getYear(), currentDate.getMonth());
-            year = currentDate.getYear();
-        }
+	public String showCalendar(
+            @AuthenticationPrincipal User user,
+            @RequestParam(name="month", required=false) String month,
+            @RequestParam(name="year", required=false) Integer year,
+            Model model) {
+        
+		if (user == null || user.getUserId() == null) {
+		    return "redirect:/staff/login";
+		}
 
-        else {
-            // display what was selected
-            // java.time.Month is a built-in enum containing all months in caps
-            // .valueOf searches that enum for matches
-            // converts to upper case to match
-            // YearMonth.of combines the year and month and stores them together, to be used for
-            // subsequent code
-            selectedYearMonth = YearMonth.of(year, java.time.Month.valueOf(month.toUpperCase()));
-        }
+		model.addAttribute( "isManager", calendarService.canViewTeam(user.getUserId()));
+		// Open the current month when no complete selection is provided. SG TIME BASED for now
+		LocalDate singaporeToday = LocalDate.now(ZoneId.of("Asia/Singapore"));
+		model.addAttribute("singaporeToday", singaporeToday);
+
+		YearMonth selectedYearMonth = YearMonth.from(singaporeToday);
+
+		if (month != null && !month.isBlank() && year != null) {
+
+		    // Keep calendar years positive and within four digits.
+		    if (year < 1 || year > 9999) {
+		        return "redirect:/staff/calendar";
+		    }
+
+		    try {
+		        Month selectedMonth = Month.valueOf(
+		                month.trim().toUpperCase(Locale.ROOT));
+
+		        selectedYearMonth = YearMonth.of(year, selectedMonth);
+
+		    } catch (IllegalArgumentException exception) {
+		        // Invalid month links return to the current calendar.
+		        return "redirect:/staff/calendar";
+		    }
+		}
 
         String nameOfMonth = selectedYearMonth.getMonth().name();
         int numOfDaysInMonth = selectedYearMonth.lengthOfMonth();
@@ -42,6 +71,7 @@ public class CalendarController {
 
         // Find the 1st day of the month
         LocalDate firstDayOfMonth = selectedYearMonth.atDay(1);
+        model.addAttribute("calendarStart", firstDayOfMonth);
         // and its corresponding day of the week
         int dayOfWeek = firstDayOfMonth.getDayOfWeek().getValue();
 
@@ -78,4 +108,5 @@ public class CalendarController {
 
 		return "calendar";
 	}
+	
 }

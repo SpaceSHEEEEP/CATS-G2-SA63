@@ -125,13 +125,29 @@ public class ApplicationService {
 
         // The course period must not overlap with another ‘Applied’, ‘Updated’ 
         // or ‘Approved’ course application of the same employee. (to be done after added manager features)
-        List<Application> applications = appRepo.findByUser_UserIdAndStatusIn(userId, List.of(Status.UPDATED, Status.APPROVED));  
+        List<Application> applications = appRepo.findByUser_UserIdAndStatusIn(userId, List.of(Status.APPLIED, Status.UPDATED, Status.APPROVED));  
 
         for (Application a : applications) {
             if (editApplication && a.getId().equals(appId)) continue;
             if (c.getStartDate().compareTo(a.getCourse().getEndDate()) <= 0 &&
-                c.getEndDate().compareTo(a.getCourse().getStartDate())  >= 0)
+                c.getEndDate().compareTo(a.getCourse().getStartDate())  >= 0) {
+
+                // if the course happen to be half day
+                if (c.getDuration() != CourseDuration.FULLDAY) {
+                    // allow submission as long as both courses in comparison are half day and do not have the same duration
+                    // check if the course is AM and courses applied is PM
+                    // if yes, no overlap
+                    if (c.getDuration() == CourseDuration.HALFDAYAM && a.getCourse().getDuration() == CourseDuration.HALFDAYPM) {
+                        continue;
+                    }
+                    // check if the course is PM and courses applied is AM
+                    // if yes, no overlap
+                    if (c.getDuration() == CourseDuration.HALFDAYPM && a.getCourse().getDuration() == CourseDuration.HALFDAYAM) {
+                        continue;
+                    }
+                }
                 throw new RuntimeException("This course overlaps with your " + a.getCourse().getCourseName() + " course. Please reschedule.");
+            }
         }
 
         // Subtract user's budgeted statistics
@@ -212,8 +228,8 @@ public class ApplicationService {
         appRepo.save(originalApplication);
     }
 
-    // converted into a function to be used multiple times in saveApplication and deleteApplication functions
-    double calculateNumOfDays(Course c){
+    // converted into a function to be used multiple times in saveApplication, deleteApplication and completeApplication functions
+    private double calculateNumOfDays(Course c){
         double numOfDays = 0.0;
         if (c.getDuration() != CourseDuration.FULLDAY) return numOfDays = 0.5;
         else {

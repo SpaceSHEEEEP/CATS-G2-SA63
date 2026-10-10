@@ -1,11 +1,13 @@
 package sg.edu.iss.cats.repository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.EntityGraph;
 
 import sg.edu.iss.cats.model.Application;
@@ -48,4 +50,47 @@ public interface AppRepo extends JpaRepository<Application, Integer> {
     @EntityGraph(attributePaths = {"user", "course"})
     boolean existsByUser_UserId(Integer userId);
     // can use the above findByUser_UserId?
+    
+ // Personal view: the service supplies the logged-in user's ID and allowed statuses.
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("""
+            SELECT a FROM Application a
+            WHERE a.user.userId = :userId
+              AND a.status IN :statuses
+              AND a.course.startDate <= :endDate
+              AND a.course.endDate >= :startDate
+            ORDER BY a.course.startDate, a.id
+            """)
+    List<Application> findPersonalCalendarApplications(
+            @Param("userId") Integer userId,
+            @Param("statuses") Collection<Status> statuses,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    // Shared view: approval is enforced in the query itself.
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("""
+            SELECT a FROM Application a
+            WHERE a.status = sg.edu.iss.cats.model.Status.APPROVED
+              AND a.course.startDate <= :endDate
+              AND a.course.endDate >= :startDate
+            ORDER BY a.course.startDate, a.user.name, a.id
+            """)
+    List<Application> findApprovedCalendarApplications(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+    
+    // Team view: all statuses, restricted to the manager's direct subordinates.
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("""
+            SELECT a FROM Application a
+            WHERE a.user.manager.userId = :managerId
+              AND a.course.startDate <= :endDate
+              AND a.course.endDate >= :startDate
+            ORDER BY a.course.startDate, a.user.name, a.id
+            """)
+    List<Application> findTeamCalendarApplications(
+            @Param("managerId") Integer managerId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }

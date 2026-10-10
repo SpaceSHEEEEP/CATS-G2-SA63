@@ -11,7 +11,6 @@ INSERT INTO user (name, budgeted_allowance, actual_allowance, budgeted_days, act
     ('Ken', 10000, 10000, 10.0, 10.0, 'kenny', '$2a$10$XX.htgpTqjfQG5DH0kCA5OtqbYh7t1pxWI3hkXChs8Qu9/LCUGDjy', 'ROLE_EMPLOYEE', 'ken@gmail.com', false),
     ('Min', 10000, 10000, 10.0, 10.0, 'minny', '$2a$10$XX.htgpTqjfQG5DH0kCA5OtqbYh7t1pxWI3hkXChs8Qu9/LCUGDjy', 'ROLE_ADMIN', 'min@gmail.com', true); -- Admin User
 
-    
 -- Management hierarchy
 -- Tim and Tom report to Bob (CEO)
 UPDATE user employee
@@ -31,7 +30,8 @@ UPDATE user employee
 
 -- insert dummy data into course table
     INSERT INTO course (course_name, course_type, duration, start_date, end_date, location, training_provider, fee) VALUES 
-    ('Java Programming', 'INTERNAL', 'HALFDAYAM', '2026-10-14', '2026-10-14', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Java OOPJ', 'INTERNAL', 'HALFDAYAM', '2026-10-14', '2026-10-14', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Java EE', 'INTERNAL', 'HALFDAYPM', '2026-10-14', '2026-10-14', 'NUS-ISS', 'NUS-ISS', 0.00),
     ('Web Application Development', 'INTERNAL', 'FULLDAY', '2026-10-15', '2026-10-19', 'NUS-ISS', 'NUS-ISS', 0.00),
     ('Database Design', 'INTERNAL', 'HALFDAYPM', '2026-11-02', '2026-11-02', 'NUS-ISS', 'NUS-ISS', 0.00),
     ('Cloud Computing Fundamentals', 'INTERNAL', 'FULLDAY', '2026-11-10', '2026-11-11', 'NUS-ISS', 'NUS-ISS', 0.00),
@@ -119,4 +119,100 @@ INSERT INTO holiday (holiday_date, holiday_name) VALUES
     ('2027-08-09', 'National Day'),
     ('2027-10-28', 'Deepavali'),
     ('2027-12-25', 'Christmas Day');
- 
+    
+    
+-- A past course for a realistic completed-application demo.
+INSERT INTO course (course_name, course_type, duration, start_date, end_date, location, training_provider, fee) VALUES
+    ('Git Collaboration Workshop', 'INTERNAL', 'FULLDAY', '2026-10-05', '2026-10-06', 'NUS-ISS', 'NUS-ISS', 0.00);
+
+-- Calendar demo applications: October and November 2026.
+-- Resolve users and courses by their seeded names instead of fixed IDs.
+INSERT INTO application (
+    user_id,
+    course_course_id,
+    status,
+    user_reason,
+    manager_reason,
+    has_been_paid
+)
+SELECT
+    u.user_id,
+    c.course_id,
+    demo.application_status,
+    'Develop skills relevant to my work.',
+    CASE
+        WHEN demo.application_status IN ('APPROVED', 'COMPLETED')
+        THEN 'Approved for relevant staff development.'
+        WHEN demo.application_status = 'REJECTED'
+        THEN 'Course dates clash with a critical project deadline.'
+        ELSE NULL
+    END,
+    false
+FROM (
+    SELECT
+        'benny' AS username,
+        'Java OOPJ' AS course_name,
+        'APPROVED' AS application_status
+
+    UNION ALL
+    SELECT 'benny', 'Web Application Development', 'APPLIED'
+
+    UNION ALL
+    SELECT 'benny', 'Java PRO Certification', 'APPROVED'
+
+    UNION ALL
+    SELECT 'danny', 'Java OOPJ', 'APPROVED'
+
+    UNION ALL
+    SELECT 'danny', 'SQL Fundam', 'UPDATED'
+    
+    UNION ALL
+    SELECT 'timmy', 'Java EE', 'APPROVED'
+
+    UNION ALL
+    SELECT 'benny', 'Cloud Computing Fundamentals', 'APPROVED'
+
+    UNION ALL
+    SELECT 'timmy', 'Agile Scrum Master', 'APPROVED'
+
+    UNION ALL
+    SELECT 'benny', 'SQL Fundam', 'REJECTED'
+
+    UNION ALL
+    SELECT 'benny', 'Advanced Python Programming', 'CANCELLED'
+
+    UNION ALL
+    SELECT 'benny', 'Machine Learning Basics', 'DELETED'
+
+    UNION ALL
+    SELECT 'benny', 'Git Collaboration Workshop', 'COMPLETED'
+
+    UNION ALL
+    SELECT 'timmy', 'Web Application Development', 'REJECTED'
+
+    UNION ALL
+    SELECT 'timmy', 'Machine Learning Basics', 'CANCELLED'
+) AS demo
+JOIN user u ON u.username = demo.username
+JOIN course c ON c.course_name = demo.course_name;
+
+-- SQL seeding bypasses ApplicationService, so reserve the matching amounts.
+-- Inactive demo applications do not reserve budget or days.
+-- Ben: SGD 600 and 7.5 days reserved, plus 2 completed days consumed.
+UPDATE user
+SET budgeted_allowance = 9400.00,
+    budgeted_days = 1.0,
+    actual_days = 8.5
+WHERE username = 'benny';
+
+-- Dan: SGD 400 and 2.5 training days reserved.
+UPDATE user
+SET budgeted_allowance = 9100.00,
+    budgeted_days = 7.5
+WHERE username = 'danny';
+
+-- Tim: SGD 1200 and 2.5 training days reserved.
+UPDATE user
+SET budgeted_allowance = 8800.00,
+    budgeted_days = 12.5
+WHERE username = 'timmy';

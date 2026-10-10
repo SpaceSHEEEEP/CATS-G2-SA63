@@ -4,7 +4,14 @@
 
         <th:block th:fragment="header">
 
-            <header>
+            <header class="cats-header">
+				<strong class="cats-header-title">CATS for NUS-ISS</strong>
+
+                <div sec:authorize="isAuthenticated()">
+                    Logged in as: <span sec:authentication="name">Username</span>
+                </div>
+
+				
                 <a th:href="@{/staff/index}">Training</a>
 				<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}">Administration</a>
                 <form sec:authorize="!hasRole('ADMIN')" th:action="@{/logout}" method="post">
