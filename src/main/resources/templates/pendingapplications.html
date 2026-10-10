@@ -8,31 +8,34 @@
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
+		<!-- display success message for every application approved or rejected -->
+    <div th:if="${successmsg}" th:text="${successmsg}" class="global-success-message"></div>
+
     <h1>Team Training</h1>
 
-	<h2>Search Team Applications</h2>
-	<form th:action="@{/manager/applications/search}" method="get">
+		<h2>Search Team Applications</h2>
+		<form th:action="@{/manager/applications/search}" method="get">
 
-		<label for="employeeName">Employee Name:</label>
-		<input type="text" name="employeeName">
-		
-	    <label for="startDate">Start Date:</label>
-	    <input type="date" name="startDate">
+			<label for="employeeName">Employee Name:</label>
+			<input type="text" name="employeeName">
+			
+				<label for="startDate">Start Date:</label>
+				<input type="date" name="startDate">
 
-	    <label for="endDate">End Date:</label>
-	    <input type="date" name="endDate">
+				<label for="endDate">End Date:</label>
+				<input type="date" name="endDate">
 
-	    <label for="courseType">Course Type:</label>
-	    <select name="courseType">
-	        <option value="ALL">All courses</option>
-	        <option value="INTERNAL">INTERNAL</option>
-	        <option value="EXTERNAL">EXTERNAL</option>
-	        <option value="PROFESSIONAL">PROFESSIONAL</option>
-	    </select>
+				<label for="courseType">Course Type:</label>
+				<select name="courseType">
+						<option value="ALL">All courses</option>
+						<option value="INTERNAL">INTERNAL</option>
+						<option value="EXTERNAL">EXTERNAL</option>
+						<option value="PROFESSIONAL">PROFESSIONAL</option>
+				</select>
 
-	    <button type="submit">Search</button>
+				<button type="submit">Search</button>
 
-	</form>
+		</form>
 
 	
     <h2>Pending Approvals</h2>

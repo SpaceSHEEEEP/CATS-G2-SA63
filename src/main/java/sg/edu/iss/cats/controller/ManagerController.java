@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.Status;
@@ -87,9 +88,9 @@ public class ManagerController {
 
 	@GetMapping("/applications/search")
 	public String searchApplications(
-            @AuthenticationPrincipal User manager,
+          @AuthenticationPrincipal User manager,
 	        @RequestParam(name = "employeeName") String employeeName,
-            @RequestParam(name = "startDate", required = false) LocalDate startDate,
+          @RequestParam(name = "startDate", required = false) LocalDate startDate,
 	        @RequestParam(name = "endDate", required = false) LocalDate endDate,
 	        @RequestParam(name = "courseType") String courseType,
 	        Model model) {
@@ -171,10 +172,12 @@ public class ManagerController {
 	
 	@PostMapping("/application/status")
 	public String changeStatus(
-            @AuthenticationPrincipal User manager,
+          @AuthenticationPrincipal User manager,
 	        @RequestParam(name = "id") Integer id,
 	        @RequestParam(name = "managerReason", required = true) String managerReason,
-	        @RequestParam(name = "status") String status) {
+	        @RequestParam(name = "status") String status,
+	        HttpSession session,
+					RedirectAttributes ra) {
 
 		if (manager == null)                         return "redirect:/staff/login";
         if (manager.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
@@ -182,12 +185,31 @@ public class ManagerController {
 	    Application app = appRepo.findById(id).orElse(null);
 	    if (app == null) return "redirect:/manager/applications";
 
+			// Check if managerReason field is filled
+			if (managerReason == null || managerReason.trim().isEmpty()){
+				ra.addFlashAttribute("errormsg", "Please provide a reason or justification for your approval/rejection");
+				return "redirect:/staff/view?id=" + id;
+			}
+
+			// Check if managerReason length exceeds 1000 characters
+			if (managerReason.length() > 1000) {
+				ra.addFlashAttribute("errormsg", "Please limit your reason or justification within 1000 characters");
+				return "redirect:/staff/view?id=" + id;
+			}
+
 	    if (status.equals("APPROVED")) app.setStatus(Status.APPROVED);
         else if (status.equals("REJECTED")) app.setStatus(Status.REJECTED);
 
 	    app.setManagerReason(managerReason);
 
 	    appRepo.save(app);
+
+			// Flash Attribute for success message
+			if (app.getStatus() == Status.APPROVED){
+				ra.addFlashAttribute("successmsg", "You have approved '" + app.getId() + "' sucessfully!");
+			} else {
+				ra.addFlashAttribute("successmsg", "You have rejected '" + app.getId() + "' successfully!");
+			}
 
 	    return "redirect:/manager/applications";
 	}

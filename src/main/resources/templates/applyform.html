@@ -22,7 +22,13 @@
           <ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"/></ul>
           <p> Unable to submit application. Please re-enter fields or review again before submitting.</p>
         </div>
+
+        <!-- display error message for exception handling -->
+        <div th:if="${error}" class="global-error-message">Error from Service Validation: <span th:text="${error}"></span>
+        </div>
+        <!--
         <p th:if="${error}" class="field-error-message">Error from service validation: <span th:text="${error}"></span></p>
+        -->
 
         <input type="hidden" th:field="*{id}">
         <input type="hidden" th:field="*{course.courseId}" />
