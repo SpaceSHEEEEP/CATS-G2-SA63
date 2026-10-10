@@ -1,6 +1,5 @@
 package sg.edu.iss.cats.security;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -41,7 +40,10 @@ public class SecurityConfig {
                     }
                 })      
             )
-            .logout(Customizer.withDefaults())
+            .logout(logout -> logout
+                .logoutUrl("/admin/logout")
+                .logoutSuccessUrl("/admin/login?logout")
+            )
             .build();
     }
 
@@ -63,7 +65,10 @@ public class SecurityConfig {
                 .loginPage("/staff/login")
                 .defaultSuccessUrl("/staff/index")
             )
-            .logout(Customizer.withDefaults())
+            .logout(logout -> logout 
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/staff/login?logout")
+            )
             .build();
     }
 

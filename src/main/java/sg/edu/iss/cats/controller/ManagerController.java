@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.Status;
 import sg.edu.iss.cats.model.User;
+import sg.edu.iss.cats.model.Role;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.repository.AppRepo;
 import sg.edu.iss.cats.repository.UserRepository;
@@ -39,8 +40,8 @@ public class ManagerController {
             @AuthenticationPrincipal User user, 
             Model model) {
 
-		if (user == null)                           return "redirect:/staff/login";
-        if (!user.getRole().equals("ROLE_MANAGER")) return "redirect:/staff/index";
+		if (user == null)                         return "redirect:/staff/login";
+        if (user.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
 
 		List<Application> subordinateApplications = appRepo
 				.findByUser_Manager_UserIdOrderByUser_NameAscIdAsc(user.getUserId());
@@ -67,8 +68,8 @@ public class ManagerController {
             @AuthenticationPrincipal User user,
             Model model) {
 
-		if (user == null)                           return "redirect:/staff/login";
-        if (!user.getRole().equals("ROLE_MANAGER")) return "redirect:/staff/index";
+		if (user == null)                         return "redirect:/staff/login";
+        if (user.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
 
         // Give me a list of subordinates
         List<User> subordinates = userRepository.findAllByManager_UserId(user.getUserId());
@@ -93,8 +94,8 @@ public class ManagerController {
 	        @RequestParam(name = "courseType") String courseType,
 	        Model model) {
 
-		if (manager == null)                           return "redirect:/staff/login";
-        if (!manager.getRole().equals("ROLE_MANAGER")) return "redirect:/staff/index";
+		if (manager == null)                         return "redirect:/staff/login";
+        if (manager.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
 
 	    List<Application> applications = appRepo
             .findByUser_Manager_UserIdOrderByUser_NameAscIdAsc(manager.getUserId());
@@ -175,8 +176,8 @@ public class ManagerController {
 	        @RequestParam(name = "managerReason", required = true) String managerReason,
 	        @RequestParam(name = "status") String status) {
 
-		if (manager == null)                           return "redirect:/staff/login";
-        if (!manager.getRole().equals("ROLE_MANAGER")) return "redirect:/staff/index";
+		if (manager == null)                         return "redirect:/staff/login";
+        if (manager.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
 
 	    Application app = appRepo.findById(id).orElse(null);
 	    if (app == null) return "redirect:/manager/applications";

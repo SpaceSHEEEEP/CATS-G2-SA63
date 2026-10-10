@@ -60,6 +60,9 @@ public class Course {
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private List<Application> applications;
 
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private List<Comment> comments;
+
     public Course(String courseName, CourseType courseType, LocalDate startDate, LocalDate endDate, String location, String trainingProvider, BigDecimal fee, CourseDuration duration) {
         this.courseName = courseName;
         this.courseType = courseType;

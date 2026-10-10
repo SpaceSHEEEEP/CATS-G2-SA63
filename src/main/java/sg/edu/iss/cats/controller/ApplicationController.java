@@ -21,7 +21,9 @@ import sg.edu.iss.cats.model.Application;
 import sg.edu.iss.cats.model.Status;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.User;
+import sg.edu.iss.cats.model.Comment;
 import sg.edu.iss.cats.repository.AppRepo;
+import sg.edu.iss.cats.repository.CommentRepository;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.UserRepository;
 import sg.edu.iss.cats.service.ApplicationService;
@@ -32,16 +34,19 @@ public class ApplicationController {
 
     private final AppRepo appRepo;
     private final CourseRepository courseRepository;
+    private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final ApplicationService applicationService;
 
     public ApplicationController(
             AppRepo appRepo,
             CourseRepository courseRepository, 
+            CommentRepository commentRepository, 
             ApplicationService applicationService,
             UserRepository userRepository) {
         this.appRepo = appRepo;
         this.courseRepository = courseRepository;
+        this.commentRepository = commentRepository;
         this.applicationService = applicationService;
         this.userRepository = userRepository;
     }
@@ -117,6 +122,7 @@ public class ApplicationController {
 		if (!applications.isEmpty()) {
             model.addAttribute("applicationResult", applications.get(0));
             model.addAttribute("viewer", "mine");
+            model.addAttribute("comment", new Comment(applications.get(0).getCourse(), user));
             return "applyresult";
         }
 
@@ -164,6 +170,7 @@ public class ApplicationController {
     public String completedApplication(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "id", required = true) Integer id,
+            @RequestParam(name = "commentText") String commentText,
             Model model,
             RedirectAttributes ra) {
 		    
@@ -179,6 +186,11 @@ public class ApplicationController {
         if (completedApplication.getStatus() == Status.APPROVED){
             try {
                 applicationService.completeApplication(completedApplication, user.getUserId());
+
+                Comment comment = new Comment(completedApplication.getCourse(), user);
+                comment.setCommentText(commentText);
+                System.out.println("DEBUG: " + comment);
+                commentRepository.save(comment);
             } catch (RuntimeException e) {
                 ra.addAttribute("errormsg", e.getMessage());
                 return "redirect:/staff/index";
@@ -186,15 +198,9 @@ public class ApplicationController {
         }
 
         // Flash Attribute for success message
+        // TODO: this stopped working?
         ra.addFlashAttribute("successmsg", "Application '" + id + "' is marked as COMPLETED successfully!");
         
-        // TODO: add survey form!!!
-        // added a completeApplication method in ApplicationService, not sure which to go for so leave the original version below here first.
-        /* 
-	    //html if logic for only when status == approved, then can call this method to change to completed
-	    completedApplication.setStatus(Status.COMPLETED);
-	    appRepo.save(completedApplication);
-        */
         return "redirect:/staff/index";
     }
     

@@ -1,5 +1,7 @@
 package sg.edu.iss.cats.model;
 
+import sg.edu.iss.cats.model.Role;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,7 +46,8 @@ public class User implements UserDetails{
     private String username;
     @Column(nullable = false, length = 100)
     private String password;
-    private String role;
+    @Enumerated (EnumType.STRING)
+    private Role role;
     private boolean isAdmin;
     private String email;
     // private int reportsToId; // using @OneToMany and @ManyToOne now
@@ -71,7 +76,7 @@ public class User implements UserDetails{
     // To implement UserDetails
     @Override  
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role != null ? role : "EMPLOYEE"));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
     @Override public boolean isAccountNonExpired()     {return true;}
     @Override public boolean isAccountNonLocked()      {return true;}

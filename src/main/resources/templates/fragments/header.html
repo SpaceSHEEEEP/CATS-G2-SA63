@@ -7,8 +7,12 @@
             <header>
                 <a th:href="@{/staff/index}">Training</a>
 				<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}">Administration</a>
-                <a th:href="@{/staff/login}">Login Page</a>
-                <a th:href="@{/staff/clear_session}">Clear Session</a>
+                <form sec:authorize="!hasRole('ADMIN')" th:action="@{/logout}" method="post">
+                    <button type="submit">Logout</button>
+                </form>
+                <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/logout}" method="post">
+                    <button type="submit">Logout</button>
+                </form>
             </header>
 
         </th:block>

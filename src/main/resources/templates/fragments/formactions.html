@@ -7,9 +7,10 @@
             <div>
                 <form th:action="@{/manager/application/status}" method="post">
                     <input type="hidden" name="id" th:value="${app.id}">
-                    <textarea name="managerReason" placeholder="Enter reason" rows="5" width="100%"></textarea>
+                    <textarea name="managerReason" placeholder="Enter reason" rows="5" width="100%" required></textarea>
                     <!-- TODO: add validation to this form -->
                     <!-- <span class="field-error-message" th:if="${#fields.hasErrors('managerReason')}" th:errors="*{userReason}"/> -->
+                    <!-- this shouldn't be blank if it's included in the webpage -->
                     <button type="submit" name="status" value="APPROVED">Approve</button>
                     <button type="submit" name="status" value="REJECTED">Reject</button>
                 </form>
@@ -21,12 +22,22 @@
             <div class="details-card">
                 <dl class="details-grid">
                     <dt> Manager's Reason</dt>
-                    <dd class="full-width" th:text="${applicationResult.managerReason}"></dd>
+                    <dd class="full-width" th:text="${app.managerReason}"></dd>
                 </dl>
             </div>
         </th:block>
 
+
+        <th:block th:fragment="showComment(comment)">
+            <div class="details-card">
+                <dl class="details-grid">
+                    <dt> Manager's Reason</dt>
+                    <dd class="full-width" th:text="${comment.commentText}"></dd>
+                </dl>
+            </div>
+        </th:block>
         
+
         <th:block th:fragment="editOrDelete(app)">
             <a th:href="@{/staff/edit(id=${app.id})}" class="btn btn-primary">Edit</a>
             <!-- TODO: have like a pop up that says "are you sure?" maybe use javascript alert? idk -->
@@ -36,11 +47,18 @@
         </th:block>
 
         
-        <th:block th:fragment="cancelOrComplete(app)">
+        <th:block th:fragment="cancelOrComplete(app, comment)">
             <div class="actions">
             <!-- TODO: do survey first, then mark as complete -->
             <!-- so action send to staff/survey etc etc -->
-            <form th:action="@{/staff/completed(id=${app.id})}" method="post">
+
+            <form th:action="@{/staff/completed(id=${app.id})}" th:object="${comment}" method="post">
+
+                <fieldset>
+                    <label for="commentText">Comments about your experience</label>
+                    <textarea name="commentText" rows="5" maxlength="1000" required></textarea>
+                </fieldset>
+
                 <button type="submit">COMPLETED</button>
             </form>
             </div>

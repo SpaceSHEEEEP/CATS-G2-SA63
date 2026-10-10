@@ -21,6 +21,7 @@ import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
 import java.time.LocalDate;
 
+import sg.edu.iss.cats.model.Role;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.HolidayRepository;
 
@@ -46,8 +47,8 @@ public class AdminController {
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
             Model model) {
 
-        if (user == null)                         return "redirect:/admin/login";
-        if (!user.getRole().equals("ROLE_ADMIN")) return "redirect:/staff/index";
+        if (user == null)                       return "redirect:/admin/login";
+        if (user.getRole() != Role.ROLE_ADMIN) return "redirect:/staff/index";
 
         // Load current user records
         model.addAttribute("users", userRepository.findAll());

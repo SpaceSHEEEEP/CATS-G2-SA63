@@ -26,8 +26,6 @@ public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    // private int courseId; // added ManyToOne relationship below
-    // private int userId; // added ManyToOne relationship below
 
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
