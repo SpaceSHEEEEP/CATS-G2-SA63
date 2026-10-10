@@ -23,11 +23,11 @@
         </th:block>
 
         <!-- TODO: display comment! need to go to application controller and give completed comment to here -->
-        <!-- <th:block th:if="${comment}"> -->
-        <!-- <th:block th:unless="${#strings.isEmpty(#strings.trim(comment.commentText))}"> -->
-        <!--     <div th:replace="~{fragments/formactions :: showComment(comment=${comment})}"></div> -->
-        <!-- </th:block> -->
-        <!-- </th:block> -->
+        <th:block th:if="${comment}">
+        <th:block th:unless="${#strings.isEmpty(#strings.trim(comment.commentText))}">
+            <div th:replace="~{fragments/formactions :: showComment(comment=${comment})}"></div>
+        </th:block>
+        </th:block>
 
         <th:block th:unless="${applicationResult.status.name() == 'DELETED' or 
                                applicationResult.status.name() == 'REJECTED' or 

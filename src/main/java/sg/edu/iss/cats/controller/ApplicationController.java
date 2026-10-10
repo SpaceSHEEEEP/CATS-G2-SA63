@@ -122,7 +122,12 @@ public class ApplicationController {
 		if (!applications.isEmpty()) {
             model.addAttribute("applicationResult", applications.get(0));
             model.addAttribute("viewer", "mine");
-            model.addAttribute("comment", new Comment(applications.get(0).getCourse(), user));
+            // TODO: fix this!
+            if (applications.get(0).getStatus() != Status.COMPLETED) model.addAttribute("comment", new Comment(applications.get(0)));
+            else {
+                model.addAttribute("comment", applications.get(0).getComment());
+                System.out.println("DEBUG: added the comment " + applications.get(0).getComment());
+            }
             return "applyresult";
         }
 
@@ -187,7 +192,7 @@ public class ApplicationController {
             try {
                 applicationService.completeApplication(completedApplication, user.getUserId());
 
-                Comment comment = new Comment(completedApplication.getCourse(), user);
+                Comment comment = new Comment(completedApplication);
                 comment.setCommentText(commentText);
                 System.out.println("DEBUG: " + comment);
                 commentRepository.save(comment);
