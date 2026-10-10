@@ -3,6 +3,7 @@ package sg.edu.iss.cats.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.dto.CourseApplicantSummary;
 import sg.edu.iss.cats.model.Course;
@@ -23,6 +23,7 @@ import sg.edu.iss.cats.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.List;
 
+import sg.edu.iss.cats.model.Role;
 import sg.edu.iss.cats.repository.CourseRepository;
 import sg.edu.iss.cats.repository.HolidayRepository;
 
@@ -42,13 +43,14 @@ public class AdminController {
 
 	}
 
-	@GetMapping
-	public String ShowAdmin(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum, Model model, HttpSession session) {
-		User user = (User) session.getAttribute("user");
+	@GetMapping("/index")
+	public String showAdmin(
+            @AuthenticationPrincipal User user,
+            @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+            Model model) {
 
-        if (user == null) return "redirect:/admin/login";
-
-        if (!user.isAdmin()) return "redirect:/staff/index";
+        if (user == null)                      return "redirect:/admin/login";
+        if (user.getRole() != Role.ROLE_ADMIN) return "redirect:/staff/index";
 
         // Load current user records
         model.addAttribute("users", userRepository.findAll());
@@ -60,8 +62,7 @@ public class AdminController {
 
         model.addAttribute("holidayYear", year);
         model.addAttribute("holidays",
-                holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(
-                        firstDay, lastDay));
+                holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(firstDay, lastDay));
 
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         // TODO: get pages WITH application count!! The one below doesn't have application count
@@ -71,44 +72,22 @@ public class AdminController {
         model.addAttribute("courseSummaries", courseSummaries);
         model.addAttribute("pageNum", pageNum);
         model.addAttribute("pageNumLast", courseSummaries.getTotalPages());
+        model.addAttribute("user", userRepository.findById(user.getUserId()).orElseThrow());
         
         return "admin";
 	}
 	
 	@GetMapping("/login")
-	public String ShowAdminLogin(Model model) {
+	public String showAdminLogin(Model model) {
 		model.addAttribute("login", new LoginForm());
-		model.addAttribute("adminLogin", true);
+		model.addAttribute("adminLogin", true); // TODO: check what this is for
 		return "login";
 	}
 	
-	@PostMapping("/login")
-	public String processLogin( @ModelAttribute LoginForm loginForm, Model model, HttpSession session) {
-		String username = loginForm.getUsername();
-        String password = loginForm.getPassword();
-
-        User user = null;
-
-        // Check credentials before checking whether this is an admin account.
-        if (username != null && password != null && userRepository.existsByUsernameAndPassword(username.trim(), password)) 
-            user = userRepository.findByUsername(username.trim());
-
-        if (user == null || !user.isAdmin()) {
-            // Keep the page in admin mode after an unsuccessful attempt.
-            model.addAttribute("login", new LoginForm());
-            model.addAttribute("adminLogin", true);
-            model.addAttribute("msg",
-                    "Unable to log in with these administrator details.");
-            return "login";
-        }
-        
-        session.setAttribute("user", user);
-        return "redirect:/admin";
-	}
-
     @GetMapping("/createuser")
-    public String createUser(Model model, HttpSession session){
-        User user = (User) session.getAttribute("user");
+    public String createUser(
+            @AuthenticationPrincipal User user,
+            Model model) {
         if (user == null) return "redirect:/admin/login";
         if (!user.isAdmin()) return "redirect:/staff/index";
 
@@ -122,12 +101,13 @@ public class AdminController {
     }
 
     @PostMapping("/createuser")
-    public String saveUser(@Valid @ModelAttribute("userForm") User form, 
+    public String saveUser(
+            @AuthenticationPrincipal User user,
+            @Valid @ModelAttribute("userForm") User form, 
             BindingResult result, 
             Model model, 
-            RedirectAttributes ra,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
+            RedirectAttributes ra) {
+
         if (user == null) return "redirect:/admin/login";
         if (!user.isAdmin()) return "redirect:/staff/index";
 
@@ -180,24 +160,23 @@ public class AdminController {
             ra.addFlashAttribute("successmsg", "User '" + form.getUserId() + "' updated successfully!");
         }
 
-        return "redirect:/admin";
+        return "redirect:/admin/index";
     }
 
     @GetMapping("/edituser")
     public String editUser(
+            @AuthenticationPrincipal User user,
             @RequestParam(name = "userId", required = true) Integer id,
             Model model,
-            RedirectAttributes ra,
-            HttpSession session) {
+            RedirectAttributes ra) {
 
         // check if user is logged in
-        User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/admin/login";
         if (!user.isAdmin()) return "redirect:/staff/index";
 
         // check if the user to be edited exists
         User editedUser = userRepository.findById(id).orElse(null);
-        if (editedUser == null) return "redirect:/admin";
+        if (editedUser == null) return "redirect:/admin/index";
 
         // Prefill the form
         model.addAttribute("userForm", editedUser);
@@ -210,31 +189,31 @@ public class AdminController {
     }
 
     @PostMapping("/deleteuser")
-    public String deleteUser(@RequestParam(name = "userId", required = true) Integer id,
-            HttpSession session,
+    public String deleteUser(
+            @AuthenticationPrincipal User user,
+            @RequestParam(name = "userId", required = true) Integer id,
             Model model,
             RedirectAttributes ra){
         
         // check if user is logged in
-        User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/admin/login";
         if (!user.isAdmin()) return "redirect:/staff/index";
 
         // check if admin is trying to delete himself/herself
         if (user.getUserId().equals(id)){
             ra.addFlashAttribute("errormsg", "You are not authorised to delete yourself.");
-            return "redirect:/admin";
+            return "redirect:/admin/index";
         }
 
         // check if the user to be deleted is the CEO
         if (id == 1) {
             ra.addFlashAttribute("errormsg", "You are not authorised to remove this person.");
-            return "redirect:/admin";
+            return "redirect:/admin/index";
         }
 
         // check if the user to be deleted exists
         User deletedUser = userRepository.findById(id).orElse(null);
-        if (deletedUser == null) return "redirect:/admin";
+        if (deletedUser == null) return "redirect:/admin/index";
 
         // check if the user to be deleted is a manager
         if (!deletedUser.getSubordinates().isEmpty()) {
@@ -254,6 +233,6 @@ public class AdminController {
         // flash attribute
         ra.addFlashAttribute("successmsg", "User '" + deletedUser.getUserId() + "' deleted successfully!");
 
-        return "redirect:/admin";
+        return "redirect:/admin/index";
     }
 }

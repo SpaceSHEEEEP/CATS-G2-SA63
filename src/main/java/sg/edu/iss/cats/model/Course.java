@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.hibernate.annotations.Formula;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.Entity;
@@ -17,12 +16,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter 
+@Setter 
 @NoArgsConstructor
 public class Course {
 
@@ -64,6 +65,9 @@ public class Course {
     // map course to application 
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private List<Application> applications;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private List<Comment> comments;
 
     public Course(String courseName, CourseType courseType, LocalDate startDate, LocalDate endDate, String location, String trainingProvider, BigDecimal fee, CourseDuration duration) {
         this.courseName = courseName;

@@ -3,6 +3,7 @@ package sg.edu.iss.cats.repository;
 import sg.edu.iss.cats.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +22,7 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     // use this instead of below for more safety
     
     // for Application Repo 
-    public User findByUsername(String username);
+    public Optional<User> findByUsername(String username);
 
     // A user is a manager if another employee reports to them.
     boolean existsByManager_UserId(Integer managerId);

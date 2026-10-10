@@ -172,12 +172,6 @@ public class ApplicationService {
        
     }
 
-    boolean isWorkingDay(LocalDate d) {
-        return !(d.getDayOfWeek() == DayOfWeek.SATURDAY || 
-                d.getDayOfWeek() == DayOfWeek.SUNDAY ||
-                holidayRepository.existsByHolidayDate(d));
-    }
-
     @Transactional( 
     propagation  = Propagation.REQUIRED,
     isolation    = Isolation.SERIALIZABLE,
@@ -248,4 +242,11 @@ public class ApplicationService {
         }
         return numOfDays;        
     }
+
+    boolean isWorkingDay(LocalDate d) {
+        return !(d.getDayOfWeek() == DayOfWeek.SATURDAY || 
+                d.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                holidayRepository.existsByHolidayDate(d));
+    }
+
 }

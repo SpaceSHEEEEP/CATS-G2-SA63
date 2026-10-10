@@ -1,27 +1,38 @@
 package sg.edu.iss.cats.model;
 
+import sg.edu.iss.cats.model.Role;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Data
+@Getter 
+@Setter 
 @NoArgsConstructor
-public class User {
+public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
@@ -41,10 +52,13 @@ public class User {
     // need usernames to be unique
     // this is a potential test unit to check when we add the "create 
     // user" additional additional feature in phase 3
-    @Column(unique = true) 
+    @Column(unique = true, nullable = false) 
     private String username;
+    @Column(nullable = false, length = 100)
     private String password;
-    // private boolean isActive;
+    @Enumerated (EnumType.STRING)
+    private Role role;
+    // TODO: delete isAdmin and replace it with the above
     private boolean isAdmin;
     @NotBlank(message="Email must not be empty")
     private String email;
@@ -72,4 +86,14 @@ public class User {
         System.out.println("DEBUG: COUNT WAS CALLED. # OF PENDING APPS: " + count);
         return count;
     }
+
+    // To implement UserDetails
+    @Override  
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+    @Override public boolean isAccountNonExpired()     {return true;}
+    @Override public boolean isAccountNonLocked()      {return true;}
+    @Override public boolean isCredentialsNonExpired() {return true;}
+    @Override public boolean isEnabled()               {return true;}
 }

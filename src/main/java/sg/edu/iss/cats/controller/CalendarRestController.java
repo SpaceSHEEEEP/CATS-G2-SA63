@@ -3,10 +3,9 @@ package sg.edu.iss.cats.controller;
 import java.time.LocalDate;
 import java.util.List;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +29,8 @@ public class CalendarRestController {
 
     @GetMapping("/calendar/events")
     public List<CalendarEventDTO> getCalendarEvents(
+            @AuthenticationPrincipal User user,
+
             @RequestParam(name = "start")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate start,
@@ -45,11 +46,7 @@ public class CalendarRestController {
             boolean teamTraining,
 
             @RequestParam(name = "category", required = false)
-            CourseType category,
-
-            HttpSession session) {
-
-        User user = (User) session.getAttribute("user");
+            CourseType category) {
 
         if (user == null || user.getUserId() == null) {
             throw new ResponseStatusException(
@@ -57,7 +54,6 @@ public class CalendarRestController {
         }
 
         try {
-            // Identity comes from the login session.
             return calendarService.findEvents(
                     user.getUserId(), allStaff, teamTraining,
                     start, end, category);

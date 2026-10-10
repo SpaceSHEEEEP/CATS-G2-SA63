@@ -1,9 +1,5 @@
 package sg.edu.iss.cats.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,22 +10,23 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter 
+@Setter 
 @NoArgsConstructor
 public class Application {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    // private int courseId; // added ManyToOne relationship below
-    // private int userId; // added ManyToOne relationship below
 
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
@@ -50,4 +47,7 @@ public class Application {
     @JoinColumn(name="user_id")
     @Valid
     private User user;
+
+    @OneToOne(mappedBy = "application")
+    private Comment comment;
 }

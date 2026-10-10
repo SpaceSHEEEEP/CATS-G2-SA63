@@ -14,66 +14,43 @@
 
     <div class="details-card">
         
-        <dl class="details-grid">
-            <dt>Application ID</dt>
-            <dd th:text="${applicationResult.id}"></dd>
-
-            <dt>Course Name</dt>
-            <dd th:text="${applicationResult.course.courseName}"></dd>
-
-            <dt>Course Type</dt>
-            <dd><span class="badge" th:text="${applicationResult.course.courseType}"></span></dd>
-
-            <dt>Start Date</dt>
-            <dd th:text="${applicationResult.course.startDate}"></dd>
-
-            <dt>End Date</dt>
-            <dd th:text="${applicationResult.course.endDate}"></dd>
-
-            <dt>Duration</dt>
-            <dd th:text="${applicationResult.course.duration}"></dd>
-
-            <dt>Training Provider</dt>
-            <dd th:text="${applicationResult.course.trainingProvider}"></dd>
-
-            <dt>Location</dt>
-            <dd th:text="${applicationResult.course.location}"></dd>
-
-            <dt>Fee</dt>
-            <dd>$<span th:text="${applicationResult.course.fee}"></span></dd>
-
-            <dt>Justification</dt>
-            <dd class="full-width" th:text="${applicationResult.userReason}"></dd>
-
-            <dt>Status</dt>
-            <dd><span th:text="${applicationResult.status}"></span></dd>
-        </dl>
+        <!-- TODO: replace below with applicationDetails -->
+        <th:block th:replace="~{fragments/applicationlist :: applicationDetails(app=${applicationResult})}"></th:block>
 
 
-        <div th:if="${viewer == 'mine'}">
-            <th:block th:unless="${#strings.isEmpty(#strings.trim(applicationResult.managerReason))}">
-                <div th:replace="~{fragments/formactions :: showManagerReason(app=${applicationResult})}"></div>
+        <th:block th:unless="${#strings.isEmpty(#strings.trim(applicationResult.managerReason))}">
+            <div th:replace="~{fragments/formactions :: showManagerReason(app=${applicationResult})}"></div>
+        </th:block>
+
+        <!-- TODO: display comment! need to go to application controller and give completed comment to here -->
+        <th:block th:if="${comment}">
+        <th:block th:unless="${#strings.isEmpty(#strings.trim(comment.commentText))}">
+            <div th:replace="~{fragments/formactions :: showComment(comment=${comment})}"></div>
+        </th:block>
+        </th:block>
+
+        <th:block th:unless="${applicationResult.status.name() == 'DELETED' or 
+                               applicationResult.status.name() == 'REJECTED' or 
+                               applicationResult.status.name() == 'CANCELLED' or 
+                               applicationResult.status.name() == 'COMPLETED'}">
+
+            <th:block th:if="${viewer == 'mine'}">
+                <th:block th:if="${applicationResult.status.name() == 'APPLIED'}"> 
+                    <div th:replace="~{fragments/formactions :: editOrDelete(app=${applicationResult})}"></div>
+                </th:block>
+
+                <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
+                    <div th:replace="~{fragments/formactions :: cancelOrComplete(app=${applicationResult}, comment=${comment})}"></div>
+                </th:block>
             </th:block>
 
-            <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
-                <div th:replace="~{fragments/formactions :: cancelOrComplete(app=${applicationResult})}"></div>
+            <th:block th:if="${viewer == 'manager'}">
+                <th:block th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}">
+                    <div th:replace="~{fragments/formactions :: approveOrReject(app=${applicationResult})}"></div>
+                </th:block>
             </th:block>
 
-            <th:block th:unless="${applicationResult.status.name() == 'APPROVED' or 
-                                   applicationResult.status.name() == 'REJECTED' or 
-                                   applicationResult.status.name() == 'DELETED'}">
-                <div th:replace="~{fragments/formactions :: editOrDelete(app=${applicationResult})}"></div>
-            </th:block>
-        </div>
-
-        <div th:if="${viewer == 'manager'}">
-            <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
-                <div th:replace="~{fragments/formactions :: showManagerReason(app=${applicationResult})}"></div>
-            </th:block>
-            <th:block th:unless="${applicationResult.status.name() == 'APPROVED' or applicationResult.status.name() == 'DELETED'}">
-                <div th:replace="~{fragments/formactions :: approveOrReject(app=${applicationResult})}"></div>
-            </th:block>
-        </div>
+        </th:block>
     </div>
 
 </body>

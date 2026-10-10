@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <body>
 
         <th:block th:fragment="header">
@@ -7,15 +7,19 @@
             <header class="cats-header">
 				<strong class="cats-header-title">CATS for NUS-ISS</strong>
 
-				<span th:if="${session.user != null}"
-				      th:text="${'Logged in as ' + session.user.name}">
-				</span>
+                <div sec:authorize="isAuthenticated()">
+                    Logged in as: <span sec:authentication="name">Username</span>
+                </div>
+
 				
                 <a th:href="@{/staff/index}">Training</a>
-				<a th:if="${session.user != null and session.user.admin}" th:href="@{/admin}">
-					Administration</a>
-                <a th:href="@{/staff/login}">Login Page</a>
-                <a th:href="@{/staff/clear_session}">Clear Session</a>
+				<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/index}">Administration</a>
+                <form sec:authorize="!hasRole('ADMIN')" th:action="@{/logout}" method="post">
+                    <button type="submit">Logout</button>
+                </form>
+                <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/logout}" method="post">
+                    <button type="submit">Logout</button>
+                </form>
             </header>
 
         </th:block>
