@@ -27,13 +27,14 @@ public class SecurityConfig {
 
                 //Only ADMIN can go here 
                 .requestMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/admin/**").hasRole("ADMIN")
             )
             .formLogin(form -> form
                 .loginPage("/admin/login")
                 .successHandler((request, response, authentication) -> {
                     boolean isAdmin = authentication.getAuthorities().stream()
                                                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-                    if (isAdmin) response.sendRedirect(request.getContextPath() + "/admin");
+                    if (isAdmin) response.sendRedirect(request.getContextPath() + "/admin/index");
                     else {
                         new SecurityContextLogoutHandler().logout(request, response, authentication);
                         response.sendRedirect(request.getContextPath() + "/staff/login?adminDenied");

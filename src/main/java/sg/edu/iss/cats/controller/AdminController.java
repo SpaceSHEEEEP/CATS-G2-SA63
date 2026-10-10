@@ -43,13 +43,13 @@ public class AdminController {
 
 	}
 
-	@GetMapping("/")
+	@GetMapping("/index")
 	public String showAdmin(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
             Model model) {
 
-        if (user == null)                       return "redirect:/admin/login";
+        if (user == null)                      return "redirect:/admin/login";
         if (user.getRole() != Role.ROLE_ADMIN) return "redirect:/staff/index";
 
         // Load current user records
@@ -160,7 +160,7 @@ public class AdminController {
             ra.addFlashAttribute("successmsg", "User '" + form.getUserId() + "' updated successfully!");
         }
 
-        return "redirect:/admin";
+        return "redirect:/admin/index";
     }
 
     @GetMapping("/edituser")
@@ -176,7 +176,7 @@ public class AdminController {
 
         // check if the user to be edited exists
         User editedUser = userRepository.findById(id).orElse(null);
-        if (editedUser == null) return "redirect:/admin";
+        if (editedUser == null) return "redirect:/admin/index";
 
         // Prefill the form
         model.addAttribute("userForm", editedUser);
@@ -202,18 +202,18 @@ public class AdminController {
         // check if admin is trying to delete himself/herself
         if (user.getUserId().equals(id)){
             ra.addFlashAttribute("errormsg", "You are not authorised to delete yourself.");
-            return "redirect:/admin";
+            return "redirect:/admin/index";
         }
 
         // check if the user to be deleted is the CEO
         if (id == 1) {
             ra.addFlashAttribute("errormsg", "You are not authorised to remove this person.");
-            return "redirect:/admin";
+            return "redirect:/admin/index";
         }
 
         // check if the user to be deleted exists
         User deletedUser = userRepository.findById(id).orElse(null);
-        if (deletedUser == null) return "redirect:/admin";
+        if (deletedUser == null) return "redirect:/admin/index";
 
         // check if the user to be deleted is a manager
         if (!deletedUser.getSubordinates().isEmpty()) {
@@ -233,6 +233,6 @@ public class AdminController {
         // flash attribute
         ra.addFlashAttribute("successmsg", "User '" + deletedUser.getUserId() + "' deleted successfully!");
 
-        return "redirect:/admin";
+        return "redirect:/admin/index";
     }
 }
