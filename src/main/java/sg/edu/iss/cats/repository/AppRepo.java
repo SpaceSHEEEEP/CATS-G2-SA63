@@ -21,6 +21,16 @@ public interface AppRepo extends JpaRepository<Application, Integer> {
     @EntityGraph(attributePaths = {"user", "course"})
     @Query("SELECT a FROM Application a")
     List<Application> findAllForReporting();
+    @EntityGraph(attributePaths = {"user", "course"})
+    @Query("SELECT a FROM Application a WHERE a.status IN :statuses " +
+           "AND a.course.startDate <= :toDate AND a.course.endDate >= :fromDate " +
+           "AND (:category IS NULL OR a.course.courseType = :category) " +
+           "AND (:employeeId IS NULL OR a.user.userId = :employeeId) " +
+           "ORDER BY a.course.startDate, a.user.name, a.id")
+    Page<Application> findAttendanceForReporting(@Param("statuses") Collection<Status> statuses,
+            @Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate,
+            @Param("category") sg.edu.iss.cats.model.CourseType category,
+            @Param("employeeId") Integer employeeId, Pageable pageable);
     // This finds a user's applications that has some status
     public List<Application> findByUser_UserIdAndStatusIn(Integer userId, Collection<Status> statuses);
 

@@ -135,6 +135,8 @@ public class ApplicationWorkflowService {
         if (request.getUserReason() == null || request.getUserReason().isBlank()
                 || request.getUserReason().length() > 1000)
             throw new IllegalArgumentException("A justification of at most 1,000 characters is required");
+        if (request.getWorkDissemination() != null && request.getWorkDissemination().length() > 1000)
+            throw new IllegalArgumentException("Work dissemination cannot exceed 1,000 characters");
         Course incoming = request.getCourse();
         validateCourse(incoming);
         account.validateCapacity(user, incoming, original == null ? null : original.getId());
@@ -149,6 +151,8 @@ public class ApplicationWorkflowService {
         target.setUser(user); // NEVER take the owner from the submitted form.
         target.setCourse(savedCourse);
         target.setUserReason(request.getUserReason().trim());
+        target.setWorkDissemination(request.getWorkDissemination() == null
+                ? null : request.getWorkDissemination().trim());
         target.setStatus(original == null ? Status.APPLIED : Status.UPDATED);
         applications.saveAndFlush(target);
         request.setId(target.getId());

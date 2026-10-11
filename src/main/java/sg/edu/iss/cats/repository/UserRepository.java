@@ -5,6 +5,8 @@ import sg.edu.iss.cats.model.User;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +19,8 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     @Query("select u from User u where u.userId = :id")
     Optional<User> findLockedById(@org.springframework.data.repository.query.Param("id") Integer id);
 
+    Page<User> findByUserId(Integer userId, Pageable pageable);
+    boolean existsByUserIdAndManager_UserId(Integer employeeId, Integer managerId);
     public boolean existsByUsername(String username);
     // for user editing by admin
     public boolean existsByUsernameAndUserIdNot(String username, Integer userId);

@@ -116,6 +116,12 @@
               <textarea th:field="*{userReason}" rows="5" placeholder="Please provide your reason within 1000 characters"></textarea>
               <span class="field-error-message" th:if="${#fields.hasErrors('userReason')}" th:errors="*{userReason}"/>
             </fieldset>
+            <fieldset>
+              <label>Work dissemination / coverage during training (if any):</label>
+              <textarea th:field="*{workDissemination}" rows="3" maxlength="1000"
+                        placeholder="Work handover, coverage or knowledge-sharing arrangements"></textarea>
+              <span class="field-error-message" th:if="${#fields.hasErrors('workDissemination')}" th:errors="*{workDissemination}"/>
+            </fieldset>
           </div>
 
           <div class="form-buttons">
