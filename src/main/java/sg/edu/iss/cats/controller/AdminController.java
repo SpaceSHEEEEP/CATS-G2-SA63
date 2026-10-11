@@ -55,7 +55,7 @@ public class AdminController {
         if (user.getRole() != Role.ROLE_ADMIN) return "redirect:/staff/index";
 
         // Load current user records
-        model.addAttribute("users", userRepository.findAll());
+        model.addAttribute("users", userRepository.findAllByOrderByUserIdAsc());
         
         // Show holidays for the current calendar year only.
         int year = LocalDate.now().getYear();

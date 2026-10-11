@@ -55,6 +55,16 @@
 	    </tbody>
 	</table>
 
+    <h2>User directory report</h2>
+    <p>Contains staff names, email addresses, account status, admin roles and managers. Handle as confidential.</p>
+    <p><a th:href="@{/admin/users.csv}">Download all users (CSV)</a></p>
+    <form th:action="@{/admin/users/email}" method="post">
+        <label for="reportRecipient">Email report to:</label>
+        <input type="email" id="reportRecipient" name="recipient" maxlength="254"
+               placeholder="recipient@example.com" autocomplete="email" required />
+        <button type="submit">Email user report</button>
+    </form>
+
     <h2>Courses</h2>
     <p><a th:href="@{/admin/course/new}">Add catalogue course</a></p>
     <p th:if="${#lists.isEmpty(courseSummaries.content)}">No courses recorded.</p>
