@@ -28,8 +28,9 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Enumerated(EnumType.STRING)
-    @Column(nullable=false)
+    @Column(nullable=false, length = 32)
     private Status status;
 
     @Column(nullable=false)

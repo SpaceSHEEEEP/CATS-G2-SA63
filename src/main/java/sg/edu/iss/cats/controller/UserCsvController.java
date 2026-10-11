@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +31,9 @@ public class UserCsvController {
     private static final MediaType CSV = MediaType.parseMediaType("text/csv;charset=UTF-8");
 
     private final UserCsvService csvService;
-    private final UserReportEmailService emailService;
+    private final ObjectProvider<UserReportEmailService> emailService;
 
-    public UserCsvController(UserCsvService csvService, UserReportEmailService emailService) {
+    public UserCsvController(UserCsvService csvService, ObjectProvider<UserReportEmailService> emailService) {
         this.csvService = csvService;
         this.emailService = emailService;
     }
@@ -58,7 +59,9 @@ public class UserCsvController {
         }
 
         try {
-            emailService.sendReport(email);
+            UserReportEmailService service = emailService.getIfAvailable();
+            if (service == null) throw new IllegalStateException("SMTP not configured");
+            service.sendReport(email);
             flash.addFlashAttribute("successmsg", "User report emailed successfully.");
         } catch (MessagingException | RuntimeException ex) {
             // Do not disclose SMTP configuration or internal exception messages to the browser.

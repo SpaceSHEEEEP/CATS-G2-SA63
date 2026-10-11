@@ -6,4 +6,5 @@ import sg.edu.iss.cats.model.TrainingYear;
 
 public interface TrainingYearRepository extends JpaRepository<TrainingYear, Integer> {
     Optional<TrainingYear> findByUser_UserIdAndYear(Integer userId, int year);
+    void deleteByUser_UserId(Integer userId);
 }

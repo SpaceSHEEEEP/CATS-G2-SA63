@@ -19,14 +19,19 @@ public class ApplicationWorkflowService {
     private final UserRepository users;
     private final CommentRepository comments;
     private final TrainingAccountService account;
+    private final CourseReferenceService references;
+    private final NotificationOutboxService notifications;
 
     public ApplicationWorkflowService(AppRepo applications, CourseRepository courses,
-            UserRepository users, CommentRepository comments, TrainingAccountService account) {
+            UserRepository users, CommentRepository comments, TrainingAccountService account,
+            CourseReferenceService references, NotificationOutboxService notifications) {
         this.applications = applications;
         this.courses = courses;
         this.users = users;
         this.comments = comments;
         this.account = account;
+        this.references = references;
+        this.notifications = notifications;
     }
 
     private LocalDate today() { return LocalDate.now(ZoneId.of("Asia/Singapore")); }
@@ -81,14 +86,18 @@ public class ApplicationWorkflowService {
                 && a.getEndDate().equals(b.getEndDate())
                 && a.getFee().compareTo(b.getFee()) == 0
                 && a.getLocation().equals(b.getLocation())
-                && a.getTrainingProvider().equals(b.getTrainingProvider())
+                && java.util.Objects.equals(
+                    a.getProvider() == null ? null : a.getProvider().getId(),
+                    b.getProvider() == null ? null : b.getProvider().getId())
                 && a.getDuration() == b.getDuration();
     }
 
     private Course copyCourse(Course input) {
-        return new Course(input.getCourseName(), input.getCourseType(),
+        Course copy = new Course(input.getCourseName(), input.getCourseType(),
                 input.getStartDate(), input.getEndDate(), input.getLocation(),
                 input.getTrainingProvider(), input.getFee(), input.getDuration());
+        copy.setProvider(input.getProvider());
+        return copy;
     }
 
     private Course resolveCourse(Course input, Application existing) {
@@ -138,6 +147,7 @@ public class ApplicationWorkflowService {
         if (request.getWorkDissemination() != null && request.getWorkDissemination().length() > 1000)
             throw new IllegalArgumentException("Work dissemination cannot exceed 1,000 characters");
         Course incoming = request.getCourse();
+        references.resolveCourse(incoming);
         validateCourse(incoming);
         account.validateCapacity(user, incoming, original == null ? null : original.getId());
         for (Application another : applications.findByUser_UserIdAndStatusIn(userId,
@@ -156,6 +166,7 @@ public class ApplicationWorkflowService {
         target.setStatus(original == null ? Status.APPLIED : Status.UPDATED);
         applications.saveAndFlush(target);
         request.setId(target.getId());
+        notifications.applicationSubmitted(target);
         account.syncLegacyCurrentYear(user);
     }
 
@@ -223,6 +234,7 @@ public class ApplicationWorkflowService {
         target.setManagerReason(reason.trim());
         target.setStatus(decision);
         applications.saveAndFlush(target);
+        notifications.applicationDecided(target);
         account.syncLegacyCurrentYear(owner);
     }
 }

@@ -8,6 +8,10 @@
      <a th:href="@{/manager/reports/print(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year})}"
         target="_blank" rel="noopener">Print complete consolidated reports</a></p>
   <p th:if="${error}" th:text="${error}" role="alert"></p>
+  <p>Download the complete filtered datasets as spreadsheet-safe CSV:</p>
+  <p><a th:href="@{/manager/reports/attendance.csv(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId})}">Attendance CSV</a>
+    · <a th:href="@{/manager/reports/budget.csv(year=${year},employeeId=${employeeId})}">Budget CSV</a>
+    · <a th:href="@{/manager/reports/claims.csv(year=${year},employeeId=${employeeId})}">Claim CSV</a></p>
   <form method="get" th:action="@{/manager/reports}">
     <label>From <input type="date" name="startDate" th:value="${from}" /></label>
     <label>To <input type="date" name="endDate" th:value="${to}" /></label>

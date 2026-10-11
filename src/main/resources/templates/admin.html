@@ -47,8 +47,11 @@
 	            <td th:text="${staff.actualDays}"></td>
                 <td><a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a></td>
                 <td>
-                    <form th:action="@{/admin/deleteuser(userId=${staff.userId})}" method="POST">
-                        <button type="submit">X</button>
+                    <form th:if="${staff.enabled}" th:action="@{/admin/deleteuser(userId=${staff.userId})}" method="POST">
+                        <button type="submit" onclick="return confirm('Deactivate account and preserve its history?')">Deactivate</button>
+                    </form>
+                    <form th:action="@{/admin/purgeuser(userId=${staff.userId})}" method="POST">
+                        <button type="submit" onclick="return confirm('PERMANENTLY delete this unused account? Cannot be undone.')">Delete unused</button>
                     </form>
                 </td>
 	        </tr>
@@ -65,6 +68,7 @@
         <button type="submit">Email user report</button>
     </form>
 
+    <p><a th:href="@{/admin/references}">Manage course categories, training providers and public holidays</a></p>
     <h2>Courses</h2>
     <p><a th:href="@{/admin/course/new}">Add catalogue course</a></p>
     <p th:if="${#lists.isEmpty(courseSummaries.content)}">No courses recorded.</p>
@@ -105,7 +109,7 @@
             <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin/index(pageNum=${pageNum+1})}">Next page</a>
             </div>
             
-            <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
+            <th:block th:if="${pageNumLast > 0}" th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
                 <a th:href="@{/admin/index(pageNum=${i})}" th:text="${i + 1}"></a>
             </th:block>
         </div>

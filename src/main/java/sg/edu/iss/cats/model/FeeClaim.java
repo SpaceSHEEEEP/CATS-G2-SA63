@@ -20,7 +20,8 @@ public class FeeClaim {
     private User employee;
     @Column(nullable = false)
     private BigDecimal amount;
-    @Enumerated(EnumType.STRING) @Column(nullable = false)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
+    @Enumerated(EnumType.STRING) @Column(nullable = false, length = 32)
     private ClaimStatus status = ClaimStatus.SUBMITTED;
     @Column(nullable = false)
     private LocalDate submittedOn;

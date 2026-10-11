@@ -61,9 +61,7 @@
             <label>Course Type:</label>
             <select th:field="*{course.courseType}" th:disabled="*{course?.courseType?.name() == 'INTERNAL'}">
               <option value="">--Course Type--</option>
-              <option value="INTERNAL" th:if="*{course?.courseType?.name() == 'INTERNAL'}">Internal Training</option>
-              <option value="EXTERNAL">External Course</option>
-              <option value="PROFESSIONAL">Professional Certification</option>
+              <option th:each="category : ${categoryOptions}" th:value="${category.code}" th:text="${category.displayName}"></option>
            </select>
               <input type="hidden" name ="course.courseType" value="INTERNAL" th:if="*{course?.courseType?.name() == 'INTERNAL'}">
               <span class="field-error-message" th:if="${#fields.hasErrors('course.courseType')}" th:errors="*{course.courseType}"/>
@@ -100,8 +98,11 @@
    
           <fieldset>
             <label>Training Provider:</label>
-            <input type="text" th:field="*{course.trainingProvider}" th:readonly="*{course?.courseType?.name() == 'INTERNAL'}"/>
-            <span class="field-error-message" th:if="${#fields.hasErrors('course.trainingProvider')}" th:errors="*{course.trainingProvider}"/>
+            <select th:field="*{course.providerId}" required>
+              <option value="">--Select training provider--</option>
+              <option th:each="provider : ${providerOptions}" th:value="${provider.id}" th:text="${provider.name}"></option>
+            </select>
+            <small>Providers are maintained by administrators.</small>
           </fieldset>
   
           <fieldset>

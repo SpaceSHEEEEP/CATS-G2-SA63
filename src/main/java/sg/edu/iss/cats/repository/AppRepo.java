@@ -59,6 +59,10 @@ public interface AppRepo extends JpaRepository<Application, Integer> {
     List<Application> findByUser_UserId(Integer userId);
 
     boolean existsByCourse_CourseId(Integer courseId);
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Application a " +
+           "WHERE a.course.startDate <= :day AND a.course.endDate >= :day " +
+           "AND a.status <> sg.edu.iss.cats.model.Status.DELETED")
+    boolean hasActiveApplicationOnDate(@Param("day") LocalDate day);
 
     @EntityGraph(attributePaths = {"user", "course"})
     @Query("SELECT a FROM Application a WHERE a.user.userId = :userId " +
@@ -105,7 +109,7 @@ public interface AppRepo extends JpaRepository<Application, Integer> {
     @EntityGraph(attributePaths = {"user", "course"})
     @Query("""
             SELECT a FROM Application a
-            WHERE a.status = sg.edu.iss.cats.model.Status.APPROVED
+            WHERE a.status IN (sg.edu.iss.cats.model.Status.APPROVED, sg.edu.iss.cats.model.Status.COMPLETED)
               AND a.course.startDate <= :endDate
               AND a.course.endDate >= :startDate
             ORDER BY a.course.startDate, a.user.name, a.id

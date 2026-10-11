@@ -41,6 +41,7 @@ public class ApplicationController {
     private final UserRepository userRepository;
     private final ApplicationWorkflowService applicationService;
     private final TrainingAccountService accounts;
+    private final sg.edu.iss.cats.service.CourseReferenceService references;
 
     public ApplicationController(
             AppRepo appRepo,
@@ -48,16 +49,23 @@ public class ApplicationController {
             FeeClaimRepository claims,
             ApplicationWorkflowService applicationService,
             UserRepository userRepository,
-            TrainingAccountService accounts) {
+            TrainingAccountService accounts,
+            sg.edu.iss.cats.service.CourseReferenceService references) {
         this.appRepo = appRepo;
         this.courseRepository = courseRepository;
         this.claims = claims;
         this.applicationService = applicationService;
         this.userRepository = userRepository;
         this.accounts = accounts;
+        this.references = references;
     }
 
-	@GetMapping("/apply")
+    private void formOptions(Model model) {
+        model.addAttribute("categoryOptions", references.enabledCategories());
+        model.addAttribute("providerOptions", references.enabledProviders());
+    }
+
+    @GetMapping("/apply")
 	public String showForm(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "courseId", required = false) Integer courseId, 
@@ -69,6 +77,7 @@ public class ApplicationController {
         app.setUser(userRepository.findById(user.getUserId()).orElse(null));
         Course selectedCourse = courseId == null ? null : courseRepository.findById(courseId).orElse(null);
         if (selectedCourse != null && !Boolean.TRUE.equals(selectedCourse.getArchived())) {
+            selectedCourse.setProviderId(selectedCourse.getProvider() == null ? null : selectedCourse.getProvider().getId());
             app.setCourse(selectedCourse);
         } else {
             Course custom = new Course();
@@ -77,6 +86,7 @@ public class ApplicationController {
             app.setCourse(custom);
         }
         model.addAttribute("applicationForm", app);
+        formOptions(model);
 	    return "applyform";
     }
     
@@ -93,7 +103,7 @@ public class ApplicationController {
         // need below because spring mvc remakes a new object after every state change
         form.setUser(userRepository.findById(user.getUserId()).orElse(null));
         // Bean validation runs before the transactional business checks.
-        if (result.hasErrors()) return "applyform";
+        if (result.hasErrors()) { formOptions(model); return "applyform"; }
 
          // Check if it is a new application or an existing application (editing)
         boolean isNewApp = (form.getId()==null);
@@ -102,6 +112,7 @@ public class ApplicationController {
             applicationService.saveApplication(form, user.getUserId());
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
+            formOptions(model);
             return "applyform";
         }
 
@@ -124,7 +135,9 @@ public class ApplicationController {
             ra.addFlashAttribute("errormsg", "Only applied or updated applications may be edited");
             return "redirect:/staff/index";
         }
+        application.getCourse().setProviderId(application.getCourse().getProvider() == null ? null : application.getCourse().getProvider().getId());
         model.addAttribute("applicationForm", application);
+        formOptions(model);
         return "applyform";
     }
 

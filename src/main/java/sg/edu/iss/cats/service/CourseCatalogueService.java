@@ -10,12 +10,14 @@ import sg.edu.iss.cats.repository.*;
 public class CourseCatalogueService {
     private final CourseRepository courses;
     private final AppRepo applications;
-    public CourseCatalogueService(CourseRepository courses, AppRepo applications) {
-        this.courses = courses; this.applications = applications;
+    private final CourseReferenceService references;
+    public CourseCatalogueService(CourseRepository courses, AppRepo applications, CourseReferenceService references) {
+        this.courses = courses; this.applications = applications; this.references = references;
     }
 
     @Transactional
     public Course save(Course form) {
+        references.resolveCourse(form);
         if (form.getCourseName() == null || form.getCourseName().isBlank()
                 || form.getCourseType() == null || form.getDuration() == null
                 || form.getStartDate() == null || form.getEndDate() == null

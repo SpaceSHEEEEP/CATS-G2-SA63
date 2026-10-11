@@ -9,14 +9,16 @@
   <p th:if="${#fields.hasAnyErrors()}" th:each="e : ${#fields.allErrors()}" th:text="${e}"></p>
   <label>Course title <input type="text" th:field="*{courseName}" required /></label>
   <label>Category <select th:field="*{courseType}" required>
-    <option value="INTERNAL">Internal</option><option value="EXTERNAL">External</option>
-    <option value="PROFESSIONAL">Professional certification</option></select></label>
+    <option th:each="cat : ${categoryOptions}" th:value="${cat.code}" th:text="${cat.displayName}"></option></select></label>
   <label>Start date <input type="date" th:field="*{startDate}" required /></label>
   <label>End date <input type="date" th:field="*{endDate}" required /></label>
   <label>Session <select th:field="*{duration}" required><option value="FULLDAY">Full day</option>
     <option value="HALFDAYAM">Half day AM</option><option value="HALFDAYPM">Half day PM</option></select></label>
   <label>Location <input type="text" th:field="*{location}" required /></label>
-  <label>Provider <input type="text" th:field="*{trainingProvider}" required /></label>
+  <label>Provider <select th:field="*{providerId}" required>
+    <option value="">--Select provider--</option>
+    <option th:each="provider : ${providerOptions}" th:value="${provider.id}" th:text="${provider.name}"></option>
+  </select></label>
   <label>Course fee <input type="number" th:field="*{fee}" min="0" step="0.01" required /></label>
   <p>Editing a course with existing applications creates a new catalogue version, preserving historical data.</p>
   <button type="submit">Save course</button>

@@ -56,11 +56,15 @@ public class User implements UserDetails{
     private String username;
     @Column(nullable = false, length = 100)
     private String password;
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Enumerated(EnumType.STRING)
+    @Column(length = 32)
     private Role role;
     // Legacy flag retained for seeded data; role is the authority source.
     private boolean isAdmin;
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Enumerated(EnumType.STRING)
+    @Column(length = 32)
     private Designation designation = Designation.PROFESSIONAL;
     // NULL means enabled to preserve older seed data that did not set this column.
     private Boolean active;

@@ -18,7 +18,7 @@ public class Holiday {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int holidayId;
 
-    @Column(nullable=false)
+    @Column(nullable=false, unique=true)
     public LocalDate holidayDate;
 
     @Column(nullable=false)

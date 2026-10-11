@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.TestConstructor;
 
 import sg.edu.iss.cats.model.Application;
@@ -25,6 +26,7 @@ import sg.edu.iss.cats.repository.UserRepository;
 
 @DataJpaTest
 @ActiveProfiles("test")
+@Sql("/repository-fixtures.sql")
 @AutoConfigureTestDatabase(
         replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
@@ -68,7 +70,7 @@ class CalendarRepositoryTests {
         saveApplication(ben, course, Status.REJECTED);
         saveApplication(ben, course, Status.CANCELLED);
         saveApplication(ben, course, Status.DELETED);
-        saveApplication(ben, course, Status.COMPLETED);
+        Application benCompleted = saveApplication(ben, course, Status.COMPLETED);
 
         saveApplication(dan, course, Status.APPLIED);
         saveApplication(dan, course, Status.UPDATED);
@@ -96,6 +98,7 @@ class CalendarRepositoryTests {
                 .extracting(Application::getId)
                 .containsExactlyInAnyOrder(
                         benApproved.getId(),
+                        benCompleted.getId(),
                         danApproved.getId());
 
         assertThat(appRepo.findApprovedCalendarApplications(

@@ -13,6 +13,7 @@ import sg.edu.iss.cats.model.FeeClaim;
 
 public interface FeeClaimRepository extends JpaRepository<FeeClaim, Integer> {
     boolean existsByApplication_Id(Integer applicationId);
+    boolean existsByEmployee_UserId(Integer employeeId);
     @EntityGraph(attributePaths = {"application", "application.course", "employee"})
     @org.springframework.data.jpa.repository.Query("SELECT claim FROM FeeClaim claim")
     List<FeeClaim> findAllForReporting();

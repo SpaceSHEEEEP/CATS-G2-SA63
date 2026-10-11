@@ -22,6 +22,7 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     Page<User> findByUserId(Integer userId, Pageable pageable);
     boolean existsByUserIdAndManager_UserId(Integer employeeId, Integer managerId);
     public boolean existsByUsername(String username);
+    boolean existsByRole(sg.edu.iss.cats.model.Role role);
     // for user editing by admin
     public boolean existsByUsernameAndUserIdNot(String username, Integer userId);
     public boolean existsByUsernameAndPassword(String username, String password);

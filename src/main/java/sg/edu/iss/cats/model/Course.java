@@ -35,8 +35,10 @@ public class Course {
     @NotBlank(message = "Course name is required")
     private String courseName;
 
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Course type is required")
+    @jakarta.persistence.Column(length = 32)
     private CourseType courseType;
 
     @NotNull(message = "Start date is required")
@@ -50,16 +52,27 @@ public class Course {
     @NotBlank(message = "Location is required")
     private String location;
     
-    @NotBlank(message = "Training Provider is required")
+    /** Historical display snapshot; authority comes from the provider catalogue. */
+    @jakarta.persistence.Column(nullable = false)
     private String trainingProvider;
+
+    @jakarta.persistence.ManyToOne(fetch = FetchType.EAGER)
+    @jakarta.persistence.JoinColumn(name = "provider_id")
+    private TrainingProvider provider;
+
+    /** UI-only selector; provider itself is resolved server-side. */
+    @jakarta.persistence.Transient
+    private Integer providerId;
 
     @NotNull(message = "Please input the course fee")
     @PositiveOrZero(message="Course fee cannot be negative")
     private BigDecimal fee;
 
     // Half-day sessions are only permitted for single-day internal training.
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Course duration is required")
+    @jakarta.persistence.Column(length = 32)
     private CourseDuration duration;
     // Existing historical applications keep their snapshots after catalogue edits.
     // NULL means active for courses created before this flag was introduced.
