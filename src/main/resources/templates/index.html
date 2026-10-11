@@ -7,7 +7,7 @@
 	<body>
         <div th:replace="~{fragments/header :: header}"></div>
 
-        <h1>My Training</h1>
+        <div class="cats-page-heading"><img src="/images/cats/excited.png" th:src="@{/images/cats/excited.png}" alt="" /><h1>My Training</h1></div>
         <p th:text="${'Welcome ' + user.name + '!'}"></p>
 
         <div class="actions">

@@ -1,0 +1,15 @@
+.git
+.github
+.gradle
+build
+mobile/node_modules
+mobile/.angular
+mobile/dist
+mobile/android
+mobile/ios
+**/.DS_Store
+.env
+.env.*
+*.zip
+*.patch
+**/*.apk

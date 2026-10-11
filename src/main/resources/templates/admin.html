@@ -3,12 +3,13 @@
 <head>
     <title>Administration</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
+    <script th:src="@{/js/captcha.js}" defer></script>
 </head>
 <body>
 
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <h1>Administration</h1>
+    <div class="cats-page-heading"><img th:src="@{/images/cats/unimpressed.png}" alt="" /><h1>Administration</h1></div>
     <p th:text="${'Welcome Admin ' + user.name + '!'}"></p>
 	
     <!-- display success message for every application made or deleted -->
@@ -45,7 +46,13 @@
                 <td th:text="${staff.manager == null} ? '-' : ${staff.manager.name}"></td>
                 <td th:text="${staff.actualAllowance == null} ? 'Not set' : ${#numbers.formatDecimal(staff.actualAllowance, 1, 2)}"></td>
 	            <td th:text="${staff.actualDays}"></td>
-                <td><a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a></td>
+                <td><a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a>
+                  <form th:action="@{/admin/mfa/reset}" method="post" th:if="${staff.userId != user.userId}">
+                    <input type="hidden" name="userId" th:value="${staff.userId}"/>
+                    <input name="confirmation" type="text" placeholder="RESET MFA" aria-label="Type RESET MFA for staff member" required/>
+                    <button type="submit">Reset MFA</button>
+                  </form>
+                </td>
                 <td>
                     <form th:if="${staff.enabled}" th:action="@{/admin/deleteuser(userId=${staff.userId})}" method="POST">
                         <button type="submit" onclick="return confirm('Deactivate account and preserve its history?')">Deactivate</button>
@@ -58,6 +65,7 @@
 	    </tbody>
 	</table>
 
+    <p th:if="${param.captchaError}" role="alert">Verification failed. Try a new challenge.</p>
     <h2>User directory report</h2>
     <p>Contains staff names, email addresses, account status, admin roles and managers. Handle as confidential.</p>
     <p><a th:href="@{/admin/users.csv}">Download all users (CSV)</a></p>
@@ -65,6 +73,7 @@
         <label for="reportRecipient">Email report to:</label>
         <input type="email" id="reportRecipient" name="recipient" maxlength="254"
                placeholder="recipient@example.com" autocomplete="email" required />
+        <div th:replace="~{fragments/captcha :: widget('admin-mail')}"></div>
         <button type="submit">Email user report</button>
     </form>
 

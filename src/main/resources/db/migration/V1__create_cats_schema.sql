@@ -9,6 +9,8 @@ CREATE TABLE user (
   active BOOLEAN,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE,
   manager_user_id INTEGER,
+  mfa_secret_encrypted VARCHAR(512),
+  mfa_last_step BIGINT,
   actual_allowance DECIMAL(38,2),
   budgeted_allowance DECIMAL(38,2),
   actual_days DOUBLE,
@@ -123,3 +125,25 @@ CREATE TABLE notification_outbox (
   last_error VARCHAR(255)
 );
 CREATE INDEX idx_outbox_pending ON notification_outbox(sent_at, next_attempt_at, id);
+
+CREATE TABLE mobile_pairing (
+  id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  code_hash VARCHAR(64) NOT NULL UNIQUE,
+  created_at DATETIME(6) NOT NULL,
+  expires_at DATETIME(6) NOT NULL,
+  CONSTRAINT fk_mobile_pairing_user FOREIGN KEY (user_id) REFERENCES user(user_id)
+);
+CREATE INDEX idx_mobile_pairing_expiry ON mobile_pairing(expires_at);
+
+CREATE TABLE mobile_device_token (
+  id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  token_hash VARCHAR(64) NOT NULL UNIQUE,
+  device_name VARCHAR(80) NOT NULL,
+  issued_at DATETIME(6) NOT NULL,
+  expires_at DATETIME(6) NOT NULL,
+  revoked BOOLEAN NOT NULL DEFAULT FALSE,
+  CONSTRAINT fk_mobile_token_user FOREIGN KEY (user_id) REFERENCES user(user_id)
+);
+CREATE INDEX idx_mobile_token_user ON mobile_device_token(user_id, revoked);

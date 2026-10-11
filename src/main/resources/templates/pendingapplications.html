@@ -11,7 +11,7 @@
 		<!-- display success message for every application approved or rejected -->
     <div th:if="${successmsg}" th:text="${successmsg}" class="global-success-message"></div>
 
-    <h1>Team Training</h1>
+    <div class="cats-page-heading"><img th:src="@{/images/cats/surprised.png}" alt="" /><h1>Team Training</h1></div>
 
 		<h2>Search Team Applications</h2>
 		<form th:action="@{/manager/applications/search}" method="get">

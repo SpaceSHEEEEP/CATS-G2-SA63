@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CATS Mobile - downloads and pairing</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+    <script th:src="@{/js/captcha.js}" defer></script>
+  </head>
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <main class="mobile-hub">
+      <h1>CATS Mobile</h1>
+      <img
+        class="cats-mobile-art"
+        th:src="@{/images/cats/adventure.png}"
+        alt="CATS adventure mascot with a rocket"
+      />
+      <p>
+        Use the Android app to browse saved course information offline and
+        generate TOTP login codes offline. Sync requires Internet.
+      </p>
+      <p th:if="${apkReady}">
+        <a class="btn btn-primary" th:href="@{/staff/mobile/download}"
+          >Download the Android APK</a
+        >
+      </p>
+      <p th:unless="${apkReady}">
+        A signed Android release has not been published on this server yet. The
+        administrator must provide a signed APK.
+      </p>
+      <p>
+        First enroll an authenticator at your next password login. Then download
+        CATS Mobile and enter the manual key from the setup screen in its
+        Authenticator tab.
+      </p>
+      <h2>Connect mobile read-only sync</h2>
+      <p>
+        After MFA verification, generate a one-time pairing code here, then
+        enter it in the mobile app within five minutes.
+      </p>
+      <p th:if="${param.captchaError}" role="alert">
+        Verification failed. Please retry.
+      </p>
+      <form method="post" th:action="@{/staff/mobile/pair}">
+        <div th:replace="~{fragments/captcha :: widget('pair-code')}"></div>
+        <button type="submit">Generate pairing code</button>
+      </form>
+      <p th:if="${pairCode}">
+        One-time pairing code (expires in five minutes):
+        <code th:text="${pairCode}"></code>
+      </p>
+      <p th:if="${notice}" th:text="${notice}" role="status"></p>
+      <h2>Paired devices</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Device</th>
+            <th>Expires (UTC)</th>
+            <th>Revoked</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="d : ${devices}">
+            <td th:text="${d.deviceName}"></td>
+            <td th:text="${d.expiresAt}"></td>
+            <td th:text="${d.revoked}"></td>
+            <td>
+              <form
+                th:unless="${d.revoked}"
+                method="post"
+                th:action="@{/staff/mobile/revoke}"
+              >
+                <input name="id" type="hidden" th:value="${d.id}" /><button
+                  type="submit"
+                >
+                  Revoke
+                </button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>

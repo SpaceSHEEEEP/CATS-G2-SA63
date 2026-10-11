@@ -68,6 +68,14 @@ public class User implements UserDetails{
     private Designation designation = Designation.PROFESSIONAL;
     // NULL means enabled to preserve older seed data that did not set this column.
     private Boolean active;
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @Column(name = "mfa_secret_encrypted", length = 512)
+    private String mfaSecretEncrypted;
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @Column(name = "mfa_last_step")
+    private Long mfaLastStep;
+
     @NotBlank(message="Email must not be empty")
     @jakarta.validation.constraints.Email
     private String email;

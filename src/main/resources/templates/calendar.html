@@ -163,7 +163,7 @@
   <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
-	<h1 id="calendar-title">All Staff Training Calendar</h1>
+	<div class="cats-page-heading"><img th:src="@{/images/cats/thoughtful.png}" alt="" /><h1 id="calendar-title">All Staff Training Calendar</h1></div>
 
 	<h2 id="calendar-month-heading" th:text="${currentMonth + ' ' + currentYear}">
 	  Selected month

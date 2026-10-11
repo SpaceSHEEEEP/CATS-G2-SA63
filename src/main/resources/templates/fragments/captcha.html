@@ -1,0 +1,26 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <body>
+    <fieldset
+      th:fragment="widget(scope)"
+      class="cats-captcha"
+      th:attr="data-captcha-scope=${scope},data-challenge-url=@{/captcha/new}"
+    >
+      <legend>Human verification</legend>
+      <input type="hidden" name="captchaId" value="" />
+      <input type="hidden" name="captchaAnswer" value="" />
+      <p class="captcha-prompt" aria-live="polite">
+        Loading a verification challenge…
+      </p>
+      <div class="captcha-stage" aria-label="Interactive challenge"></div>
+      <p class="captcha-feedback" role="status" aria-live="polite"></p>
+      <button class="captcha-refresh" type="button">
+        Try a different challenge
+      </button>
+      <noscript
+        >JavaScript is needed for interactive verification. Contact an
+        administrator if you cannot use it.</noscript
+      >
+    </fieldset>
+  </body>
+</html>

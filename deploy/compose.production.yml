@@ -1,0 +1,18 @@
+services:
+  cats:
+    image: ${CATS_IMAGE:?CATS_IMAGE must name an immutable GHCR SHA tag}
+    restart: unless-stopped
+    env_file: ../.env.production
+    environment:
+      SESSION_COOKIE_SECURE: "true"
+      MOBILE_APK_PATH: /data/mobile/CATS-Mobile.apk
+    volumes:
+      - ../CATS-Mobile.apk:/data/mobile/CATS-Mobile.apk:ro
+    ports:
+      - "${CATS_HTTP_BIND_ADDRESS:-0.0.0.0}:${CATS_HTTP_PORT:-80}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 90s
+      retries: 3
