@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.dto.CourseApplicantSummary;
 import sg.edu.iss.cats.model.Course;
+import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.model.LoginForm;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
@@ -49,6 +50,7 @@ public class AdminController {
 	public String showAdmin(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+            @RequestParam(name = "type", defaultValue = "ALL") String type,
             Model model) {
 
         if (user == null)                      return "redirect:/admin/login";
@@ -66,12 +68,17 @@ public class AdminController {
         model.addAttribute("holidays",
                 holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(firstDay, lastDay));
 
+        CourseType category = List.of("INTERNAL", "EXTERNAL", "PROFESSIONAL").contains(type)
+                ? CourseType.valueOf(type) : null;
+        pageNum = Math.max(0, pageNum);
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         // TODO: get pages WITH application count!! The one below doesn't have application count
         // Page<Course> courseSummaries = courseRepository.findAllByOrderByApplicationsSizeDesc(pageable);
         // model.addAttribute("courseSummaries", courseSummaries);
-        Page<CourseApplicantSummary> courseSummaries = courseRepository.findCoursesWithApplicantCounts(pageable);
+        Page<CourseApplicantSummary> courseSummaries = courseRepository.findCoursesWithApplicantCounts(category, pageable);
         model.addAttribute("courseSummaries", courseSummaries);
+        model.addAttribute("selectedType", category == null ? "ALL" : category.name());
+        model.addAttribute("catalogueCourseCount", courseRepository.count());
         model.addAttribute("pageNum", pageNum);
         model.addAttribute("pageNumLast", courseSummaries.getTotalPages());
         model.addAttribute("user", userRepository.findById(user.getUserId()).orElseThrow());

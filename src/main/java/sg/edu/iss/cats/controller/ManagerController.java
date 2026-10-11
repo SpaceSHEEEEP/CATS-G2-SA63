@@ -26,6 +26,7 @@ import sg.edu.iss.cats.repository.UserRepository;
 import sg.edu.iss.cats.service.ApplicationWorkflowService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.LinkedHashMap;
 
 @Controller 
@@ -69,26 +70,18 @@ public class ManagerController {
 	
     @GetMapping("/history")
     public String showSubordinateHistory(@AuthenticationPrincipal User user,
-            @RequestParam(defaultValue = "0") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize,
             Model model) {
         if (user == null || user.getRole() != Role.ROLE_MANAGER) return "redirect:/staff/index";
         int year = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Singapore")).getYear();
-        pageSize = safeSize(pageSize);
-        pageNum = Math.max(0, pageNum);
         Page<Application> page = appRepo.findCurrentYearTeam(user.getUserId(),
                 LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31),
-                PageRequest.of(pageNum, pageSize));
+                Pageable.unpaged());
         Map<String, List<Application>> grouped = new LinkedHashMap<>();
         for (Application application : page.getContent()) {
             grouped.computeIfAbsent(application.getUser().getName(), key -> new ArrayList<>()).add(application);
         }
         model.addAttribute("subordinateGroups", grouped);
         model.addAttribute("year", year);
-        model.addAttribute("pageNum", pageNum);
-        model.addAttribute("pageSize", pageSize);
-        model.addAttribute("pageSizes", List.of(10, 20, 25));
-        model.addAttribute("totalPages", page.getTotalPages());
         return "history";
     }
 

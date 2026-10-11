@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Administration</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
 </head>
-<body>
+<body class="cats-admin">
 
     <div th:replace="~{fragments/header :: header}"></div>
 
     <h1>Administration</h1>
     <p th:text="${'Welcome Admin ' + user.name + '!'}"></p>
+    <p class="cats-site-description">Manage staff accounts, the course catalogue and reimbursements.</p>
+    <div class="actions admin-actions">
+        <a class="admin-create-course" th:href="@{/admin/course/new}">Create Course</a>
+        <a th:href="@{/admin/createuser}">Create Employee</a>
+        <a th:href="@{/admin/users.csv}">Download User Report</a>
+    </div>
+    <div class="user-statistics-container admin-summary">
+        <section class="user-applications-statistics"><h2>Users</h2>
+            <strong th:text="${#lists.size(users)}"></strong><p>Staff and administrator accounts</p></section>
+        <section class="user-applications-statistics"><h2>Catalogue courses</h2>
+            <strong th:text="${catalogueCourseCount}"></strong><p>Across all catalogue pages</p></section>
+        <section class="user-applications-statistics"><h2>Public holidays</h2>
+            <strong th:text="${#lists.size(holidays)}"></strong><p>Recorded for <span th:text="${holidayYear}"></span></p></section>
+    </div>
 	
     <!-- display success message for every application made or deleted -->
     <div th:if="${successmsg}" th:text="${successmsg}" class="global-success-message"></div>
@@ -18,7 +34,7 @@
     <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
 	
     <h2>Users</h2>
-    <p><a th:href="@{/admin/createuser}">Create employee</a></p>
+    <div class="actions"><a th:href="@{/admin/createuser}">Create Employee</a></div>
     <p th:if="${#lists.isEmpty(users)}">No users found.</p>
 	<table th:unless="${#lists.isEmpty(users)}">
 	    <thead>
@@ -56,8 +72,8 @@
 	</table>
 
     <h2>User directory report</h2>
+    <div class="actions"><a th:href="@{/admin/users.csv}">Download User Report</a></div>
     <p>Contains staff names, email addresses, account status, admin roles and managers. Handle as confidential.</p>
-    <p><a th:href="@{/admin/users.csv}">Download all users (CSV)</a></p>
     <form th:action="@{/admin/users/email}" method="post">
         <label for="reportRecipient">Email report to:</label>
         <input type="email" id="reportRecipient" name="recipient" maxlength="254"
@@ -65,8 +81,13 @@
         <button type="submit">Email user report</button>
     </form>
 
-    <h2>Courses</h2>
-    <p><a th:href="@{/admin/course/new}">Add catalogue course</a></p>
+    <h2 id="courses">Courses</h2>
+    <div class="actions course-type-filters" role="navigation" aria-label="Course categories">
+        <a th:each="type : ${ {'ALL', 'INTERNAL', 'EXTERNAL', 'PROFESSIONAL'} }"
+           th:href="@{/admin/index(type=${type})} + '#courses'" th:text="${type}"
+           th:attr="aria-current=${type == selectedType ? 'page' : null}"></a>
+    </div>
+    <div class="actions"><a th:href="@{/admin/course/new}">Create Course</a></div>
     <p th:if="${#lists.isEmpty(courseSummaries.content)}">No courses recorded.</p>
     <table th:unless="${#lists.isEmpty(courseSummaries.content)}">
         <thead>
@@ -84,7 +105,7 @@
         </thead>
         <tbody>
             <tr th:each="summary : ${courseSummaries.content}">
-                <td th:text="${summary.course.courseName}"></td>
+                <td class="course-name" th:text="${summary.course.courseName}"></td>
                 <td th:text="${summary.course.courseType}"></td>
                 <td th:text="${#temporals.format(summary.course.startDate, 'dd-MM-yyyy')}"></td>
                 <td th:text="${#temporals.format(summary.course.endDate, 'dd-MM-yyyy')}"></td>
@@ -100,13 +121,13 @@
     </table>
 
         <div class = "pagination">
-            <div>
-            <a th:if="${pageNum > 0}" th:href="@{/admin/index(pageNum=${pageNum-1})}">Prev page</a>
-            <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin/index(pageNum=${pageNum+1})}">Next page</a>
+            <div class="pagination-controls">
+            <a th:if="${pageNum > 0}" th:href="@{/admin/index(type=${selectedType},pageNum=${pageNum-1})} + '#courses'">Prev page</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum > 0}">Prev page</span>
+            <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin/index(type=${selectedType},pageNum=${pageNum+1})} + '#courses'">Next page</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum < pageNumLast - 1}">Next page</span>
             </div>
             
-            <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
-                <a th:href="@{/admin/index(pageNum=${i})}" th:text="${i + 1}"></a>
+            <th:block th:if="${pageNumLast > 0}" th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
+                <a th:href="@{/admin/index(type=${selectedType},pageNum=${i})} + '#courses'" th:text="${i + 1}"></a>
             </th:block>
         </div>
     
@@ -127,5 +148,6 @@
         </tbody>
     </table>
 
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>
