@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter @Setter
 @Table(name = "fee_claim")
 public class FeeClaim {
-    public enum ClaimStatus { SUBMITTED, APPROVED, REJECTED }
+    public enum ClaimStatus { SUBMITTED, APPROVED, REJECTED, PAID }
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -25,6 +25,10 @@ public class FeeClaim {
     @Column(nullable = false)
     private LocalDate submittedOn;
     private String managerReason;
+    /** Actual external reimbursement, recorded only after payment is confirmed. */
+    private LocalDate paidOn;
+    @Column(length = 120)
+    private String paymentReference;
     private String receiptReference;
     private String certificateReference;
     @Lob @Basic(fetch = FetchType.LAZY)

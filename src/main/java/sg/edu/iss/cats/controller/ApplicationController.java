@@ -25,6 +25,7 @@ import sg.edu.iss.cats.model.Comment;
 import sg.edu.iss.cats.repository.AppRepo;
 import sg.edu.iss.cats.repository.CommentRepository;
 import sg.edu.iss.cats.repository.CourseRepository;
+import sg.edu.iss.cats.repository.FeeClaimRepository;
 import sg.edu.iss.cats.repository.UserRepository;
 import sg.edu.iss.cats.service.ApplicationWorkflowService;
 import sg.edu.iss.cats.service.TrainingAccountService;
@@ -36,6 +37,7 @@ public class ApplicationController {
 
     private final AppRepo appRepo;
     private final CourseRepository courseRepository;
+    private final FeeClaimRepository claims;
     private final UserRepository userRepository;
     private final ApplicationWorkflowService applicationService;
     private final TrainingAccountService accounts;
@@ -43,11 +45,13 @@ public class ApplicationController {
     public ApplicationController(
             AppRepo appRepo,
             CourseRepository courseRepository,
+            FeeClaimRepository claims,
             ApplicationWorkflowService applicationService,
             UserRepository userRepository,
             TrainingAccountService accounts) {
         this.appRepo = appRepo;
         this.courseRepository = courseRepository;
+        this.claims = claims;
         this.applicationService = applicationService;
         this.userRepository = userRepository;
         this.accounts = accounts;
@@ -138,6 +142,7 @@ public class ApplicationController {
         if (!applications.isEmpty()) {
             model.addAttribute("applicationResult", applications.get(0));
             model.addAttribute("viewer", "mine");
+            model.addAttribute("hasFeeClaim", claims.existsByApplication_Id(id));
             model.addAttribute("canComplete", applications.get(0).getStatus() == Status.APPROVED
                     && applications.get(0).getCourse().getEndDate().isBefore(
                        java.time.LocalDate.now(java.time.ZoneId.of("Asia/Singapore"))));

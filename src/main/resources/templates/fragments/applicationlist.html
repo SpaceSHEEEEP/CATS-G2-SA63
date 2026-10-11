@@ -99,6 +99,9 @@
             <dt>Justification</dt>
             <dd class="full-width" th:text="${app.userReason}"></dd>
 
+            <dt>Work dissemination / coverage</dt>
+            <dd class="full-width" th:text="${#strings.isEmpty(app.workDissemination) ? 'None stated' : app.workDissemination}"></dd>
+
             <dt>Status</dt>
             <dd><span th:text="${app.status}"></span></dd>
         </dl>

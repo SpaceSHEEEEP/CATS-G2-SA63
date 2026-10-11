@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><title>Direct subordinate claims</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
+<body><div th:replace="~{fragments/header :: header}"></div>
+<h1>Direct-subordinate reimbursement claims</h1>
+<p th:if="${successmsg}" th:text="${successmsg}"></p><p th:if="${errormsg}" th:text="${errormsg}" role="alert"></p>
+<p>Only claims belonging to your direct subordinates are actionable.</p>
+<table><thead><tr><th>Employee</th><th>Course</th><th>Claimed</th><th>Amount</th>
+  <th>Status</th><th>Decision reason</th><th>Evidence</th><th>Approve / reject</th></tr></thead>
+<tbody><tr th:each="claim : ${claims}">
+  <td><a th:href="@{/manager/ledger(employeeId=${claim.employee.userId})}" th:text="${claim.employee.name}"></a></td>
+  <td th:text="${claim.application.course.courseName}"></td>
+  <td th:text="${claim.submittedOn}"></td><td th:text="${claim.amount}"></td>
+  <td th:text="${claim.status}"></td><td th:text="${claim.managerReason}"></td>
+  <td><a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}">Receipt</a> ·
+      <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}">Certificate</a></td>
+  <td><form th:if="${claim.status.name() == 'SUBMITTED'}" method="post" th:action="@{/manager/claims/decision}">
+    <input type="hidden" name="claimId" th:value="${claim.id}" />
+    <textarea name="reason" required maxlength="1000" placeholder="Decision reason"></textarea>
+    <button type="submit" name="status" value="APPROVED">Approve</button>
+    <button type="submit" name="status" value="REJECTED">Reject</button>
+  </form></td></tr></tbody></table>
+<nav><a th:if="${page.hasPrevious()}" th:href="@{/manager/claims(page=${page.number-1})}">Previous</a>
+<span th:text="|Page ${page.number+1} of ${page.totalPages == 0 ? 1 : page.totalPages}|"></span>
+<a th:if="${page.hasNext()}" th:href="@{/manager/claims(page=${page.number+1})}">Next</a></nav>
+</body></html>

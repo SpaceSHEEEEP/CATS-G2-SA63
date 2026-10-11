@@ -36,6 +36,10 @@ public class Application {
     @Size(max=1000, message="Your reason provided cannot exceed 1000 characters")
     @NotBlank(message="Please provide a reason or justification for your application")
     private String userReason;
+    /** Optional cover/knowledge-sharing arrangements during training. */
+    @Size(max = 1000, message = "Work dissemination cannot exceed 1000 characters")
+    @Column(length = 1000)
+    private String workDissemination;
     private String managerReason;
     private Boolean hasBeenPaid;
 

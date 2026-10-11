@@ -68,7 +68,8 @@
 
         </th:block>
         <p th:if="${viewer == 'mine' and applicationResult.status.name() == 'COMPLETED' and applicationResult.course.courseType.name() != 'INTERNAL' and applicationResult.course.fee.signum() > 0}">
-          <a th:href="@{/staff/claim(applicationId=${applicationResult.id})}">Claim course fee reimbursement</a>
+          <a th:if="${!hasFeeClaim}" th:href="@{/staff/claim(applicationId=${applicationResult.id})}">Claim course fee reimbursement</a>
+          <a th:if="${hasFeeClaim}" th:href="@{/staff/claims}">View my existing claim</a>
         </p>
     </div>
 

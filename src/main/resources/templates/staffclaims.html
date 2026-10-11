@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><title>My reimbursement claims</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
+<body><div th:replace="~{fragments/header :: header}"></div>
+<h1>My course fee reimbursement claims</h1>
+<p th:if="${#lists.isEmpty(claims)}">No claims on this page.</p>
+<table><thead><tr><th>Course</th><th>Submitted</th><th>Amount</th><th>Status</th>
+  <th>Manager decision reason</th><th>Paid on / reference</th><th>Evidence</th></tr></thead>
+<tbody><tr th:each="claim : ${claims}">
+  <td th:text="${claim.application.course.courseName}"></td>
+  <td th:text="${claim.submittedOn}"></td><td th:text="${claim.amount}"></td>
+  <td th:text="${claim.status}"></td><td th:text="${claim.managerReason}"></td>
+  <td th:text="${claim.paidOn == null ? '-' : (claim.paidOn + ' / ' + claim.paymentReference)}"></td>
+  <td><a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}">Receipt</a> ·
+      <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}">Certificate</a></td>
+</tr></tbody></table>
+<nav><a th:if="${page.hasPrevious()}" th:href="@{/staff/claims(page=${page.number - 1})}">Previous</a>
+  <span th:text="|Page ${page.number + 1} of ${page.totalPages == 0 ? 1 : page.totalPages}|"></span>
+  <a th:if="${page.hasNext()}" th:href="@{/staff/claims(page=${page.number + 1})}">Next</a></nav>
+</body></html>

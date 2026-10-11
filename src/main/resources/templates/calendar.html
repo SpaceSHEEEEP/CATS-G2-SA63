@@ -163,14 +163,14 @@
   <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
-	<h1 id="calendar-title">My Training Calendar</h1>
+	<h1 id="calendar-title">All Staff Training Calendar</h1>
 
 	<h2 id="calendar-month-heading" th:text="${currentMonth + ' ' + currentYear}">
 	  Selected month
 	</h2>
 
 	<div id="calendar-view-buttons" role="group" aria-label="Training view">
-	  <button type="button" id="my-training" aria-pressed="true">
+	  <button type="button" id="my-training" aria-pressed="false">
 	    My Training
 	  </button>
 	  
@@ -181,14 +181,13 @@
 	    Team Training
 	  </button>
 
-	  <button type="button" id="all-staff-training" aria-pressed="false">
+	  <button type="button" id="all-staff-training" aria-pressed="true">
 	    All Staff Training
 	  </button>
 	</div>
 
 	<p id="calendar-view-description">
-	  Your applied, updated and approved training.
-	  Click a course to view or edit your application.
+	  Approved training across the organisation. Click a course to see its attendees.
 	</p>
 
 	<div class="calendar-toolbar">
@@ -262,7 +261,7 @@
 	  </div>
 
 	  <aside id="course-sidebar" tabindex="0" aria-labelledby="course-list-heading">
-	    <h2 id="course-list-heading">My training this month</h2>
+	    <h2 id="course-list-heading">Approved courses this month</h2>
 	    <div id="course-list"></div>
 	  </aside>
 	</div>
