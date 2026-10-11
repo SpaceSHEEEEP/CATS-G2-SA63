@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head xmlns="http://www.thymeleaf.org">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
     <title>Internal Course</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
   </head>
@@ -26,10 +27,11 @@
       </select></label>
     </form>
     <nav class="pagination" aria-label="Course catalogue pages">
-      <a th:if="${pageNum > 0}" th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum-1},pageSize=${pageSize})}">Previous</a>
+      <a th:if="${pageNum > 0}" th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum-1},pageSize=${pageSize})}">Previous</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum > 0}">Previous</span>
       <span th:text="|${pageNum+1} / ${pageNumLast == 0 ? 1 : pageNumLast}|"></span>
-      <a th:if="${pageNum+1 < pageNumLast}" th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum+1},pageSize=${pageSize})}">Next</a>
+      <a th:if="${pageNum+1 < pageNumLast}" th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum+1},pageSize=${pageSize})}">Next</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum+1 < pageNumLast}">Next</span>
     </nav>
 
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>

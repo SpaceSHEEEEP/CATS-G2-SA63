@@ -1,11 +1,26 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
     <title th:text="${adminLogin} ? 'Administrator Login' : 'Staff Login'"></title>
     <link rel="stylesheet" th:href="@{/style.css}" />
 </head>
-<body>
+<body class="cats-login">
+    <main class="cats-login-card" th:classappend="${adminLogin} ? 'cats-login-card--admin' : ''">
     <h1 th:text="${adminLogin} ? 'Administrator Login' : 'Staff Login'">Staff Login</h1>
+
+	<img class="cats-login-logo"
+	     th:src="@{/images/cats-logo.svg}"
+	     alt="CATS"
+	     width="140"
+	     height="140">
+		 
+    <div class="cats-site-intro">
+        <p class="cats-site-name"><strong>Course Application Tracking System (CATS)</strong><br>
+            NUS-ISS</p>
+    </div>
 
     <!-- spring security? -->
     <div th:if="${param.error}">Your username or password is incorrect</div>
@@ -43,5 +58,7 @@
 
     <a th:if="${adminLogin}" th:href="@{/staff/login}">Back to staff login</a>
     <a th:unless="${adminLogin}" th:href="@{/admin/login}">Administrator login</a>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

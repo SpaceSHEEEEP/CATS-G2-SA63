@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <footer th:fragment="footer" class="cats-footer">
+        <div class="cats-footer-info">
+            <p><strong>Course Application Tracking System (CATS)</strong></p>
+            <p>Institute of Systems Science, National University of Singapore (NUS-ISS).</p>
+            <p class="cats-footer-year">&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> CATS.</p>
+        </div>
+        <img class="cats-footer-logo"
+             th:src="@{/images/nus-iss-logo.png}"
+             alt="National University of Singapore and NUS-ISS"
+             width="320" height="118">
+    </footer>
+</body>
+</html>

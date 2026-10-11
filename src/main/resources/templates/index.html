@@ -1,33 +1,40 @@
 <!DOCTYPE html>
 <HTML lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> 
 	<head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>My Training</title>
         <link rel="stylesheet" th:href="@{/style.css}"/>
 	</head>
-	<body>
+	<body class="cats-home">
         <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="cats-site-intro">
+        <p class="cats-site-name"><strong>Course Application Tracking System (CATS)</strong></p>
+        <p class="cats-site-description">Apply for courses, track approvals and manage your training.</p>
+    </div>
 
         <h1>My Training</h1>
         <p th:text="${'Welcome ' + user.name + '!'}"></p>
 
-        <div class="actions">
-            <a th:href="@{/staff/courselist}">View Courses</a>  
-            <a th:href="@{/staff/apply}">Apply for a Course</a>
+        <div class="actions home-actions">
+            <a class="home-apply" th:href="@{/staff/apply}">Apply for a Course</a>
+            <a th:href="@{/staff/courselist}">View Courses</a>
             <a th:href="@{/staff/calendar}">View Calendar</a>
         </div>
 
         <!-- display user details -->
         <div class="user-statistics-container">
           <div class="user-days-statistics">
-            <p th:text="'Actual Days Left: ' + ${trainingSummary.dayLimit - trainingSummary.daysCompleted}"></p>
-            <p th:text="'Budgeted Days Left: ' + ${trainingSummary.daysRemaining}"></p>
+            <p>Actual Days Left: <strong th:text="${trainingSummary.dayLimit - trainingSummary.daysCompleted}"> Days</strong></p>
+            <p>Budgeted Days Left: <strong th:text="${trainingSummary.daysRemaining}"> Days</strong></p>
           </div>
           <div class="user-allowance-statistics">
-            <p th:text="'Actual Allowance Remaining: $' + ${trainingSummary.feeLimit.subtract(trainingSummary.feesCompleted)}"></p>
-            <p th:text="'Budgeted Allowance Remaining: $' + ${trainingSummary.budgetRemaining}"></p>
+            <p>Actual Allowance Remaining: <strong>$<span th:text="${trainingSummary.feeLimit.subtract(trainingSummary.feesCompleted)}"></span></strong></p>
+            <p>Budgeted Allowance Remaining: <strong>$<span th:text="${trainingSummary.budgetRemaining}"></span></strong></p>
           </div>
           <div class="user-applications-statistics">
-            <p th:text="'Number of Pending Applications: ' + ${pendingCount}"></p>
+            <p>Number of Pending Applications: <strong th:text="${pendingCount}"></strong></p>
           </div>
         </div>
 
@@ -47,11 +54,12 @@
               <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
             </select></label>
         </form>
-        <nav aria-label="Personal application pages">
-            <a th:if="${pageNum > 0}" th:href="@{/staff/index(pageNum=${pageNum - 1},pageSize=${pageSize})}">Previous</a>
+        <nav class="pagination" aria-label="Personal application pages">
+            <a th:if="${pageNum > 0}" th:href="@{/staff/index(pageNum=${pageNum - 1},pageSize=${pageSize})}">Previous</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum > 0}">Previous</span>
             <span th:text="|${pageNum + 1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
-            <a th:if="${pageNum + 1 < totalPages}" th:href="@{/staff/index(pageNum=${pageNum + 1},pageSize=${pageSize})}">Next</a>
+            <a th:if="${pageNum + 1 < totalPages}" th:href="@{/staff/index(pageNum=${pageNum + 1},pageSize=${pageSize})}">Next</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum + 1 < totalPages}">Next</span>
         </nav>
 
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>

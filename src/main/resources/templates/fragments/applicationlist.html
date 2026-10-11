@@ -20,13 +20,13 @@
             <tbody>
                 <tr th:each="app : ${applications}">
                     <!-- <td th:text="${app.user.name}"></td> -->
-                    <td th:text="${app.course.courseName}"></td>
+                    <td class="course-name" th:text="${app.course.courseName}"></td>
                     <td th:text="${app.course.courseType}"></td>
                     <td th:text="${app.course.duration}"></td>
                     <td th:text="${#temporals.format(app.course.startDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${#temporals.format(app.course.endDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${app.course.fee}"></td>
-                    <td th:text="${app.status}"></td>
+                    <td class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></td>
                     <td><a th:href="@{/staff/view(id=${app.id})}">View Details</a></td>
                 </tr>
             </tbody>
@@ -52,13 +52,13 @@
             <tbody>
                 <tr th:each="app : ${applications}">
                     <td th:text="${app.user.name}"></td>
-                    <td th:text="${app.course.courseName}"></td>
+                    <td class="course-name" th:text="${app.course.courseName}"></td>
                     <td th:text="${app.course.courseType}"></td>
                     <td th:text="${app.course.duration}"></td>
                     <td th:text="${#temporals.format(app.course.startDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${#temporals.format(app.course.endDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${app.course.fee}"></td>
-                    <td th:text="${app.status}"></td>
+                    <td class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></td>
                     <td><a th:href="@{/staff/view(id=${app.id})}">View Details</a></td>
                 </tr>
             </tbody>
@@ -69,41 +69,65 @@
         <!-- replace "application" with "app" like the above fragments -->
         <th:block th:fragment="applicationDetails(app)">
         <dl class="details-grid">
+            <div class="detail-item">
             <dt>Application ID</dt>
             <dd th:text="${app.id}"></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>Course Name</dt>
-            <dd th:text="${app.course.courseName}"></dd>
+            <dd class="course-name" th:text="${app.course.courseName}"></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>Course Type</dt>
             <dd><span class="badge" th:text="${app.course.courseType}"></span></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>Start Date</dt>
             <dd th:text="${app.course.startDate}"></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>End Date</dt>
             <dd th:text="${app.course.endDate}"></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>Duration</dt>
             <dd th:text="${app.course.duration}"></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>Training Provider</dt>
             <dd th:text="${app.course.trainingProvider}"></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>Location</dt>
             <dd th:text="${app.course.location}"></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>Fee</dt>
             <dd>$<span th:text="${app.course.fee}"></span></dd>
+            </div>
 
+            <div class="detail-item detail-item--wide">
             <dt>Justification</dt>
             <dd class="full-width" th:text="${app.userReason}"></dd>
+            </div>
 
+            <div class="detail-item detail-item--wide">
             <dt>Work dissemination / coverage</dt>
             <dd class="full-width" th:text="${#strings.isEmpty(app.workDissemination) ? 'None stated' : app.workDissemination}"></dd>
+            </div>
 
+            <div class="detail-item">
             <dt>Status</dt>
-            <dd><span th:text="${app.status}"></span></dd>
+            <dd><span class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></span></dd>
+            </div>
         </dl>
         </th:block>
 

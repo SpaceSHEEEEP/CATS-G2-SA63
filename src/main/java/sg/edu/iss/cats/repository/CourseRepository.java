@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.CourseType;
@@ -17,15 +18,16 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 	// Query result containing a course and its calculated applicant count.
 	// This is not an entity and does not create another database table.
 	// Provisional rule: count distinct employees across all application statuses.
-	@Query("""
+	@Query(value = """
 	        SELECT c AS course,
 	               COUNT(DISTINCT a.user.userId) AS applicantCount
 	        FROM Course c
 	        LEFT JOIN c.applications a
+	        WHERE (:type IS NULL OR c.courseType = :type)
 	        GROUP BY c
 	        ORDER BY COUNT(DISTINCT a.user.userId) DESC, c.courseId ASC
-	        """)
-	Page<CourseApplicantSummary> findCoursesWithApplicantCounts(Pageable pageable);
+	        """, countQuery = "SELECT COUNT(c) FROM Course c WHERE (:type IS NULL OR c.courseType = :type)")
+	Page<CourseApplicantSummary> findCoursesWithApplicantCounts(@Param("type") CourseType type, Pageable pageable);
 	// List<CourseApplicantSummary> findCoursesWithApplicantCounts();
 
     Page<Course> findByCourseTypeInOrderByStartDateAsc(Collection<CourseType> types, Pageable pageable);

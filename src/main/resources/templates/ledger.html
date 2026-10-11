@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><title>Training ledger</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
-<body>
+<head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Training ledger</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
+<body class="cats-ledger">
 <div th:replace="~{fragments/header :: header}"></div>
 <h1>Employee training ledger</h1>
 <p th:text="|${employee.name} — ${ledger.year()}|">Employee / year</p>
@@ -10,14 +11,29 @@
   <label>Year <input type="number" min="2000" max="9999" name="year" th:value="${ledger.year()}" /></label>
   <button type="submit">View year</button>
 </form>
-<p>Annual training budget: $<span th:text="${ledger.allocation().feeLimit}"></span>.
-   Active course commitments (including pending applications): $<span th:text="${ledger.allocation().feesCommitted}"></span>.
-   Budget remaining: $<span th:text="${ledger.allocation().budgetRemaining}"></span>.</p>
-<p>Training days: <span th:text="${ledger.allocation().daysCommitted}"></span> committed /
-   <span th:text="${ledger.allocation().dayLimit}"></span> allocated.</p>
-<p>Approved course fees starting this year: $<span th:text="${ledger.approvedCourseFees()}"></span>.
-   Reimbursements actually paid this year: $<span th:text="${ledger.reimbursementsPaid()}"></span>.</p>
-<p>Reimbursement payments do not replenish the separate training-budget entitlement.</p>
+<div class="user-statistics-container ledger-summary">
+  <section class="user-allowance-statistics">
+    <h2>Training budget</h2>
+    <p>Annual allocation <strong>$<span th:text="${ledger.allocation().feeLimit}"></span></strong></p>
+    <p>Active commitments <strong>$<span th:text="${ledger.allocation().feesCommitted}"></span></strong></p>
+    <p class="ledger-highlight">Budget remaining <strong>$<span th:text="${ledger.allocation().budgetRemaining}"></span></strong></p>
+    <small>Active commitments include pending applications.</small>
+  </section>
+  <section class="user-days-statistics">
+    <h2>Training days</h2>
+    <p>Allocated <strong><span th:text="${ledger.allocation().dayLimit}"></span> days</strong></p>
+    <p>Committed <strong><span th:text="${ledger.allocation().daysCommitted}"></span> days</strong></p>
+    <p class="ledger-highlight">Days remaining <strong><span th:text="${ledger.allocation().daysRemaining}"></span> days</strong></p>
+  </section>
+  <section class="user-applications-statistics">
+    <h2>Reimbursements</h2>
+    <p>Approved course fees <strong>$<span th:text="${ledger.approvedCourseFees()}"></span></strong></p>
+    <p class="ledger-highlight">Paid this year <strong>$<span th:text="${ledger.reimbursementsPaid()}"></span></strong></p>
+    <small>Approved fees cover courses starting this year.</small>
+  </section>
+</div>
+<p class="ledger-note">Reimbursement payments do not restore your training budget.</p>
+<h2>Ledger entries</h2>
 <table>
   <thead><tr><th>Date</th><th>Ledger entry</th><th>Reference</th><th>Approved course fee</th><th>Reimbursement paid</th></tr></thead>
   <tbody><tr th:each="entry : ${ledger.entries()}">
@@ -27,6 +43,7 @@
   </tr></tbody>
 </table>
 <p th:if="${#lists.isEmpty(ledger.entries())}">No approved fee-bearing courses or paid reimbursements this year.</p>
-<p><small>This ledger is calculated from current application decisions and saved reimbursement payments;
+<p><small>This ledger is calculated from current application decisions and saved reimbursement payments,
   it is not an immutable history of every status change.</small></p>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body></html>

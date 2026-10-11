@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><title>Reimbursement disbursements</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
+<head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" /><title>Reimbursement disbursements</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
 <body><div th:replace="~{fragments/header :: header}"></div>
 <h1>Confirmed reimbursement disbursements</h1>
 <p>Record a payment only after the external payment has actually been made.
@@ -9,8 +10,8 @@
 <table><thead><tr><th>Employee</th><th>Course</th><th>Amount</th><th>Status</th>
   <th>Paid on</th><th>Payment reference</th><th>Evidence</th><th>Record paid</th></tr></thead>
 <tbody><tr th:each="claim : ${claims}">
-  <td th:text="${claim.employee.name}"></td><td th:text="${claim.application.course.courseName}"></td>
-  <td th:text="${claim.amount}"></td><td th:text="${claim.status}"></td>
+  <td th:text="${claim.employee.name}"></td><td class="course-name" th:text="${claim.application.course.courseName}"></td>
+  <td th:text="${claim.amount}"></td><td class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></td>
   <td th:text="${claim.paidOn}"></td><td th:text="${claim.paymentReference}"></td>
   <td><a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}">Receipt</a> ·
       <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}">Certificate</a></td>
@@ -19,7 +20,8 @@
     <input name="paymentReference" required maxlength="120" placeholder="Bank / payout reference" />
     <button type="submit">Confirm paid</button>
   </form></td></tr></tbody></table>
-<nav><a th:if="${page.hasPrevious()}" th:href="@{/admin/claims(page=${page.number-1})}">Previous</a>
+<nav class="pagination" aria-label="Fee claim pages"><a th:if="${page.hasPrevious()}" th:href="@{/admin/claims(page=${page.number-1})}">Previous</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${page.hasPrevious()}">Previous</span>
 <span th:text="|Page ${page.number+1} of ${page.totalPages == 0 ? 1 : page.totalPages}|"></span>
-<a th:if="${page.hasNext()}" th:href="@{/admin/claims(page=${page.number+1})}">Next</a></nav>
+<a th:if="${page.hasNext()}" th:href="@{/admin/claims(page=${page.number+1})}">Next</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${page.hasNext()}">Next</span></nav>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body></html>

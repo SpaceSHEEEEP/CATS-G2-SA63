@@ -121,9 +121,10 @@ INSERT INTO holiday (holiday_date, holiday_name) VALUES
     ('2027-12-25', 'Christmas Day');
     
     
--- A past course for a realistic completed-application demo.
+-- Past courses for completed-application and fee-claim demos.
 INSERT INTO course (course_name, course_type, duration, start_date, end_date, location, training_provider, fee) VALUES
-    ('Git Collaboration Workshop', 'INTERNAL', 'FULLDAY', '2026-10-05', '2026-10-06', 'NUS-ISS', 'NUS-ISS', 0.00);
+    ('Git Collaboration Workshop', 'INTERNAL', 'FULLDAY', '2026-10-05', '2026-10-06', 'NUS-ISS', 'NUS-ISS', 0.00),
+    ('Data Reporting Workshop', 'EXTERNAL', 'FULLDAY', '2026-10-07', '2026-10-07', 'Centre A', 'A Training Provider', 450.00);
 
 -- Calendar demo applications: October and November 2026.
 -- Resolve users and courses by their seeded names instead of fixed IDs.
@@ -170,9 +171,6 @@ FROM (
     SELECT 'timmy', 'Java EE', 'APPROVED'
 
     UNION ALL
-    SELECT 'benny', 'Cloud Computing Fundamentals', 'APPROVED'
-
-    UNION ALL
     SELECT 'timmy', 'Agile Scrum Master', 'APPROVED'
 
     UNION ALL
@@ -187,6 +185,10 @@ FROM (
     UNION ALL
     SELECT 'benny', 'Git Collaboration Workshop', 'COMPLETED'
 
+    -- Leave the claim unsubmitted so Benny can test receipt/certificate uploads.
+    UNION ALL
+    SELECT 'benny', 'Data Reporting Workshop', 'COMPLETED'
+
     UNION ALL
     SELECT 'timmy', 'Web Application Development', 'REJECTED'
 
@@ -198,11 +200,12 @@ JOIN course c ON c.course_name = demo.course_name;
 
 -- SQL seeding bypasses ApplicationService, so reserve the matching amounts.
 -- Inactive demo applications do not reserve budget or days.
--- Ben: SGD 600 and 7.5 days reserved, plus 2 completed days consumed.
+-- Ben: SGD 600 and 5.5 days reserved, plus SGD 450 and 3 completed days consumed.
 UPDATE user
-SET budgeted_allowance = 9400.00,
-    budgeted_days = 1.0,
-    actual_days = 8.5
+SET budgeted_allowance = 8950.00,
+    actual_allowance = 9550.00,
+    budgeted_days = 2.0,
+    actual_days = 7.5
 WHERE username = 'benny';
 
 -- Dan: SGD 400 and 2.5 training days reserved.

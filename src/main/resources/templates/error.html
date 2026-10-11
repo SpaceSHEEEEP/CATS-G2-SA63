@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CATS — Unable to complete request</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
+    <link rel="stylesheet" th:href="@{/style.css}" />
+</head>
+<body class="cats-error">
+    <main class="cats-error-card" th:switch="${status}">
+        <a th:href="@{/}" aria-label="CATS homepage">
+            <img class="cats-header-logo" th:src="@{/images/cats-logo.svg}" alt="CATS" width="52" height="52" />
+        </a>
+        <p class="cats-error-code" th:if="${status != null and status >= 400 and status <= 599}" th:text="${status}"></p>
+        <div th:case="403">
+            <h1>Access denied</h1>
+            <p>Your account does not have access to this page, or your session has expired.</p>
+            <p>If you were signing in, open the login page again and retry.</p>
+        </div>
+        <div th:case="404">
+            <h1>Page not found</h1>
+            <p>The page or record you requested could not be found.</p>
+        </div>
+        <div th:case="500">
+            <h1>Something went wrong</h1>
+            <p>We could not complete your request. Please try again later.</p>
+        </div>
+        <div th:case="*">
+            <h1>Unable to complete request</h1>
+            <p>Please return to the homepage and try again.</p>
+        </div>
+        <div class="actions">
+            <a th:href="@{/}">Return to homepage</a>
+            <a th:if="${status == 403}" th:href="@{/staff/login}">Staff login</a>
+        </div>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

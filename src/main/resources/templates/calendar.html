@@ -1,6 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
   <head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -160,17 +161,17 @@
 	</style>
   </head>
 
-  <body>
+  <body class="cats-calendar">
     <div th:replace="~{fragments/header :: header}"></div>
 
-	<h1 id="calendar-title">All Staff Training Calendar</h1>
+	<h1 id="calendar-title">My Training Calendar</h1>
 
 	<h2 id="calendar-month-heading" th:text="${currentMonth + ' ' + currentYear}">
 	  Selected month
 	</h2>
 
 	<div id="calendar-view-buttons" role="group" aria-label="Training view">
-	  <button type="button" id="my-training" aria-pressed="false">
+	  <button type="button" id="my-training" aria-pressed="true">
 	    My Training
 	  </button>
 	  
@@ -181,13 +182,13 @@
 	    Team Training
 	  </button>
 
-	  <button type="button" id="all-staff-training" aria-pressed="true">
+	  <button type="button" id="all-staff-training" aria-pressed="false">
 	    All Staff Training
 	  </button>
 	</div>
 
 	<p id="calendar-view-description">
-	  Approved training across the organisation. Click a course to see its attendees.
+	  Your applied, updated and approved training. Click a course to view or edit your application.
 	</p>
 
 	<div class="calendar-toolbar">
@@ -237,8 +238,8 @@
     <div class="calendar-status-row">
       <p id="calendar-message" role="status" aria-live="polite"></p>
       <p class="calendar-legend">
-        <strong>Colours:</strong> Solid = approved/completed ·
-        Pale = pending · Grey = rejected/cancelled/deleted
+        <strong>Colours:</strong> Solid = <span class="status-text" data-status="APPROVED">Approved</span>/<span class="status-text" data-status="COMPLETED">Completed</span> ·
+        Pale = <span class="status-text" data-status="APPLIED">Pending</span> · Grey = <span class="status-text" data-status="REJECTED">Rejected</span>/<span class="status-text" data-status="CANCELLED">Cancelled</span>/<span class="status-text" data-status="DELETED">Deleted</span>
       </p>
     </div>
 
@@ -261,7 +262,7 @@
 	  </div>
 
 	  <aside id="course-sidebar" tabindex="0" aria-labelledby="course-list-heading">
-	    <h2 id="course-list-heading">Approved courses this month</h2>
+	    <h2 id="course-list-heading">My training this month</h2>
 	    <div id="course-list"></div>
 	  </aside>
 	</div>
@@ -286,7 +287,7 @@
 	    <dd id="details-duration"></dd>
 
 	    <dt>Status</dt>
-	    <dd id="details-status"></dd>
+	    <dd id="details-status" class="status-text"></dd>
 
 	    <dt>Location</dt>
 	    <dd id="details-location"></dd>
@@ -317,5 +318,6 @@
 	  </form>
 	</dialog>
 	
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>

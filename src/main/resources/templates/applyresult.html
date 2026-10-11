@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="EN">
 <head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" th:href="@{/style.css}" />
   <title>Application Details</title>
 </head>
 
-<body>
+<body class="cats-application-details">
     <div th:replace="~{fragments/header :: header}"></div>
 
     <!-- display error message if managerReason is not filled -->
@@ -73,5 +74,6 @@
         </p>
     </div>
 
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

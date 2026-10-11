@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
     <title>Application Search Results</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" th:href="@{/style.css}" />
@@ -35,13 +36,13 @@
 
             <tr th:each="app : ${searchApplications}">
                 <td th:text="${app.user.name}"></td>
-                <td th:text="${app.course.courseName}"></td>
+                <td class="course-name" th:text="${app.course.courseName}"></td>
                 <td th:text="${app.course.courseType}"></td>
                 <td th:text="${app.course.startDate}"></td>
                 <td th:text="${app.course.endDate}"></td>
                 <td th:text="${app.course.fee}"></td>
                 <td th:text="${app.userReason}"></td>
-                <td th:text="${app.status}"></td>
+                <td class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></td>
 				<td th:text="${app.managerReason}"></td>
             </tr>
 
@@ -58,13 +59,14 @@
         <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
       </select></label>
     </form>
-    <nav aria-label="Manager search pages">
-      <a th:if="${pageNum > 0}" th:href="@{/manager/applications/search(employeeName=${employeeName},startDate=${startDate},endDate=${endDate},courseType=${courseType},pageSize=${pageSize},pageNum=${pageNum - 1})}">Previous</a>
+    <nav class="pagination" aria-label="Manager search pages">
+      <a th:if="${pageNum > 0}" th:href="@{/manager/applications/search(employeeName=${employeeName},startDate=${startDate},endDate=${endDate},courseType=${courseType},pageSize=${pageSize},pageNum=${pageNum - 1})}">Previous</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum > 0}">Previous</span>
       <span th:text="|${pageNum + 1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
-      <a th:if="${pageNum + 1 < totalPages}" th:href="@{/manager/applications/search(employeeName=${employeeName},startDate=${startDate},endDate=${endDate},courseType=${courseType},pageSize=${pageSize},pageNum=${pageNum + 1})}">Next</a>
+      <a th:if="${pageNum + 1 < totalPages}" th:href="@{/manager/applications/search(employeeName=${employeeName},startDate=${startDate},endDate=${endDate},courseType=${courseType},pageSize=${pageSize},pageNum=${pageNum + 1})}">Next</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum + 1 < totalPages}">Next</span>
     </nav>
     <p><a th:href="@{/manager/reports}">Accurate training, budget and claims reports</a></p>
     <a th:href="@{/manager/applications}">Back to pending applications</a>
 
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

@@ -24,7 +24,7 @@ const durationLabels = {
   HALFDAYPM: "Half day (PM)"
 };
 
-let allStaff = true;
+let allStaff = false;
 let teamTraining = false;
 let latestRequest = 0;
 

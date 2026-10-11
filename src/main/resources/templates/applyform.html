@@ -1,17 +1,18 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="EN">
   <head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" th:href="@{/style.css}" />
     <title>Application Form</title>
   </head>
 
-  <body>
+  <body class="cats-application">
     <div th:replace="~{fragments/header :: header}" />
 
     <div class="form-header">
-      <h3>Application Form</h3>
+      <h1>Application Form</h1>
     </div>
 
     <div class="form-container">
@@ -37,12 +38,12 @@
           <!-- User's info-->
           <h3>Your Personal Details</h3>
   
-          <fieldset>
+          <fieldset class="application-personal">
             <label>Name:</label>
             <input type="text" th:field="*{user.name}" th:readonly="true"/>
           </fieldset>
 
-          <fieldset>
+          <fieldset class="application-personal">
             <label>Email:</label>
             <input type="email" th:field="*{user.email}" th:readonly="true"/>
           </fieldset>
@@ -132,5 +133,6 @@
 
       </form>
     </div>
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>

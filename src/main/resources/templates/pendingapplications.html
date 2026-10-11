@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Team Training</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
 </head>
@@ -12,6 +14,11 @@
     <div th:if="${successmsg}" th:text="${successmsg}" class="global-success-message"></div>
 
     <h1>Team Training</h1>
+<div class="actions manager-navigation" role="navigation" aria-label="Team training pages">
+    <a aria-current="page" th:href="@{/manager/applications}">Team Training</a>
+    <a th:href="@{/manager/history}">Subordinate Course History</a>
+    <a th:href="@{/manager/reports}">Training and Budget Reports</a>
+</div>
 
 		<h2>Search Team Applications</h2>
 		<form th:action="@{/manager/applications/search}" method="get">
@@ -49,13 +56,13 @@
         <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
       </select></label>
     </form>
-    <nav aria-label="Pending approval pages">
-      <a th:if="${pageNum > 0}" th:href="@{/manager/applications(pageNum=${pageNum - 1},pageSize=${pageSize})}">Previous</a>
+    <nav class="pagination" aria-label="Pending approval pages">
+      <a th:if="${pageNum > 0}" th:href="@{/manager/applications(pageNum=${pageNum - 1},pageSize=${pageSize})}">Previous</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum > 0}">Previous</span>
       <span th:text="|${pageNum + 1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
-      <a th:if="${pageNum + 1 < totalPages}" th:href="@{/manager/applications(pageNum=${pageNum + 1},pageSize=${pageSize})}">Next</a>
+      <a th:if="${pageNum + 1 < totalPages}" th:href="@{/manager/applications(pageNum=${pageNum + 1},pageSize=${pageSize})}">Next</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${pageNum + 1 < totalPages}">Next</span>
     </nav>
-    <p><a th:href="@{/manager/history}">Subordinate course history</a>
-       · <a th:href="@{/manager/reports}">Training and budget reports</a></p>
 
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><title>Course catalogue maintenance</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
+<head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" /><title>Course catalogue maintenance</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
 <body><div th:replace="~{fragments/header :: header}"></div>
 <h1>Course catalogue maintenance</h1>
 <p th:if="${error}" th:text="${error}" role="alert"></p>
@@ -21,4 +22,5 @@
   <p>Editing a course with existing applications creates a new catalogue version, preserving historical data.</p>
   <button type="submit">Save course</button>
 </form><p><a th:href="@{/admin/index}">Back to administration</a></p>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body></html>

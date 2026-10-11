@@ -39,11 +39,25 @@
         
 
         <th:block th:fragment="editOrDelete(app)">
-            <a th:href="@{/staff/edit(id=${app.id})}" class="btn btn-primary">Edit</a>
-            <!-- TODO: have like a pop up that says "are you sure?" maybe use javascript alert? idk -->
-            <form th:action="@{/staff/delete(id=${app.id})}" method="POST" style="display:inline;">
-                <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
+            <div class="actions application-actions">
+                <a th:href="@{/staff/edit(id=${app.id})}" class="btn btn-primary">Edit Application</a>
+                <button type="button" class="btn btn-danger"
+                        th:attr="popovertarget=|delete-confirmation-${app.id}|">Delete Application</button>
+            </div>
+            <div class="cats-confirmation" popover="auto" role="dialog"
+                 th:id="|delete-confirmation-${app.id}|"
+                 th:attr="aria-labelledby=|delete-heading-${app.id}|">
+                <h2 th:id="|delete-heading-${app.id}|">Delete this application?</h2>
+                <p>Your application for <strong th:text="${app.course.courseName}"></strong> will be marked as deleted.</p>
+                <div class="actions">
+                    <button type="button" class="confirmation-cancel" autofocus
+                            th:attr="popovertarget=|delete-confirmation-${app.id}|"
+                            popovertargetaction="hide">Keep Application</button>
+                    <form th:action="@{/staff/delete(id=${app.id})}" method="POST">
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    </form>
+                </div>
+            </div>
         </th:block>
 
         

@@ -1,6 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="EN">
   <head>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" th:href="@{/style.css}" />
@@ -94,5 +95,6 @@
             </div>
           </form>
         </div>
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
   </html>
