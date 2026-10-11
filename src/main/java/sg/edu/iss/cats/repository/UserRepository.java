@@ -31,6 +31,10 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     // A user is a manager if another employee reports to them.
     boolean existsByManager_UserId(Integer managerId);
 
+    // Eagerly fetch the to-one manager for reports and the admin view (open-in-view is disabled).
+    @EntityGraph(attributePaths = {"manager"})
+    List<User> findAllByOrderByUserIdAsc();
+
     // Give me a list of managers
     @Query("""
         SELECT m
