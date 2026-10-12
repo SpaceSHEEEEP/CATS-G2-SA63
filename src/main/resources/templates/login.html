@@ -85,14 +85,12 @@
           />
         </fieldset>
 
-        <div
-          th:if="${adminLogin}"
-          th:replace="~{fragments/captcha :: widget('login-admin')}"
-        ></div>
-        <div
-          th:unless="${adminLogin}"
-          th:replace="~{fragments/captcha :: widget('login-staff')}"
-        ></div>
+        <th:block th:if="${adminLogin}">
+          <div th:replace="~{fragments/captcha :: widget('login-admin')}"></div>
+        </th:block>
+        <th:block th:unless="${adminLogin}">
+          <div th:replace="~{fragments/captcha :: widget('login-staff')}"></div>
+        </th:block>
         <button type="submit">Log in</button>
       </form>
 
