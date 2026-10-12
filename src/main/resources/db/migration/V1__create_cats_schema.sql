@@ -60,7 +60,6 @@ CREATE TABLE application (
   user_reason VARCHAR(1000) NOT NULL,
   work_dissemination VARCHAR(1000),
   manager_reason VARCHAR(255),
-  has_been_paid BOOLEAN,
   course_course_id INTEGER,
   user_id INTEGER,
   CONSTRAINT fk_application_course FOREIGN KEY (course_course_id) REFERENCES course(course_id),
@@ -107,6 +106,7 @@ CREATE TABLE fee_claim (
   certificate_reference VARCHAR(255),
   receipt_data LONGBLOB,
   certificate_data LONGBLOB,
+  CONSTRAINT uk_fee_claim_application UNIQUE (application_id),
   CONSTRAINT fk_fee_claim_application FOREIGN KEY (application_id) REFERENCES application(id),
   CONSTRAINT fk_fee_claim_employee FOREIGN KEY (employee_user_id) REFERENCES user(user_id)
 );

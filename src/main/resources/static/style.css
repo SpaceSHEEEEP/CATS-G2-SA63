@@ -479,3 +479,272 @@ summary {
   outline: 3px solid #dd7e24;
   outline-offset: 2px;
 }
+
+/* Main-aligned presentation improvements from PR #38. No remote fonts/assets required. */
+:root {
+  --cats-ink: #1a2f46;
+  --cats-blue: #27588f;
+  --cats-border: #c6d4e4;
+  --cats-panel: #f7fafd;
+  --cats-success: #135c39;
+}
+body {
+  color: var(--cats-ink);
+  line-height: 1.5;
+  background: #f9fbfd;
+}
+h1,
+h2,
+h3 {
+  color: #173858;
+}
+a {
+  color: #1c5794;
+}
+:where(a, button, select, input, textarea, summary):focus-visible {
+  outline: 3px solid #e68b25;
+  outline-offset: 2px;
+}
+.cats-header {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--cats-border);
+  border-radius: 12px;
+  background: #fff;
+  gap: 0.7rem;
+}
+.cats-header--admin {
+  background: #fff8ef;
+  border-color: #e5c9a0;
+}
+.cats-header-home {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.cats-header a {
+  overflow-wrap: anywhere;
+}
+.cats-header a.cats-team-link {
+  color: #8a3c1c;
+}
+.cats-header a.cats-admin-link {
+  color: #713686;
+}
+.cats-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 3rem 0 1rem;
+  padding: 1.2rem 0;
+  border-top: 1px solid var(--cats-border);
+  color: #4c6076;
+  font-size: 0.9rem;
+}
+.cats-site-intro {
+  margin: 1.4rem 0;
+}
+.cats-site-description {
+  max-width: 75ch;
+  color: #4a6179;
+}
+.cats-login {
+  min-height: 100vh;
+  background: #eff4fa;
+}
+.cats-login-card {
+  max-width: 560px;
+  margin: min(6vh, 5rem) auto 2rem;
+  padding: 2rem;
+  background: #fff;
+  border: 1px solid var(--cats-border);
+  border-radius: 18px;
+  box-shadow: 0 12px 34px #1c47731c;
+}
+.cats-login-card form {
+  display: grid;
+  gap: 0.8rem;
+}
+.cats-login-card fieldset {
+  display: grid;
+  margin: 0;
+}
+.cats-login-card input:not([type="hidden"]) {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.cats-login-logo {
+  display: none;
+}
+.cats-login > .cats-footer {
+  max-width: 560px;
+  margin: auto;
+}
+.cats-page-heading {
+  gap: 1rem;
+}
+.cats-home .home-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.cats-home .home-actions a {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--cats-border);
+  background: white;
+  border-radius: 0.65rem;
+  text-decoration: none;
+}
+.cats-home .home-actions .home-apply {
+  background: var(--cats-blue);
+  color: white;
+}
+.user-statistics-container > * {
+  border-radius: 12px;
+  background: white;
+}
+.admin-actions,
+.manager-navigation,
+.course-type-filters {
+  flex-wrap: wrap;
+  margin: 1.1rem 0;
+}
+.admin-actions > a,
+.manager-navigation > a,
+.course-type-filters > a {
+  border: 1px solid var(--cats-border);
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.8rem;
+  text-decoration: none;
+  background: white;
+}
+.course-type-filters > a[aria-current="page"],
+.manager-navigation > a[aria-current="page"] {
+  background: #dceaf7;
+  font-weight: 700;
+}
+.admin-summary > section {
+  padding: 0.8rem 1rem;
+}
+.admin-summary strong {
+  font-size: 1.6rem;
+}
+.course-name {
+  overflow-wrap: anywhere;
+  max-width: 29ch;
+  font-weight: 600;
+}
+.status-text {
+  display: inline-block;
+  border-radius: 0.5rem;
+  padding: 0.12rem 0.45rem;
+  font-weight: 600;
+  background: #edf2f6;
+  color: #30475d;
+}
+.status-text[data-status="APPLIED"],
+.status-text[data-status="UPDATED"],
+.status-text[data-status="SUBMITTED"] {
+  background: #fff2cf;
+  color: #77511a;
+}
+.status-text[data-status="APPROVED"],
+.status-text[data-status="PAID"] {
+  background: #e0f5e7;
+  color: #17603b;
+}
+.status-text[data-status="COMPLETED"] {
+  background: #d9efff;
+  color: #174e79;
+}
+.status-text[data-status="REJECTED"],
+.status-text[data-status="DELETED"],
+.status-text[data-status="CANCELLED"] {
+  background: #edf0f3;
+  color: #505f6d;
+}
+.cats-confirmation {
+  position: fixed;
+  width: min(90vw, 470px);
+  max-width: 470px;
+  padding: 1.7rem;
+  border: 1px solid var(--cats-border);
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px #0003;
+  background: white;
+}
+.cats-confirmation::backdrop {
+  background: #0007;
+}
+.cats-confirmation .actions {
+  display: flex;
+  flex-wrap: wrap;
+}
+.cats-confirmation form {
+  margin: 0;
+}
+.history-group {
+  border: 1px solid var(--cats-border);
+  border-radius: 0.8rem;
+  background: white;
+  margin: 0.75rem 0;
+}
+.history-group summary {
+  cursor: pointer;
+  padding: 0.55rem;
+}
+.pagination {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cats-error {
+  display: grid;
+  place-content: center;
+  min-height: 80vh;
+}
+.cats-error-card {
+  max-width: 450px;
+  padding: 2rem;
+  border: 1px solid var(--cats-border);
+  background: white;
+  border-radius: 1rem;
+}
+.cats-error-code {
+  font-size: 2rem;
+  font-weight: 700;
+}
+@media (max-width: 780px) {
+  body {
+    margin: 0;
+    padding: 1rem;
+  }
+  .cats-header {
+    gap: 0.6rem;
+  }
+  .cats-login-card {
+    margin: 1rem auto;
+    padding: 1.1rem;
+  }
+  .user-statistics-container {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .form-fields-section {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .form-fields-section h3 {
+    grid-column: 1;
+  }
+  .cats-footer {
+    display: block;
+  }
+  .cats-footer > span {
+    display: block;
+  }
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}

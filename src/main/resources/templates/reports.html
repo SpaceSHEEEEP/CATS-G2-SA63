@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
     <title>Manager Training Reports</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
   </head>
@@ -90,18 +92,18 @@
         </tr>
       </thead>
       <tbody>
-        <tr th:each="application : ${attendees}">
-          <td th:text="${application.user.name}"></td>
-          <td th:text="${application.course.courseName}"></td>
-          <td th:text="${application.course.courseType}"></td>
-          <td th:text="${application.course.startDate}"></td>
-          <td th:text="${application.course.endDate}"></td>
-          <td th:text="${application.status}"></td>
-          <td th:text="${application.course.fee}"></td>
+        <tr th:each="attendee : ${attendees}">
+          <td th:text="${attendee.user.name}"></td>
+          <td class="course-name" th:text="${attendee.course.courseName}"></td>
+          <td th:text="${attendee.course.courseType}"></td>
+          <td th:text="${attendee.course.startDate}"></td>
+          <td th:text="${attendee.course.endDate}"></td>
+          <td class="status-text" th:attr="data-status=${attendee.status}" th:text="${attendee.status}"></td>
+          <td th:text="${attendee.course.fee}"></td>
         </tr>
       </tbody>
     </table>
-    <nav aria-label="Attendance pages">
+    <nav class="pagination" aria-label="Attendance pages">
       <a
         th:if="${attendancePage > 0}"
         th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage-1},claimsPage=${claimsPage},budgetPage=${budgetPage})}"
@@ -151,7 +153,7 @@
         </tr>
       </tbody>
     </table>
-    <nav aria-label="Budget pages">
+    <nav class="pagination" aria-label="Budget pages">
       <a
         th:if="${budgetPage > 0}"
         th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage},budgetPage=${budgetPage-1})}"
@@ -187,17 +189,17 @@
       <tbody>
         <tr th:each="claim : ${claims}">
           <td th:text="${claim.employee.name}"></td>
-          <td th:text="${claim.application.course.courseName}"></td>
+          <td class="course-name" th:text="${claim.application.course.courseName}"></td>
           <td th:text="${claim.submittedOn}"></td>
           <td th:text="${claim.amount}"></td>
-          <td th:text="${claim.status}"></td>
+          <td class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></td>
           <td th:text="${claim.managerReason}"></td>
           <td th:text="${claim.paidOn}"></td>
           <td th:text="${claim.paymentReference}"></td>
         </tr>
       </tbody>
     </table>
-    <nav aria-label="Claim pages">
+    <nav class="pagination" aria-label="Claim pages">
       <a
         th:if="${claimsPage > 0}"
         th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage-1},budgetPage=${budgetPage})}"
@@ -212,5 +214,6 @@
         >Next</a
       >
     </nav>
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>

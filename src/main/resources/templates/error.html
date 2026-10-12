@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CATS — Request unsuccessful</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+</head>
+<body class="cats-error">
+    <main class="cats-error-card" th:switch="${status}">
+        <a th:href="@{/}">CATS homepage</a>
+        <p class="cats-error-code" th:if="${status != null and status >= 400 and status <= 599}" th:text="${status}"></p>
+        <div th:case="403"><h1>Access denied</h1><p>Check your account permissions or sign in again.</p></div>
+        <div th:case="404"><h1>Page not found</h1><p>The requested page or record could not be found.</p></div>
+        <div th:case="500"><h1>Something went wrong</h1><p>Please try again later.</p></div>
+        <div th:case="*"><h1>Request unsuccessful</h1><p>Return to the homepage and retry.</p></div>
+        <p><a th:href="@{/}">Return to homepage</a></p>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

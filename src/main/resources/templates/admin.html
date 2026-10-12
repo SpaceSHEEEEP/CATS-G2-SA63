@@ -1,144 +1,296 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
+<!doctype html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
     <title>Administration</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
     <script th:src="@{/js/captcha.js}" defer></script>
-</head>
-<body>
-
+  </head>
+  <body class="cats-admin">
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <div class="cats-page-heading"><img th:src="@{/images/cats/unimpressed.png}" alt="" /><h1>Administration</h1></div>
+    <div class="cats-page-heading">
+      <img th:src="@{/images/cats/unimpressed.png}" alt="" />
+      <h1>Administration</h1>
+    </div>
     <p th:text="${'Welcome Admin ' + user.name + '!'}"></p>
-	
+
+    <p class="cats-site-description">
+      Manage staff accounts, course catalogue and reimbursements.
+    </p>
+    <div class="actions admin-actions">
+      <a class="admin-create-course" th:href="@{/admin/course/new}"
+        >Create Course</a
+      >
+      <a th:href="@{/admin/createuser}">Create Employee</a>
+      <a th:href="@{/admin/users.csv}">Download User Report</a>
+    </div>
+    <div class="user-statistics-container admin-summary">
+      <section class="user-applications-statistics">
+        <h2>Users</h2>
+        <strong th:text="${#lists.size(users)}"></strong>
+        <p>Accounts</p>
+      </section>
+      <section class="user-applications-statistics">
+        <h2>Catalogue courses</h2>
+        <strong th:text="${catalogueCourseCount}"></strong>
+        <p>All pages</p>
+      </section>
+      <section class="user-applications-statistics">
+        <h2>Public holidays</h2>
+        <strong th:text="${#lists.size(holidays)}"></strong>
+        <p th:text="${holidayYear}"></p>
+      </section>
+    </div>
     <!-- display success message for every application made or deleted -->
-    <div th:if="${successmsg}" th:text="${successmsg}" class="global-success-message"></div>
+    <div
+      th:if="${successmsg}"
+      th:text="${successmsg}"
+      class="global-success-message"
+    ></div>
 
     <!-- display success message for every application made or deleted -->
-    <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
-	
+    <div
+      th:if="${errormsg}"
+      th:text="${errormsg}"
+      class="global-error-message"
+    ></div>
+
     <h2>Users</h2>
     <p><a th:href="@{/admin/createuser}">Create employee</a></p>
     <p th:if="${#lists.isEmpty(users)}">No users found.</p>
-	<table th:unless="${#lists.isEmpty(users)}">
-	    <thead>
-	        <tr>
-	            <th>Name</th>
-				<th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Enabled</th>
-                <th>Reports To</th>
-	            <th>Remaining Budget (SGD)</th>
-	            <th>Days Remaining</th>
-                <th>Modify</th>
-                <th>Remove</th>
-	        </tr>
-	    </thead>
-	    <tbody>
-	        <tr th:each="staff : ${users}">
-	            <td th:text="${staff.name}"></td>
-				<td th:text="${staff.username}"></td>
-                <td th:text="${staff.email}"></td>
-                <td th:text="${staff.role}"></td>
-                <td th:text="${staff.enabled ? 'Yes' : 'No'}"></td>
-                <td th:text="${staff.manager == null} ? '-' : ${staff.manager.name}"></td>
-                <td th:text="${staff.actualAllowance == null} ? 'Not set' : ${#numbers.formatDecimal(staff.actualAllowance, 1, 2)}"></td>
-	            <td th:text="${staff.actualDays}"></td>
-                <td><a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a>
-                  <form th:action="@{/admin/mfa/reset}" method="post" th:if="${staff.userId != user.userId}">
-                    <input type="hidden" name="userId" th:value="${staff.userId}"/>
-                    <input name="confirmation" type="text" placeholder="RESET MFA" aria-label="Type RESET MFA for staff member" required/>
-                    <button type="submit">Reset MFA</button>
-                  </form>
-                </td>
-                <td>
-                    <form th:if="${staff.enabled}" th:action="@{/admin/deleteuser(userId=${staff.userId})}" method="POST">
-                        <button type="submit" onclick="return confirm('Deactivate account and preserve its history?')">Deactivate</button>
-                    </form>
-                    <form th:action="@{/admin/purgeuser(userId=${staff.userId})}" method="POST">
-                        <button type="submit" onclick="return confirm('PERMANENTLY delete this unused account? Cannot be undone.')">Delete unused</button>
-                    </form>
-                </td>
-	        </tr>
-	    </tbody>
-	</table>
+    <table th:unless="${#lists.isEmpty(users)}">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Enabled</th>
+          <th>Reports To</th>
+          <th>Remaining Budget (SGD)</th>
+          <th>Days Remaining</th>
+          <th>Modify</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="staff : ${users}">
+          <td th:text="${staff.name}"></td>
+          <td th:text="${staff.username}"></td>
+          <td th:text="${staff.email}"></td>
+          <td th:text="${staff.role}"></td>
+          <td th:text="${staff.enabled ? 'Yes' : 'No'}"></td>
+          <td
+            th:text="${staff.manager == null} ? '-' : ${staff.manager.name}"
+          ></td>
+          <td
+            th:text="${staff.actualAllowance == null} ? 'Not set' : ${#numbers.formatDecimal(staff.actualAllowance, 1, 2)}"
+          ></td>
+          <td th:text="${staff.actualDays}"></td>
+          <td>
+            <a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a>
+            <form
+              th:action="@{/admin/mfa/reset}"
+              method="post"
+              th:if="${staff.userId != user.userId}"
+            >
+              <input type="hidden" name="userId" th:value="${staff.userId}" />
+              <input
+                name="confirmation"
+                type="text"
+                placeholder="RESET MFA"
+                aria-label="Type RESET MFA for staff member"
+                required
+              />
+              <button type="submit">Reset MFA</button>
+            </form>
+          </td>
+          <td>
+            <form
+              th:if="${staff.enabled}"
+              th:action="@{/admin/deleteuser(userId=${staff.userId})}"
+              method="POST"
+            >
+              <button
+                type="submit"
+                onclick="
+                  return confirm(
+                    'Deactivate account and preserve its history?',
+                  );
+                "
+              >
+                Deactivate
+              </button>
+            </form>
+            <form
+              th:action="@{/admin/purgeuser(userId=${staff.userId})}"
+              method="POST"
+            >
+              <button
+                type="submit"
+                onclick="
+                  return confirm(
+                    'PERMANENTLY delete this unused account? Cannot be undone.',
+                  );
+                "
+              >
+                Delete unused
+              </button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p th:if="${param.captchaError}" role="alert">Verification failed. Try a new challenge.</p>
+    <p th:if="${param.captchaError}" role="alert">
+      Verification failed. Try a new challenge.
+    </p>
     <h2>User directory report</h2>
-    <p>Contains staff names, email addresses, account status, admin roles and managers. Handle as confidential.</p>
+    <p>
+      Contains staff names, email addresses, account status, admin roles and
+      managers. Handle as confidential.
+    </p>
     <p><a th:href="@{/admin/users.csv}">Download all users (CSV)</a></p>
     <form th:action="@{/admin/users/email}" method="post">
-        <label for="reportRecipient">Email report to:</label>
-        <input type="email" id="reportRecipient" name="recipient" maxlength="254"
-               placeholder="recipient@example.com" autocomplete="email" required />
-        <div th:replace="~{fragments/captcha :: widget('admin-mail')}"></div>
-        <button type="submit">Email user report</button>
+      <label for="reportRecipient">Email report to:</label>
+      <input
+        type="email"
+        id="reportRecipient"
+        name="recipient"
+        maxlength="254"
+        placeholder="recipient@example.com"
+        autocomplete="email"
+        required
+      />
+      <div th:replace="~{fragments/captcha :: widget('admin-mail')}"></div>
+      <button type="submit">Email user report</button>
     </form>
 
-    <p><a th:href="@{/admin/references}">Manage course categories, training providers and public holidays</a></p>
-    <h2>Courses</h2>
+    <p>
+      <a th:href="@{/admin/references}"
+        >Manage course categories, training providers and public holidays</a
+      >
+    </p>
+    <h2 id="courses">Courses</h2>
     <p><a th:href="@{/admin/course/new}">Add catalogue course</a></p>
-    <p th:if="${#lists.isEmpty(courseSummaries.content)}">No courses recorded.</p>
+    <div
+      class="actions course-type-filters"
+      role="navigation"
+      aria-label="Course categories"
+    >
+      <a
+        th:each="type : ${courseTypes}"
+        th:href="@{/admin/index(type=${type})} + '#courses'"
+        th:text="${type}"
+        th:attr="aria-current=${type == selectedType ? 'page' : null}"
+      ></a>
+    </div>
+    <p th:if="${#lists.isEmpty(courseSummaries.content)}">
+      No courses recorded.
+    </p>
     <table th:unless="${#lists.isEmpty(courseSummaries.content)}">
-        <thead>
-            <tr>
-                <th>Course Name</th>
-                <th>Category</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Applicants</th>
-                <th>Location</th>
-                <th>Training Provider</th>
-                <th>Fee (SGD)</th>
-                <th>Modify</th><th>Archive</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="summary : ${courseSummaries.content}">
-                <td th:text="${summary.course.courseName}"></td>
-                <td th:text="${summary.course.courseType}"></td>
-                <td th:text="${#temporals.format(summary.course.startDate, 'dd-MM-yyyy')}"></td>
-                <td th:text="${#temporals.format(summary.course.endDate, 'dd-MM-yyyy')}"></td>
-                <td th:text="${summary.applicantCount}"></td>
-                <td th:text="${summary.course.location}"></td>
-                <td th:text="${summary.course.trainingProvider}"></td>
-                <td th:text="${summary.course.fee == null} ? 'Not set' : ${#numbers.formatDecimal(summary.course.fee, 1, 2)}"></td>
-                <td><a th:href="@{/admin/course/edit(courseId=${summary.course.courseId})}">Edit</a></td>
-                <td><form th:action="@{/admin/course/archive(courseId=${summary.course.courseId})}" method="post">
-                  <button type="submit" th:disabled="${summary.course.archived}">Archive</button></form></td>
-            </tr>
-        </tbody>
+      <thead>
+        <tr>
+          <th>Course Name</th>
+          <th>Category</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Applicants</th>
+          <th>Location</th>
+          <th>Training Provider</th>
+          <th>Fee (SGD)</th>
+          <th>Modify</th>
+          <th>Archive</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="summary : ${courseSummaries.content}">
+          <td class="course-name" th:text="${summary.course.courseName}"></td>
+          <td th:text="${summary.course.courseType}"></td>
+          <td
+            th:text="${#temporals.format(summary.course.startDate, 'dd-MM-yyyy')}"
+          ></td>
+          <td
+            th:text="${#temporals.format(summary.course.endDate, 'dd-MM-yyyy')}"
+          ></td>
+          <td th:text="${summary.applicantCount}"></td>
+          <td th:text="${summary.course.location}"></td>
+          <td th:text="${summary.course.trainingProvider}"></td>
+          <td
+            th:text="${summary.course.fee == null} ? 'Not set' : ${#numbers.formatDecimal(summary.course.fee, 1, 2)}"
+          ></td>
+          <td>
+            <a
+              th:href="@{/admin/course/edit(courseId=${summary.course.courseId})}"
+              >Edit</a
+            >
+          </td>
+          <td>
+            <form
+              th:action="@{/admin/course/archive(courseId=${summary.course.courseId})}"
+              method="post"
+            >
+              <button type="submit" th:disabled="${summary.course.archived}">
+                Archive
+              </button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
-        <div class = "pagination">
-            <div>
-            <a th:if="${pageNum > 0}" th:href="@{/admin/index(pageNum=${pageNum-1})}">Prev page</a>
-            <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin/index(pageNum=${pageNum+1})}">Next page</a>
-            </div>
-            
-            <th:block th:if="${pageNumLast > 0}" th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
-                <a th:href="@{/admin/index(pageNum=${i})}" th:text="${i + 1}"></a>
-            </th:block>
-        </div>
-    
+    <div class="pagination">
+      <div>
+        <a
+          th:if="${pageNum > 0}"
+          th:href="@{/admin/index(pageNum=${pageNum-1},type=${selectedType})} + '#courses'"
+          >Prev page</a
+        >
+        <a
+          th:if="${pageNum < pageNumLast - 1}"
+          th:href="@{/admin/index(pageNum=${pageNum+1},type=${selectedType})} + '#courses'"
+          >Next page</a
+        >
+      </div>
+
+      <th:block
+        th:if="${pageNumLast > 0}"
+        th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}"
+      >
+        <a
+          th:href="@{/admin/index(pageNum=${i},type=${selectedType})} + '#courses'"
+          th:text="${i + 1}"
+        ></a>
+      </th:block>
+    </div>
+
     <h2 th:text="'Public Holidays — ' + ${holidayYear}">Public Holidays</h2>
-    <p th:if="${#lists.isEmpty(holidays)}">No public holidays recorded for this year.</p>
+    <p th:if="${#lists.isEmpty(holidays)}">
+      No public holidays recorded for this year.
+    </p>
     <table th:unless="${#lists.isEmpty(holidays)}">
-        <thead>
-            <tr>
-                <th>Holiday Name</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="holiday : ${holidays}">
-                <td th:text="${holiday.holidayName}"></td>
-                <td th:text="${#temporals.format(holiday.holidayDate, 'dd-MM-yyyy')}"></td>
-            </tr>
-        </tbody>
+      <thead>
+        <tr>
+          <th>Holiday Name</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="holiday : ${holidays}">
+          <td th:text="${holiday.holidayName}"></td>
+          <td
+            th:text="${#temporals.format(holiday.holidayDate, 'dd-MM-yyyy')}"
+          ></td>
+        </tr>
+      </tbody>
     </table>
 
-</body>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
 </html>

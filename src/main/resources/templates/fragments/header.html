@@ -1,34 +1,81 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <body>
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+  <body>
+    <th:block th:fragment="header">
+      <header
+        class="cats-header"
+        th:classappend="${#authorization.expression('hasRole(&quot;ADMIN&quot;)')} ? 'cats-header--admin'"
+      >
+        <a class="cats-header-home" th:href="@{/}" aria-label="CATS homepage">
+          <img
+            class="cats-header-logo"
+            th:src="@{/images/cats/celebrate.png}"
+            alt=""
+            width="52"
+            height="52"
+          />
+        </a>
+        <strong class="cats-header-title">CATS for NUS-ISS</strong>
 
-        <th:block th:fragment="header">
+        <div sec:authorize="isAuthenticated()">
+          Logged in as: <span sec:authentication="name">Username</span>
+        </div>
 
-            <header class="cats-header">
-				<strong class="cats-header-title"><img th:src="@{/images/cats/celebrate.png}" alt="CATS" class="cats-header-art"/> CATS for NUS-ISS</strong>
-
-                <div sec:authorize="isAuthenticated()">
-                    Logged in as: <span sec:authentication="name">Username</span>
-                </div>
-
-				
-                <a th:href="@{/staff/index}">My Training</a>
-                <a sec:authorize="isAuthenticated()" th:href="@{/staff/claims}">My Claims</a>
-                <a sec:authorize="isAuthenticated()" th:href="@{/staff/ledger}">My Ledger</a>
-                <a sec:authorize="isAuthenticated()" th:href="@{/staff/mobile}">Mobile / MFA</a>
-                <a th:if="${isManager}" th:href="@{/manager/applications}">Team Training</a>
-                <a th:if="${isManager}" th:href="@{/manager/claims}">Team Claims</a>
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/claims}">Reimbursements</a>
-				<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/index}">Administration</a>
-                <form sec:authorize="!hasRole('ADMIN')" th:action="@{/logout}" method="post">
-                    <button type="submit">Logout</button>
-                </form>
-                <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/logout}" method="post">
-                    <button type="submit">Logout</button>
-                </form>
-            </header>
-
-        </th:block>
-
-    </body>
+        <a th:href="@{/staff/index}">My Training</a>
+        <a sec:authorize="isAuthenticated()" th:href="@{/staff/claims}"
+          >My Claims</a
+        >
+        <a sec:authorize="isAuthenticated()" th:href="@{/staff/ledger}"
+          >My Ledger</a
+        >
+        <a sec:authorize="isAuthenticated()" th:href="@{/staff/mobile}"
+          >Mobile / MFA</a
+        >
+        <a
+          class="cats-team-link"
+          th:if="${isManager}"
+          th:href="@{/manager/applications}"
+          >Team Training</a
+        >
+        <a
+          class="cats-team-link"
+          th:if="${isManager}"
+          th:href="@{/manager/claims}"
+          >Team Claims</a
+        >
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/claims}"
+          >Reimbursements</a
+        >
+        <a
+          class="cats-admin-link"
+          sec:authorize="hasRole('ADMIN')"
+          th:href="@{/admin/index}"
+          >Administration</a
+        >
+        <a
+          class="cats-calendar-link"
+          sec:authorize="isAuthenticated()"
+          th:href="@{/staff/calendar}"
+          >Calendar</a
+        >
+        <form
+          sec:authorize="!hasRole('ADMIN')"
+          th:action="@{/logout}"
+          method="post"
+        >
+          <button type="submit">Logout</button>
+        </form>
+        <form
+          sec:authorize="hasRole('ADMIN')"
+          th:action="@{/admin/logout}"
+          method="post"
+        >
+          <button type="submit">Logout</button>
+        </form>
+      </header>
+    </th:block>
+  </body>
 </html>

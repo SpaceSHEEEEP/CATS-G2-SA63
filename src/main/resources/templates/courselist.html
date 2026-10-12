@@ -1,35 +1,60 @@
 <!doctype html>
 <html lang="en">
   <head xmlns="http://www.thymeleaf.org">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
     <title>Internal Course</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
   </head>
   <body>
     <div th:replace="~{fragments/header :: header}" />
 
-        <!-- TODO: make this nicer -->
+    <!-- TODO: make this nicer -->
     <a th:href="@{courselist(type='ALL')}">ALL</a>
     <a th:href="@{courselist(type='INTERNAL')}">INTERNAL</a>
     <a th:href="@{courselist(type='EXTERNAL')}">EXTERNAL</a>
     <a th:href="@{courselist(type='PROFESSIONAL')}">PROFESSIONAL</a>
 
-    <div class="cats-page-heading"><img th:src="@{/images/cats/confident.png}" alt="" /><h1>Course catalogue</h1></div>
+    <div class="cats-page-heading">
+      <img th:src="@{/images/cats/confident.png}" alt="" />
+      <h1>Course catalogue</h1>
+    </div>
     <p th:if="${courses.isEmpty()}">No courses available.</p>
     <th:block th:unless="${courses.isEmpty()}">
-        <div th:replace="~{fragments/courselist :: courseList(courses=${courses})}" />
+      <div
+        th:replace="~{fragments/courselist :: courseList(courses=${courses})}"
+      />
     </th:block>
 
     <form method="get" th:action="@{/staff/courselist}">
       <input type="hidden" name="type" th:value="${selectedType}" />
-      <label>Results per page <select name="pageSize" onchange="this.form.submit()">
-        <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
-      </select></label>
+      <label
+        >Results per page
+        <select name="pageSize" onchange="this.form.submit()">
+          <option
+            th:each="n : ${pageSizes}"
+            th:value="${n}"
+            th:text="${n}"
+            th:selected="${n == pageSize}"
+          ></option></select
+      ></label>
     </form>
     <nav class="pagination" aria-label="Course catalogue pages">
-      <a th:if="${pageNum > 0}" th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum-1},pageSize=${pageSize})}">Previous</a>
-      <span th:text="|${pageNum+1} / ${pageNumLast == 0 ? 1 : pageNumLast}|"></span>
-      <a th:if="${pageNum+1 < pageNumLast}" th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum+1},pageSize=${pageSize})}">Next</a>
+      <a
+        th:if="${pageNum > 0}"
+        th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum-1},pageSize=${pageSize})}"
+        >Previous</a
+      >
+      <span
+        th:text="|${pageNum+1} / ${pageNumLast == 0 ? 1 : pageNumLast}|"
+      ></span>
+      <a
+        th:if="${pageNum+1 < pageNumLast}"
+        th:href="@{/staff/courselist(type=${selectedType},pageNum=${pageNum+1},pageSize=${pageSize})}"
+        >Next</a
+      >
     </nav>
 
+    <div th:replace="~{fragments/footer :: footer}"></div>
   </body>
 </html>

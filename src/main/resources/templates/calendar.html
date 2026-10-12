@@ -1,6 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
   <head>
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -160,7 +161,7 @@
 	</style>
   </head>
 
-  <body>
+  <body class="cats-calendar">
     <div th:replace="~{fragments/header :: header}"></div>
 
 	<div class="cats-page-heading"><img th:src="@{/images/cats/thoughtful.png}" alt="" /><h1 id="calendar-title">All Staff Training Calendar</h1></div>
@@ -286,7 +287,7 @@
 	    <dd id="details-duration"></dd>
 
 	    <dt>Status</dt>
-	    <dd id="details-status"></dd>
+	    <dd id="details-status" class="status-text"></dd>
 
 	    <dt>Location</dt>
 	    <dd id="details-location"></dd>
@@ -317,5 +318,6 @@
 	  </form>
 	</dialog>
 	
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>

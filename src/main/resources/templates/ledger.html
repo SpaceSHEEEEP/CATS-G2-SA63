@@ -1,32 +1,96 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><title>Training ledger</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
-<body>
-<div th:replace="~{fragments/header :: header}"></div>
-<h1>Employee training ledger</h1>
-<p th:text="|${employee.name} — ${ledger.year()}|">Employee / year</p>
-<form method="get" th:action="${managerView} ? @{/manager/ledger} : @{/staff/ledger}">
-  <input th:if="${managerView}" type="hidden" name="employeeId" th:value="${employee.userId}" />
-  <label>Year <input type="number" min="2000" max="9999" name="year" th:value="${ledger.year()}" /></label>
-  <button type="submit">View year</button>
-</form>
-<p>Annual training budget: $<span th:text="${ledger.allocation().feeLimit}"></span>.
-   Active course commitments (including pending applications): $<span th:text="${ledger.allocation().feesCommitted}"></span>.
-   Budget remaining: $<span th:text="${ledger.allocation().budgetRemaining}"></span>.</p>
-<p>Training days: <span th:text="${ledger.allocation().daysCommitted}"></span> committed /
-   <span th:text="${ledger.allocation().dayLimit}"></span> allocated.</p>
-<p>Approved course fees starting this year: $<span th:text="${ledger.approvedCourseFees()}"></span>.
-   Reimbursements actually paid this year: $<span th:text="${ledger.reimbursementsPaid()}"></span>.</p>
-<p>Reimbursement payments do not replenish the separate training-budget entitlement.</p>
-<table>
-  <thead><tr><th>Date</th><th>Ledger entry</th><th>Reference</th><th>Approved course fee</th><th>Reimbursement paid</th></tr></thead>
-  <tbody><tr th:each="entry : ${ledger.entries()}">
-    <td th:text="${entry.date()}"></td><td th:text="${entry.category()}"></td>
-    <td th:text="${entry.description()}"></td><td th:text="${entry.approvedFee()}"></td>
-    <td th:text="${entry.reimbursement()}"></td>
-  </tr></tbody>
-</table>
-<p th:if="${#lists.isEmpty(ledger.entries())}">No approved fee-bearing courses or paid reimbursements this year.</p>
-<p><small>This ledger is calculated from current application decisions and saved reimbursement payments;
-  it is not an immutable history of every status change.</small></p>
-</body></html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
+    <title>Training ledger</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <h1>Employee training ledger</h1>
+    <p th:text="|${employee.name} — ${ledger.year()}|">Employee / year</p>
+    <form
+      method="get"
+      th:action="${managerView} ? @{/manager/ledger} : @{/staff/ledger}"
+    >
+      <input
+        th:if="${managerView}"
+        type="hidden"
+        name="employeeId"
+        th:value="${employee.userId}"
+      />
+      <label
+        >Year
+        <input
+          type="number"
+          min="2000"
+          max="9999"
+          name="year"
+          th:value="${ledger.year()}"
+      /></label>
+      <button type="submit">View year</button>
+    </form>
+    <p>
+      Annual training budget: $<span
+        th:text="${ledger.allocation().feeLimit}"
+      ></span
+      >. Active course commitments (including pending applications): $<span
+        th:text="${ledger.allocation().feesCommitted}"
+      ></span
+      >. Budget remaining: $<span
+        th:text="${ledger.allocation().budgetRemaining}"
+      ></span
+      >.
+    </p>
+    <p>
+      Training days:
+      <span th:text="${ledger.allocation().daysCommitted}"></span> committed /
+      <span th:text="${ledger.allocation().dayLimit}"></span> allocated.
+    </p>
+    <p>
+      Approved course fees starting this year: $<span
+        th:text="${ledger.approvedCourseFees()}"
+      ></span
+      >. Reimbursements actually paid this year: $<span
+        th:text="${ledger.reimbursementsPaid()}"
+      ></span
+      >.
+    </p>
+    <p>
+      Reimbursement payments do not replenish the separate training-budget
+      entitlement.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Ledger entry</th>
+          <th>Reference</th>
+          <th>Approved course fee</th>
+          <th>Reimbursement paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="entry : ${ledger.entries()}">
+          <td th:text="${entry.date()}"></td>
+          <td th:text="${entry.category()}"></td>
+          <td th:text="${entry.description()}"></td>
+          <td th:text="${entry.approvedFee()}"></td>
+          <td th:text="${entry.reimbursement()}"></td>
+        </tr>
+      </tbody>
+    </table>
+    <p th:if="${#lists.isEmpty(ledger.entries())}">
+      No approved fee-bearing courses or paid reimbursements this year.
+    </p>
+    <p>
+      <small
+        >This ledger is calculated from current application decisions and saved
+        reimbursement payments; it is not an immutable history of every status
+        change.</small
+      >
+    </p>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
+</html>

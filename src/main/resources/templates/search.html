@@ -2,6 +2,8 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
     <title>Application Search Results</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" th:href="@{/style.css}" />
@@ -66,5 +68,6 @@
     <p><a th:href="@{/manager/reports}">Accurate training, budget and claims reports</a></p>
     <a th:href="@{/manager/applications}">Back to pending applications</a>
 
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

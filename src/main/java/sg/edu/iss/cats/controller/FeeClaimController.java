@@ -88,7 +88,7 @@ public class FeeClaimController {
         if (app.getStatus() != Status.COMPLETED || app.getCourse().getCourseType() == CourseType.INTERNAL)
             return "redirect:/staff/index";
         if (claims.existsByApplication_Id(applicationId)) return "redirect:/staff/claims";
-        model.addAttribute("application", app);
+        model.addAttribute("claimApplication", app);
         return "claimform";
     }
 

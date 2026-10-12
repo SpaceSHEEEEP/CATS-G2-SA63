@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"/><title>Consolidated training reports</title>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" /><meta charset="UTF-8"/><title>Consolidated training reports</title>
 <style>
 body{font:11pt Arial,sans-serif;color:#111} table{width:100%;border-collapse:collapse;margin-bottom:1.5em;font-size:9pt}
 th,td{border:1px solid #777;padding:5px;text-align:left;overflow-wrap:anywhere}
@@ -36,4 +38,5 @@ thead{display:table-header-group} tr{break-inside:avoid} h2{break-after:avoid}
 <td th:text="${claim.amount}"></td><td th:text="${claim.status}"></td>
 <td th:text="${claim.managerReason}"></td><td th:text="${claim.paidOn}"></td>
 <td th:text="${claim.paymentReference}"></td></tr></tbody></table>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body></html>

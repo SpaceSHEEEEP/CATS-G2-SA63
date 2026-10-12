@@ -80,8 +80,8 @@ public class FeeClaimService {
         claim.setCertificateReference(certificateEvidence.mimeType());
         claim.setReceiptData(receiptEvidence.bytes());
         claim.setCertificateData(certificateEvidence.bytes());
-        app.setHasBeenPaid(true);
-        apps.save(app);
+        // Proof of the employee's personal payment is in the attached receipt.
+        // Reimbursement is recorded only by ClaimStatus.PAID in recordPayment().
         return claims.save(claim);
     }
 
