@@ -1,26 +1,31 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
   <body>
-    <fieldset
+    <dialog
       th:fragment="widget(scope)"
       class="cats-captcha"
       th:attr="data-captcha-scope=${scope},data-challenge-url=@{/captcha/new}"
+      aria-label="Human verification"
     >
-      <legend>Human verification</legend>
+      <h2>Human verification</h2>
       <input type="hidden" name="captchaId" value="" />
       <input type="hidden" name="captchaAnswer" value="" />
       <p class="captcha-prompt" aria-live="polite">
-        Loading a verification challenge…
+        Complete the verification challenge to submit the form.
       </p>
       <div class="captcha-stage" aria-label="Interactive challenge"></div>
       <p class="captcha-feedback" role="status" aria-live="polite"></p>
       <button class="captcha-refresh" type="button">
         Try a different challenge
       </button>
+      <div class="captcha-dialog-actions">
+        <button type="button" class="captcha-confirm">Verify and continue</button>
+        <button type="button" class="captcha-cancel">Cancel</button>
+      </div>
       <noscript
         >JavaScript is needed for interactive verification. Contact an
         administrator if you cannot use it.</noscript
       >
-    </fieldset>
+    </dialog>
   </body>
 </html>

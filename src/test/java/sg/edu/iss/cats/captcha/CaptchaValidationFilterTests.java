@@ -11,9 +11,10 @@ class CaptchaValidationFilterTests {
     @Test void directLoginAndSensitivePostsCannotBypassCaptcha() throws Exception {
         var service = mock(CaptchaService.class);
         var filter = new CaptchaValidationFilter(service);
-        for (String path : new String[] {"/staff/login", "/admin/login", "/mfa/challenge",
+        for (String path : new String[] {"/staff/login", "/admin/login",
                 "/staff/mobile/pair", "/staff/claim", "/admin/users/email"}) {
             var request = new MockHttpServletRequest("POST", path);
+            request.setServletPath(path);
             var response = new MockHttpServletResponse();
             FilterChain downstream = mock(FilterChain.class);
             filter.doFilter(request, response, downstream);
@@ -21,5 +22,20 @@ class CaptchaValidationFilterTests {
             assertThat(response.getRedirectedUrl()).contains("captchaError=1");
             verifyNoInteractions(downstream);
         }
+    }
+
+    @Test void shortLivedMfaCodesDoNotRequireCaptcha() throws Exception {
+        var service = mock(CaptchaService.class);
+        var filter = new CaptchaValidationFilter(service);
+        for (String path : new String[] {"/mfa/enroll", "/mfa/challenge"}) {
+            var request = new MockHttpServletRequest("POST", path);
+            request.setServletPath(path);
+            var response = new MockHttpServletResponse();
+            FilterChain downstream = mock(FilterChain.class);
+            filter.doFilter(request, response, downstream);
+            assertThat(response.getStatus()).isEqualTo(200);
+            verify(downstream).doFilter(request, response);
+        }
+        verifyNoInteractions(service);
     }
 }

@@ -29,6 +29,23 @@ class MfaGateFilterTests {
         verifyNoInteractions(chain);
     }
 
+    @Test void installerDoesNotRequireMfaButPersonalPagesStillDo() throws Exception {
+        User user = new User(); user.setUserId(77);
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken(user, null, java.util.List.of()));
+        var publicReq = new MockHttpServletRequest("GET", "/mobile/download");
+        publicReq.setServletPath("/mobile/download");
+        var chain = mock(FilterChain.class);
+        var response = new MockHttpServletResponse();
+        new MfaGateFilter().doFilter(publicReq, response, chain);
+        verify(chain).doFilter(publicReq, response);
+        var privateReq = new MockHttpServletRequest("POST", "/staff/mobile/pair");
+        privateReq.setServletPath("/staff/mobile/pair");
+        var blocked = new MockHttpServletResponse();
+        new MfaGateFilter().doFilter(privateReq, blocked, mock(FilterChain.class));
+        assertThat(blocked.getRedirectedUrl()).isEqualTo("/mfa/continue");
+    }
+
     @Test void verifiedSessionCanEnterAndReauthenticationRequiresNewVerification() throws Exception {
         User user = new User(); user.setUserId(77);
         SecurityContextHolder.getContext().setAuthentication(

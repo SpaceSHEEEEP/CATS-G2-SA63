@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
     <title>Administration</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
-    <script th:src="@{/js/captcha.js}" defer></script>
+    <script th:src="@{/js/captcha-dialog.js}" defer></script>
   </head>
   <body class="cats-admin">
     <div th:replace="~{fragments/header :: header}"></div>
@@ -29,6 +29,7 @@
       >
       <a th:href="@{/admin/createuser}">Create Employee</a>
       <a th:href="@{/admin/users.csv}">Download User Report</a>
+      <a th:href="@{/admin/import}">Import data</a>
     </div>
     <div class="user-statistics-container admin-summary">
       <section class="user-applications-statistics">

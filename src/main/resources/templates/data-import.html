@@ -1,0 +1,37 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Import data - CATS</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body class="cats-admin">
+    <div th:replace="~{fragments/header :: header}"></div>
+    <main class="mobile-hub">
+      <div class="cats-page-heading">
+        <img th:src="@{/images/cats/curious.png}" alt="" />
+        <h1>Import data</h1>
+      </div>
+      <p th:if="${successmsg}" th:text="${successmsg}" role="status"></p>
+      <p th:if="${errormsg}" th:text="${errormsg}" role="alert"></p>
+      <p>Import a CATS JSON file using the <code>cats-import-v1</code> format. You may import
+        users, providers, courses, holidays, applications or any combination. Existing
+        records are never silently overwritten; conflicts reject the entire import.</p>
+      <p>Account values are imported <strong>as provided</strong>, including roles,
+        activation state, email addresses and BCrypt password hashes. Make sure the
+        file is trusted, especially when importing administrator accounts. Importing
+        does not automatically configure MFA for newly imported users.</p>
+      <p>Back up the database before importing. Maximum upload size: 500 KB.
+        See <code>docs/data-import.md</code> for the schema and field requirements.</p>
+      <form method="post" th:action="@{/admin/import}" enctype="multipart/form-data">
+        <label for="import-file">Select JSON file</label>
+        <input id="import-file" type="file" name="file" accept=".json,application/json" required />
+        <p><label><input type="checkbox" name="confirm" value="true" required />
+          I have reviewed the file and intend to import it into this database.</label></p>
+        <button type="submit">Import data</button>
+      </form>
+      <p><a th:href="@{/admin/index}">Back to administration</a></p>
+    </main>
+  </body>
+</html>

@@ -1,9 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Capacitor } from '@capacitor/core';
+import type { PluginListenerHandle } from '@capacitor/core';
+import { App as NativeApp } from '@capacitor/app';
+import { StatusBar } from '@capacitor/status-bar';
+import { CapacitorBarcodeScanner } from '@capacitor/barcode-scanner';
 import { vault } from './vault';
-import { daysBetween, parseSecret, totp } from './totp';
+import { daysBetween, parseProvisioningUri, parseSecret, totp } from './totp';
 
 type Tab = 'courses' | 'history' | 'planner' | 'notes' | 'authenticator' | 'settings';
 interface Course { id: number; title: string; category: string; start: string; end: string; provider: string; location: string; duration: string; fee: string; }
@@ -20,7 +24,9 @@ interface Snapshot { syncedAt: string; year: number; employee: string; courses: 
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  readonly currentTab = signal<Tab>('courses');
+
+  readonly currentTab = signal<Tab>('authenticator');
+  readonly menuOpen = signal(false);
   readonly snapshot = signal<Snapshot | null>(null);
   readonly otp = signal('••••••');
   readonly seconds = signal(30);
@@ -28,6 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
   readonly busy = signal(false);
   readonly isNative = Capacitor.isNativePlatform();
   private timer: ReturnType<typeof setInterval> | null = null;
+  private urlListener: PluginListenerHandle | null = null;
   serverUrl = '';
   pairingCode = '';
   search = '';
@@ -47,6 +54,13 @@ export class AppComponent implements OnInit, OnDestroy {
   get holidays(): Holiday[] { return this.snapshot()?.holidays || []; }
 
   async ngOnInit(): Promise<void> {
+    if (this.isNative) {
+      // Keep WebView content below Android's system status bar.
+      try {
+        await StatusBar.setOverlaysWebView({ overlay: false });
+        await StatusBar.setBackgroundColor({ color: '#0d3b56' });
+      } catch { /* CSS safe-area insets remain as a fallback. */ }
+    }
     try {
       this.serverUrl = await vault.get('serverUrl') || '';
       this.savedTotpSecret = await vault.get('totpSeed') || '';
@@ -60,10 +74,42 @@ export class AppComponent implements OnInit, OnDestroy {
     } catch {
       this.status.set('Could not decrypt local data. Unlock your device or reset the local vault.');
     }
+    if (this.isNative) {
+      try {
+        this.urlListener = await NativeApp.addListener('appUrlOpen', event => {
+          void this.handleAppLink(event.url);
+        });
+        const launch = await NativeApp.getLaunchUrl();
+        if (launch?.url) await this.handleAppLink(launch.url);
+      } catch { this.status.set('Unable to register Android app links. The authenticator remains available in the menu.'); }
+    }
     this.timer = setInterval(() => { void this.updateOtp(); }, 1000);
   }
-  ngOnDestroy(): void { if (this.timer) clearInterval(this.timer); }
-  open(tab: Tab): void { this.currentTab.set(tab); }
+  ngOnDestroy(): void {
+    if (this.timer) clearInterval(this.timer);
+    if (this.urlListener) void this.urlListener.remove();
+  }
+
+  private async handleAppLink(raw: string): Promise<void> {
+    let link: URL;
+    try { link = new URL(raw); } catch { return; }
+    if (link.protocol !== 'catsmobile:' || !['authenticator', 'enroll'].includes(link.hostname)) return;
+    this.open('authenticator');
+    if (link.hostname !== 'enroll') return;
+    const uri = link.searchParams.get('uri');
+    if (!uri) return;
+    try {
+      const seed = parseProvisioningUri(uri);
+      if (this.savedTotpSecret && !confirm('Replace the existing authenticator on this device?')) return;
+      this.secretInput = seed;
+      this.status.set('CATS MFA setup key received. Tap Save authenticator securely to confirm.');
+    } catch { this.status.set('Unsupported MFA setup link. Scan the CATS QR or enter the setup key manually.'); }
+  }
+  open(tab: Tab): void { this.currentTab.set(tab); this.menuOpen.set(false); }
+  toggleMenu(): void { this.menuOpen.update(open => !open); }
+  closeMenu(): void { this.menuOpen.set(false); }
+  @HostListener('document:keydown.escape')
+  escapeMenu(): void { this.closeMenu(); }
 
   async saveAuthenticator(): Promise<void> {
     try {
@@ -76,6 +122,26 @@ export class AppComponent implements OnInit, OnDestroy {
       this.status.set('Authenticator saved to Android Keystore encrypted storage. Confirm a code in the browser enrolment screen.');
     } catch (error) { this.status.set(this.message(error)); }
   }
+  async scanAuthenticatorQr(): Promise<void> {
+    if (this.busy()) return;
+    this.busy.set(true);
+    try {
+      const result = await CapacitorBarcodeScanner.scanBarcode({
+        hint: 0, // QR_CODE
+        scanInstructions: 'Scan the CATS MFA setup QR code shown in your browser'
+      });
+      if (!result.ScanResult) return; // cancelled
+      const seed = parseProvisioningUri(result.ScanResult);
+      if (this.savedTotpSecret && !confirm('Replace the existing authenticator on this device?')) return;
+      this.secretInput = seed;
+      await this.saveAuthenticator();
+    } catch (error) {
+      this.status.set(this.message(error));
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
   async eraseAuthenticator(): Promise<void> {
     if (!confirm('Remove this authenticator from this device? You may lose access to CATS without another enrolled device.')) return;
     await vault.remove('totpSeed'); this.savedTotpSecret = ''; this.otp.set('••••••');

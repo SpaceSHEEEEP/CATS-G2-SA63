@@ -1,5 +1,8 @@
 <div class="app-shell">
   <header class="hero">
+    <button class="nav-toggle" type="button" aria-label="Toggle navigation menu"
+            aria-controls="cats-sidebar" [attr.aria-expanded]="menuOpen()"
+            (click)="toggleMenu()">☰</button>
     <img
       class="mascot"
       src="assets/cats/celebrate.png"
@@ -22,7 +25,15 @@
     </button>
   </section>
   <p class="status" role="status" aria-live="polite">{{ status() }}</p>
-  <nav class="tabs" aria-label="Mobile screens">
+  <button *ngIf="menuOpen()" class="sidebar-backdrop" type="button"
+          aria-label="Close navigation" (click)="closeMenu()"></button>
+  <aside *ngIf="menuOpen()" id="cats-sidebar" class="mobile-sidebar" aria-label="App navigation">
+    <div class="sidebar-header">
+      <img src="assets/cats/confident.png" alt="" aria-hidden="true" />
+      <strong>Go to</strong>
+      <button type="button" aria-label="Close menu" (click)="closeMenu()">✕</button>
+    </div>
+  <nav class="sidebar-links" aria-label="Mobile screens">
     <button
       [class.active]="currentTab() === 'courses'"
       (click)="open('courses')"
@@ -57,6 +68,7 @@
       Connect
     </button>
   </nav>
+  </aside>
   <main>
     <section *ngIf="currentTab() === 'courses'">
       <div class="screen-title">
@@ -190,9 +202,13 @@
         <button (click)="copyOtp()">Copy code</button>
       </div>
       <p *ngIf="otp() === '••••••'" class="empty">
-        No authenticator configured. Open CATS in a browser, sign in, and enter
-        the Base32 key shown on MFA setup.
+        No authenticator configured. After password sign-in, scan the QR code on
+        your CATS MFA setup screen. You do not need to pair this app first.
       </p>
+      <button [disabled]="busy()" (click)="scanAuthenticatorQr()">
+        {{ busy() ? 'Opening scanner…' : 'Scan CATS MFA QR code' }}
+      </button>
+      <p class="muted">Or enter the manual setup key below. QR scanning needs camera permission.</p>
       <label class="field"
         >Enter the CATS Base32 authenticator key
         <input
@@ -221,9 +237,9 @@
         <h2>Pair your device</h2>
       </div>
       <p class="muted">
-        First sign in and complete MFA on the CATS website. Open
-        <strong>Mobile / MFA</strong>, generate a pairing code, and enter it
-        here within five minutes.
+        MFA setup and offline code generation work before pairing. After web MFA
+        verification, open <strong>Mobile / MFA</strong> to generate a pairing
+        code for read-only data sync; enter it here within five minutes.
       </p>
       <label class="field"
         >Server HTTPS URL

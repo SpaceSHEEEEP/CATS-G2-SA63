@@ -45,7 +45,7 @@ public class MobileWebController {
         return "redirect:/staff/mobile";
     }
 
-    @GetMapping("/staff/mobile/download")
+    @GetMapping({"/staff/mobile/download", "/mobile/download"})
     @ResponseBody
     public ResponseEntity<FileSystemResource> download() throws IOException {
         if (apkPath.isBlank()) return ResponseEntity.notFound().build();

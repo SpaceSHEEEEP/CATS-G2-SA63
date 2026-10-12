@@ -7,7 +7,8 @@
       th:text="${adminLogin} ? 'Administrator Login' : 'Staff Login'"
     ></title>
     <link rel="stylesheet" th:href="@{/style.css}" />
-    <script th:src="@{/js/captcha.js}" defer></script>
+    <script th:src="@{/js/captcha-dialog.js}" defer></script>
+    <script th:src="@{/js/mfa-app-links.js}" defer></script>
   </head>
   <body class="cats-login">
     <main
@@ -24,10 +25,20 @@
           Staff Login
         </h1>
       </div>
-      <p>
-        Password login is followed by a six-digit code from CATS Mobile or
-        another authenticator.
-      </p>
+      <p>After your password, enter a code from the authenticator you enrolled.
+        First-time users will see a QR code and a manual key on the MFA setup page.
+        CATS Mobile is optional; any compatible authenticator can be used.</p>
+      <div data-android-mfa-actions hidden class="mfa-mobile-actions">
+        <label for="login-authenticator-choice">Authenticator on this phone</label>
+        <select id="login-authenticator-choice" data-authenticator-choice>
+          <option value="google">Google Authenticator</option>
+          <option value="microsoft">Microsoft Authenticator</option>
+        </select>
+        <p><a data-open-authenticator href="#">Open authenticator</a>
+          <span>(best effort; browser/app support varies)</span></p>
+        <p><a data-open-cats-mobile href="#">Open CATS Mobile</a>
+          or <a th:href="@{/mobile/download}">install CATS Mobile</a></p>
+      </div>
 
       <!-- spring security? -->
       <div th:if="${param.error}">Your username or password is incorrect</div>
@@ -85,14 +96,12 @@
           />
         </fieldset>
 
-        <div
-          th:if="${adminLogin}"
-          th:replace="~{fragments/captcha :: widget('login-admin')}"
-        ></div>
-        <div
-          th:unless="${adminLogin}"
-          th:replace="~{fragments/captcha :: widget('login-staff')}"
-        ></div>
+        <th:block th:if="${adminLogin}">
+          <div th:replace="~{fragments/captcha :: widget('login-admin')}"></div>
+        </th:block>
+        <th:block th:unless="${adminLogin}">
+          <div th:replace="~{fragments/captcha :: widget('login-staff')}"></div>
+        </th:block>
         <button type="submit">Log in</button>
       </form>
 

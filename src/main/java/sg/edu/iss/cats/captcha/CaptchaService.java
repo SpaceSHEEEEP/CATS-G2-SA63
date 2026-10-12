@@ -5,7 +5,6 @@ import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,8 +25,9 @@ public class CaptchaService {
     private record IssueWindow(long startedAt, int count) {}
     private static final long MAX_AGE_MS = 180_000;
     private static final long MIN_SOLVE_MS = 350;
-    private static final Set<String> SCOPES = Set.of("login-staff", "login-admin", "mfa-challenge",
-            "mfa-enroll", "pair-code", "fee-claim", "admin-mail");
+    // MFA enrollment and TOTP verification intentionally have no CAPTCHA.
+    private static final Set<String> SCOPES = Set.of("login-staff", "login-admin",
+            "pair-code", "fee-claim", "admin-mail");
     private static final List<String> CATS = List.of("adventure", "celebrate", "confident", "curious",
             "excited", "surprised", "tearful", "thoughtful", "unimpressed");
     private static final List<String> ICONS = List.of("star", "fish", "heart", "moon", "bell", "balloon", "paw", "flower", "diamond");
@@ -49,9 +49,15 @@ public class CaptchaService {
         final String solution;
         final byte[] board;
         final byte[] piece;
+        final int[] iconX, iconY, iconSizes;
         Challenge(String id, Kind kind, long issued, String solution, byte[] board, byte[] piece) {
+            this(id, kind, issued, solution, board, piece, null, null, null);
+        }
+        Challenge(String id, Kind kind, long issued, String solution, byte[] board, byte[] piece,
+                int[] iconX, int[] iconY, int[] iconSizes) {
             this.id = id; this.kind = kind; this.issued = issued; this.solution = solution;
             this.board = board; this.piece = piece;
+            this.iconX = iconX; this.iconY = iconY; this.iconSizes = iconSizes;
         }
     }
 
@@ -105,36 +111,37 @@ public class CaptchaService {
         if (kind == Kind.ICON_ORDER) {
             List<String> icons = new ArrayList<>(ICONS);
             Collections.shuffle(icons, random);
-            List<IconChoice> choices = new ArrayList<>();
-            Map<String, String> ids = new HashMap<>();
-            int[] angles = new int[9], sizes = new int[9];
+            int[] angles = new int[9], sizes = new int[9], xs = new int[9], ys = new int[9];
             for (int i = 0; i < 9; i++) {
-                String token = UUID.randomUUID().toString();
-                ids.put(icons.get(i), token);
-                choices.add(new IconChoice(token, i));
-                angles[i] = random.nextInt(61) - 30;
-                sizes[i] = 29 + random.nextInt(25);
+                angles[i] = random.nextInt(71) - 35;
+                sizes[i] = 27 + random.nextInt(23);
             }
-            List<String> sequence = new ArrayList<>(icons.subList(0, 3));
-            String answer = String.join(",", sequence.stream().map(ids::get).toList());
+            scatterIcons(sizes, xs, ys);
+            List<String> sequence = icons.subList(0, 3);
             try {
-                challenge = new Challenge(id, kind, now, answer,
-                        CaptchaArt.orderedIconBoard(cat, icons.toArray(String[]::new), angles, sizes), null);
+                challenge = new Challenge(id, kind, now, "0,1,2",
+                        CaptchaArt.orderedIconBoard(cat, icons.toArray(String[]::new),
+                                angles, sizes, xs, ys), null, xs, ys, sizes);
             } catch (IOException ex) { throw new IllegalStateException("Cannot create visual verification", ex); }
+            // Never disclose the hitboxes or icon-to-position mapping to the browser.
             view = new ChallengeView(id, kind.name(),
                     "Tap these icons in order: " + String.join(" → ", sequence),
-                    choices, boardUrl, null);
+                    List.of(), boardUrl, null);
         } else if (kind == Kind.ROTATE_TO_FOOD) {
             int foodSide = random.nextInt(4); // 0: top, 1: right, 2: bottom, 3: left
             int start = random.nextInt(4);
             if (start == foodSide) start = (start + 1 + random.nextInt(3)) % 4;
             int turns = (foodSide - start + 4) % 4;
+            List<String> decoys = new ArrayList<>(ICONS);
+            decoys.remove("fish");
+            Collections.shuffle(decoys, random);
             try {
-                byte[][] images = CaptchaArt.rotationBoards(cat, start * 90, foodSide);
+                byte[][] images = CaptchaArt.rotationBoards(cat, start * 90, foodSide,
+                        decoys.subList(0, 3).toArray(String[]::new));
                 challenge = new Challenge(id, kind, now, Integer.toString(turns), images[0], images[1]);
             } catch (IOException ex) { throw new IllegalStateException("Cannot create visual verification", ex); }
             view = new ChallengeView(id, kind.name(),
-                    "Turn the cat until its head faces the fish, not the red crossed-out symbols.",
+                    "Turn the cat until its head faces the fish, not the other objects.",
                     null, boardUrl, pieceUrl);
         } else {
             List<String> distractors = new ArrayList<>(CATS);
@@ -173,6 +180,50 @@ public class CaptchaService {
         return view;
     }
 
+    private void scatterIcons(int[] sizes, int[] xs, int[] ys) {
+        // Rejection sampling creates a real scattered arrangement, not a disguised grid.
+        for (int round = 0; round < 40; round++) {
+            boolean allPlaced = true;
+            for (int i = 0; i < sizes.length; i++) {
+                boolean placed = false;
+                for (int attempt = 0; attempt < 2500 && !placed; attempt++) {
+                    int x = 31 + random.nextInt(278), y = 29 + random.nextInt(197);
+                    placed = true;
+                    for (int j = 0; j < i; j++) {
+                        int separation = (sizes[i] + sizes[j]) / 2 + 14;
+                        int dx = x - xs[j], dy = y - ys[j];
+                        if (dx * dx + dy * dy < separation * separation) {
+                            placed = false; break;
+                        }
+                    }
+                    if (placed) { xs[i] = x; ys[i] = y; }
+                }
+                if (!placed) { allPlaced = false; break; }
+            }
+            if (allPlaced) return;
+        }
+        throw new IllegalStateException("Cannot arrange CAPTCHA symbols");
+    }
+
+    private static boolean orderedClicksMatch(Challenge stored, String answer) {
+        String[] positions = answer.split(",", -1);
+        if (positions.length != 3) return false;
+        String[] targetOrder = stored.solution.split(",");
+        for (int i = 0; i < 3; i++) {
+            String[] components = positions[i].split(":", -1);
+            if (components.length != 2 || !components[0].matches("[0-9]{1,4}")
+                    || !components[1].matches("[0-9]{1,4}")) return false;
+            int nx = Integer.parseInt(components[0]), ny = Integer.parseInt(components[1]);
+            if (nx > 1000 || ny > 1000) return false;
+            int x = Math.round(nx * 340f / 1000), y = Math.round(ny * 255f / 1000);
+            int target = Integer.parseInt(targetOrder[i]);
+            int dx = x - stored.iconX[target], dy = y - stored.iconY[target];
+            int radius = stored.iconSizes[target] / 2 + 5;
+            if (dx * dx + dy * dy > radius * radius) return false;
+        }
+        return true;
+    }
+
     public boolean verify(HttpSession session, String scope, String id, String answer) {
         if (session == null || !isSupportedScope(scope) || id == null || answer == null
                 || id.length() > 64 || answer.length() > 128) return false;
@@ -180,6 +231,7 @@ public class CaptchaService {
         if (stored == null) return false;
         long elapsed = clock.millis() - stored.issued;
         if (!stored.id.equals(id) || elapsed < MIN_SOLVE_MS || elapsed > MAX_AGE_MS) return false;
+        if (stored.kind == Kind.ICON_ORDER) return orderedClicksMatch(stored, answer);
         if (stored.kind == Kind.MATCHING_CATS) {
             String[] tokens = answer.split(",", -1);
             if (tokens.length != 3 || !java.util.Arrays.stream(tokens)

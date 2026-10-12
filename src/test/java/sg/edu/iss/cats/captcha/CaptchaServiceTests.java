@@ -26,13 +26,10 @@ class CaptchaServiceTests {
         var service = new CaptchaService(clock);
         var session = new MockHttpSession();
         var puzzle = service.issueForKind(session, "login-staff", CaptchaService.Kind.ICON_ORDER);
-        assertThat(puzzle.choices()).hasSize(9);
+        assertThat(puzzle.choices()).isEmpty(); // positions stay on the server
         assertThat(puzzle.boardUrl()).contains("part=board");
-        assertThat(puzzle.choices()).extracting(CaptchaService.IconChoice::slot)
-                .containsExactly(0,1,2,3,4,5,6,7,8);
         var image = service.media(session, puzzle.id(), "board");
         assertThat(ImageIO.read(new ByteArrayInputStream(image)).getWidth()).isEqualTo(340);
-        assertThat(puzzle.choices()).extracting(CaptchaService.IconChoice::id).doesNotHaveDuplicates();
         String correct = expectedAnswer(session, "login-staff");
         clock.advance(500);
         assertThat(service.verify(session, "login-staff", puzzle.id(), correct)).isTrue();
@@ -43,17 +40,17 @@ class CaptchaServiceTests {
         var clock = new MutableClock();
         var service = new CaptchaService(clock);
         var session = new MockHttpSession();
-        var puzzle = service.issueForKind(session, "mfa-challenge", CaptchaService.Kind.ROTATE_TO_FOOD);
+        var puzzle = service.issueForKind(session, "login-admin", CaptchaService.Kind.ROTATE_TO_FOOD);
         assertThat(puzzle.boardUrl()).contains("part=board");
         assertThat(puzzle.pieceUrl()).contains("part=piece");
         assertThat(ImageIO.read(new ByteArrayInputStream(service.media(session,puzzle.id(),"board"))).getWidth()).isEqualTo(300);
-        String answer = expectedAnswer(session, "mfa-challenge");
+        String answer = expectedAnswer(session, "login-admin");
         assertThat(answer).isNotEqualTo("0");
         clock.advance(450);
-        assertThat(service.verify(session, "mfa-challenge", puzzle.id(), answer)).isTrue();
-        var expired = service.issueForKind(session, "mfa-challenge", CaptchaService.Kind.ROTATE_TO_FOOD);
+        assertThat(service.verify(session, "login-admin", puzzle.id(), answer)).isTrue();
+        var expired = service.issueForKind(session, "login-admin", CaptchaService.Kind.ROTATE_TO_FOOD);
         clock.advance(200_000);
-        assertThat(service.verify(session, "mfa-challenge", expired.id(), "1")).isFalse();
+        assertThat(service.verify(session, "login-admin", expired.id(), "1")).isFalse();
     }
 
     @Test void matchingCatChallengeHasOpaqueChoicesAndAcceptsAnySelectionOrder() throws Exception {
@@ -120,7 +117,39 @@ class CaptchaServiceTests {
         var stored = map.get(scope);
         Field answer = stored.getClass().getDeclaredField("solution");
         answer.setAccessible(true);
-        return (String) answer.get(stored);
+        String solution = (String) answer.get(stored);
+        Field kind = stored.getClass().getDeclaredField("kind");
+        kind.setAccessible(true);
+        if (kind.get(stored) == CaptchaService.Kind.ICON_ORDER) {
+            Field xs = stored.getClass().getDeclaredField("iconX");
+            Field ys = stored.getClass().getDeclaredField("iconY");
+            xs.setAccessible(true); ys.setAccessible(true);
+            int[] centersX = (int[]) xs.get(stored), centersY = (int[]) ys.get(stored);
+            String[] result = new String[3];
+            String[] order = solution.split(",");
+            for (int i = 0; i < 3; i++) {
+                int index = Integer.parseInt(order[i]);
+                result[i] = Math.round(centersX[index] * 1000f / 340) + ":"
+                        + Math.round(centersY[index] * 1000f / 255);
+            }
+            return String.join(",", result);
+        }
+        return solution;
+    }
+
+    @Test void orderedPuzzleRejectsWrongPositionsAndMfaNoLongerSupportsCaptcha() throws Exception {
+        var clock = new MutableClock();
+        var service = new CaptchaService(clock);
+        var session = new MockHttpSession();
+        var puzzle = service.issueForKind(session, "login-staff", CaptchaService.Kind.ICON_ORDER);
+        String[] clicks = expectedAnswer(session, "login-staff").split(",");
+        clock.advance(600);
+        assertThat(service.verify(session, "login-staff", puzzle.id(),
+                String.join(",", clicks[1], clicks[0], clicks[2]))).isFalse();
+        assertThat(service.verify(session, "login-staff", puzzle.id(),
+                String.join(",", clicks))).isFalse();
+        assertThat(service.isSupportedScope("mfa-enroll")).isFalse();
+        assertThat(service.isSupportedScope("mfa-challenge")).isFalse();
     }
 
     @Test void refreshCyclesAcrossAllThreePuzzleTypes() {

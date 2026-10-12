@@ -2,9 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Verify MFA - CATS</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
-    <script th:src="@{/js/captcha.js}" defer></script>
+    <!-- TOTP has a short expiry and its own retry limit; no CAPTCHA here. -->
   </head>
   <body class="auth-page">
     <main class="auth-card">
@@ -15,13 +16,10 @@
       />
       <h1>Verify it's you</h1>
       <p>
-        Enter the current six-digit code from your CATS mobile authenticator. It
-        works offline.
+        Enter the current six-digit code from the authenticator you enrolled.
+        It may be on your phone or another trusted device.
       </p>
       <p th:if="${mfaError}" th:text="${mfaError}" role="alert"></p>
-      <p th:if="${param.captchaError}" role="alert">
-        Verification puzzle expired or incorrect. Try a new one.
-      </p>
       <form method="post" th:action="@{/mfa/challenge}">
         <label
           >Authenticator code
@@ -33,9 +31,24 @@
             autofocus
             required
         /></label>
-        <div th:replace="~{fragments/captcha :: widget('mfa-challenge')}"></div>
         <button type="submit">Verify and continue</button>
       </form>
+      <p data-desktop-mfa-info>On a desktop, open the authenticator on your phone and read the current
+        code. No authenticator app needs to be installed on this computer.</p>
+      <div data-android-mfa-actions hidden class="mfa-mobile-actions">
+        <label for="mfa-authenticator-choice">Your installed authenticator</label>
+        <select id="mfa-authenticator-choice" data-authenticator-choice>
+          <option value="google">Google Authenticator</option>
+          <option value="microsoft">Microsoft Authenticator</option>
+        </select>
+        <p><a data-open-authenticator href="#">Open authenticator</a></p>
+        <p><a data-open-cats-mobile href="#">Open CATS Mobile</a>
+          <span> — a separate app, only if you use it for codes.</span></p>
+        <p><a th:href="@{/mobile/download}">Install CATS Mobile for Android</a></p>
+        <small>Other authenticators: open your chosen app manually. Third-party launching is best effort; if the app does not open,
+          use the store fallback or launch your authenticator from the home screen.</small>
+      </div>
+      <script th:src="@{/js/mfa-app-links.js}" defer></script>
       <p>
         If you lose your device, ask an administrator to reset MFA only after
         identity verification.

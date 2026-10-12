@@ -10,6 +10,24 @@ export function parseSecret(text: string): Uint8Array {
   }
   return output;
 }
+
+export function parseProvisioningUri(text: string): string {
+  let url: URL;
+  try { url = new URL(text.trim()); }
+  catch { throw new Error('Scan the QR code shown on the CATS MFA setup page.'); }
+  if (url.protocol !== 'otpauth:' || url.hostname !== 'totp' ||
+      url.searchParams.get('issuer') !== 'CATS NUS-ISS' ||
+      !decodeURIComponent(url.pathname.slice(1)).startsWith('CATS NUS-ISS:') ||
+      (url.searchParams.get('algorithm') || 'SHA1').toUpperCase() !== 'SHA1' ||
+      (url.searchParams.get('digits') || '6') !== '6' ||
+      (url.searchParams.get('period') || '30') !== '30') {
+    throw new Error('This is not a supported CATS MFA setup code.');
+  }
+  const seed = (url.searchParams.get('secret') || '').toUpperCase().replace(/[\s-]/g, '');
+  parseSecret(seed);
+  return seed;
+}
+
 export async function totp(secret: string, now = Date.now()): Promise<string> {
   const seed = parseSecret(secret);
   const step = BigInt(Math.floor(now / 30_000));

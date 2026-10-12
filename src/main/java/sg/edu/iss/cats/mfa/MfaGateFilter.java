@@ -23,7 +23,8 @@ public final class MfaGateFilter extends OncePerRequestFilter {
                 || path.equals("/staff/login") || path.equals("/admin/login")
                 || path.equals("/logout") || path.equals("/admin/logout")
                 || path.equals("/style.css") || path.startsWith("/images/")
-                || path.startsWith("/js/") || path.startsWith("/mobile/app/")
+                || path.startsWith("/js/") || path.equals("/mobile/app") || path.startsWith("/mobile/app/")
+                || path.equals("/mobile/download")
                 || path.equals("/actuator/health") || path.equals("/error")) {
             chain.doFilter(request, response); return;
         }

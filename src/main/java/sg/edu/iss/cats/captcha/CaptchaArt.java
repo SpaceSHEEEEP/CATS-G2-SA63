@@ -44,24 +44,25 @@ final class CaptchaArt {
         return out.toByteArray();
     }
 
-    static byte[] orderedIconBoard(String catName, String[] symbols, int[] angles, int[] sizes)
-            throws IOException {
+    static byte[] orderedIconBoard(String catName, String[] symbols, int[] angles,
+            int[] sizes, int[] centersX, int[] centersY) throws IOException {
+        if (symbols.length != 9 || angles.length != 9 || sizes.length != 9
+                || centersX.length != 9 || centersY.length != 9)
+            throw new IllegalArgumentException("Nine scattered objects are required");
         int w = 340, h = 255;
         var canvas = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = graphics(canvas);
-        g.setPaint(new GradientPaint(0,0,new Color(234,245,255),w,h,new Color(255,235,235)));
+        g.setPaint(new GradientPaint(0,0,new Color(236,245,253),w,h,new Color(255,240,230)));
         g.fillRect(0,0,w,h);
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.20f));
-        drawFit(g, cat(catName), 72, 0, 205, h);
+        // The cat is the actual background, not a watermark behind a 3x3 grid.
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.73f));
+        drawFit(g, cat(catName), 6, 0, w-12, h);
         g.setComposite(AlphaComposite.SrcOver);
         for (int i=0;i<9;i++) {
-            int x=6+(i%3)*112, y=6+(i/3)*83;
-            g.setColor(new Color(255,255,255,211)); g.fillRoundRect(x,y,104,77,13,13);
-            g.setColor(new Color(142,166,192)); g.setStroke(new BasicStroke(1.4f));
-            g.drawRoundRect(x,y,104,77,13,13);
-            AffineTransform before=g.getTransform();
-            g.translate(x+52, y+38);
+            AffineTransform before = g.getTransform();
+            g.translate(centersX[i], centersY[i]);
             g.rotate(Math.toRadians(angles[i]));
+            // Variable-size symbols are drawn by the server at unpredictable positions.
             drawIcon(g, symbols[i], sizes[i]);
             g.setTransform(before);
         }
@@ -131,22 +132,25 @@ final class CaptchaArt {
         }
     }
 
-    static byte[][] rotationBoards(String catName, int angle, int foodSide) throws IOException {
+    static byte[][] rotationBoards(String catName, int angle, int foodSide,
+            String[] distractors) throws IOException {
+        if (distractors.length != 3) throw new IllegalArgumentException("Three decoys required");
         int w=300, h=300;
         var board=new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
         Graphics2D g=graphics(board);
         g.setPaint(new GradientPaint(0,0,new Color(240,248,255),w,h,new Color(246,245,227)));
         g.fillRect(0,0,w,h);
         int[][] positions={{150,30},{270,150},{150,270},{30,150}};
+        int decoyIndex = 0;
         for(int i=0;i<4;i++){
             AffineTransform before=g.getTransform();g.translate(positions[i][0],positions[i][1]);
             if(i==foodSide){
                 g.setColor(new Color(203,244,204));g.fillOval(-27,-27,54,54);
                 drawIcon(g,"fish",41);
             } else {
-                g.setColor(new Color(255,215,214));g.fillOval(-27,-27,54,54);
-                g.setColor(new Color(174,48,53));g.setStroke(new BasicStroke(7, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                g.drawLine(-12,-12,12,12);g.drawLine(-12,12,12,-12);
+                // Wrong targets are recognizable, innocuous objects, not red X marks.
+                g.setColor(new Color(255,243,224));g.fillOval(-27,-27,54,54);
+                drawIcon(g, distractors[decoyIndex++], 37);
             }
             g.setTransform(before);
         }

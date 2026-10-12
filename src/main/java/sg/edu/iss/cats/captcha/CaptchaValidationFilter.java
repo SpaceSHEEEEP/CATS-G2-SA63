@@ -13,8 +13,6 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
     private static final Map<String, String> POST_SCOPES = Map.of(
             "/staff/login", "login-staff",
             "/admin/login", "login-admin",
-            "/mfa/challenge", "mfa-challenge",
-            "/mfa/enroll", "mfa-enroll",
             "/staff/mobile/pair", "pair-code",
             "/staff/claim", "fee-claim",
             "/admin/users/email", "admin-mail");
@@ -34,8 +32,6 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
         String destination = switch (scope) {
             case "login-admin" -> "/admin/login";
             case "login-staff" -> "/staff/login";
-            case "mfa-enroll" -> "/mfa/enroll";
-            case "mfa-challenge" -> "/mfa/challenge";
             case "pair-code" -> "/staff/mobile";
             case "fee-claim" -> "/staff/claims";
             case "admin-mail" -> "/admin/index";

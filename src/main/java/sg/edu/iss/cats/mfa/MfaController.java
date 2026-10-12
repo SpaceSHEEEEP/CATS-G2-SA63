@@ -44,6 +44,7 @@ public class MfaController {
         String seed = (String) session.getAttribute(PENDING_SEED);
         if (seed == null) { seed = totp.newSecret(); session.setAttribute(PENDING_SEED, seed); }
         model.addAttribute("secret", seed);
+        model.addAttribute("provisionUri", totp.provisionUri(principal.getUsername(), seed));
         return "mfa-enroll";
     }
 

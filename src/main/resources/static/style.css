@@ -343,6 +343,20 @@ summary {
 }
 
 /* Self-contained, keyboard-operable verification panels for sensitive forms. */
+dialog.cats-captcha:not([open]) { display: none !important; }
+dialog.cats-captcha[open] {
+  display: block;
+  width: min(440px, calc(100vw - 2rem));
+  max-height: min(88dvh, 800px);
+  margin: auto;
+  overflow-y: auto;
+  box-sizing: border-box;
+  box-shadow: 0 16px 60px #111c3580;
+}
+dialog.cats-captcha::backdrop { background: #142a46ad; }
+.captcha-dialog-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+.captcha-dialog-actions button { margin: 0; }
+.captcha-dialog-actions .captcha-cancel { background: #e9edf4; color: #173154; }
 .cats-captcha {
   display: block;
   max-width: 410px;
@@ -381,11 +395,45 @@ summary {
 .captcha-icon-stage {
   position: relative;
   max-width: 340px;
+  margin: 0.65rem auto;
 }
 .captcha-icon-board {
   display: block;
   width: 100%;
   aspect-ratio: 340/255;
+}
+/* The board is one server-rendered image; pointer positions are normalized on the client.
+   Each numbered drop's bottom tip lands exactly on the clicked point. */
+.captcha-icon-surface, .captcha-icon-markers {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.captcha-icon-surface { border: 0; margin: 0; padding: 0; background: transparent; cursor: crosshair; }
+.captcha-icon-surface:focus-visible { outline: 3px solid #e58a3f; outline-offset: 2px; }
+.captcha-icon-markers { pointer-events: none; z-index: 2; }
+.captcha-click-marker {
+  position: absolute;
+  width: 34px;
+  height: 43px;
+  transform: translate(-50%, -100%);
+  background: #0d4668;
+  clip-path: polygon(50% 100%, 10% 43%, 5% 32%, 7% 19%, 21% 7%, 39% 1%, 61% 1%, 79% 7%, 93% 19%, 95% 32%, 90% 43%);
+  display: grid;
+  place-items: start center;
+  filter: drop-shadow(0 2px 1px #0b2639);
+}
+.captcha-click-number { color: white; font-weight: 700; font-size: 18px; line-height: 30px; }
+.captcha-icon-cursor {
+  position: absolute;
+  display: none;
+  width: 17px;
+  height: 17px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #d22c37;
+  border-radius: 50%;
+  background: #ffffff66;
 }
 .captcha-icon-grid {
   display: grid;
@@ -748,3 +796,14 @@ a {
     overflow-x: auto;
   }
 }
+
+.mfa-mobile-actions {
+  margin: 0.9rem 0;
+  padding: 1rem;
+  background: #eef6fd;
+  border: 1px solid #bad1e3;
+  border-radius: 12px;
+}
+.mfa-mobile-actions[hidden] { display: none !important; }
+.mfa-mobile-actions select { display: block; max-width: 100%; margin-top: 0.35rem; }
+.mfa-mobile-actions p { margin: 0.65rem 0; }

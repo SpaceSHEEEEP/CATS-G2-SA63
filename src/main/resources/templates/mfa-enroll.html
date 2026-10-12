@@ -2,9 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Set up MFA - CATS</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
-    <script th:src="@{/js/captcha.js}" defer></script>
+    <!-- MFA setup verifies a short-lived TOTP code without a CAPTCHA. -->
   </head>
   <body class="auth-page">
     <main class="auth-card">
@@ -14,9 +15,11 @@
         alt="Confident CATS security mascot"
       />
       <h1>Set up your CATS authenticator</h1>
-      <p>
-        Open the CATS mobile app's <strong>Authenticator</strong> tab and enter
-        the setup key, or use a compatible TOTP app to scan the QR code.
+      <p data-desktop-mfa-info>
+        On a desktop, scan the QR code using any TOTP authenticator on your
+        phone (CATS Mobile, Google Authenticator, Microsoft Authenticator, or
+        another compatible app). Alternatively, enter the setup key manually.
+        This setup does not require the mobile app to be signed in or paired.
       </p>
       <img
         th:src="@{/mfa/qr}"
@@ -25,14 +28,22 @@
         height="230"
       />
       <p>Manual key (keep private): <code th:text="${secret}"></code></p>
+      <div data-mobile-enroll-actions hidden class="mfa-mobile-actions">
+        <p>Setting up on this phone? Add the account directly to a compatible
+          authenticator. This uses the standard TOTP setup link.</p>
+        <p><a th:href="${provisionUri}">Set up in authenticator</a></p>
+        <div data-android-mfa-actions hidden>
+          <p><a data-open-cats-mobile th:attr="data-provision-uri=${provisionUri}"
+                href="#">Open CATS Mobile</a> (Android app)</p>
+          <p><a th:href="@{/mobile/download}">Install CATS Mobile for Android</a></p>
+        </div>
+      </div>
+      <script th:src="@{/js/mfa-app-links.js}" defer></script>
       <p>
         Codes change every 30 seconds and work without Internet. Keep an
         independent recovery plan with your administrator.
       </p>
       <p th:if="${mfaError}" th:text="${mfaError}" role="alert"></p>
-      <p th:if="${param.captchaError}" role="alert">
-        Verification puzzle expired or incorrect. Try a new one.
-      </p>
       <form method="post" th:action="@{/mfa/enroll}">
         <label
           >Enter the six-digit code from your authenticator
@@ -43,7 +54,6 @@
             autocomplete="one-time-code"
             required
         /></label>
-        <div th:replace="~{fragments/captcha :: widget('mfa-enroll')}"></div>
         <button type="submit">Activate MFA and continue</button>
       </form>
       <form method="post" th:action="@{/logout}">
