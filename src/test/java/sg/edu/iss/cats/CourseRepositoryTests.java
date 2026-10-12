@@ -13,14 +13,16 @@ import org.springframework.data.domain.Pageable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.repository.CourseRepository;
 
-//Uses sample users from data.sql and the test-profile MySQL database.
+//Synthetic fixtures, isolated in an H2/Flyway test database.
 @DataJpaTest
 @ActiveProfiles("test")
+@Sql("/repository-fixtures.sql")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 
 public class CourseRepositoryTests {

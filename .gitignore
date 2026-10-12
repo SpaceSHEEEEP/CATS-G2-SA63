@@ -46,3 +46,15 @@ out/
 .DS_Store
 Thumbs.db
 
+
+mobile/node_modules/
+mobile/dist/
+mobile/.angular/
+mobile/android/
+mobile/ios/
+mobile/*.apk
+.env
+.env.*
+!.env.example
+!.env.production.example
+!deploy/.env.production.example

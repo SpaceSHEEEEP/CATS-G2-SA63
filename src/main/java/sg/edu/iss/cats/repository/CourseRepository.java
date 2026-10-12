@@ -30,10 +30,11 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     Page<Course> findByCourseTypeInOrderByStartDateAsc(Collection<CourseType> types, Pageable pageable);
 
-    @Query("SELECT c FROM Course c WHERE c.courseType IN :types AND (c.archived IS NULL OR c.archived = false) ORDER BY c.startDate ASC")
+    @Query("SELECT c FROM Course c WHERE c.courseType IN :types AND (c.archived IS NULL OR c.archived = false) AND EXISTS (SELECT ct FROM CourseCategory ct WHERE ct.code = c.courseType AND ct.enabled = true) AND c.provider.enabled = true ORDER BY c.startDate ASC")
     Page<Course> findActiveCoursesByType(@org.springframework.data.repository.query.Param("types") Collection<CourseType> types, Pageable pageable);
 
     Page<Course> findAllByOrderByStartDateAsc(Pageable pageable);
+    boolean existsByProvider_Id(Integer providerId);
 
     @EntityGraph(attributePaths = {"applications"})
     @Query("SELECT c FROM Course c ORDER BY SIZE(c.applications) DESC")

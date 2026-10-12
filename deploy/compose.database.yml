@@ -1,0 +1,27 @@
+# Include this overlay ONLY when CATS should run its own persistent MySQL container.
+# With no overlay, the base production stack uses the external DB_URL unchanged.
+services:
+  cats:
+    environment:
+      DB_URL: jdbc:mysql://db:3306/${DB_NAME:-cats}?sslMode=DISABLED&allowPublicKeyRetrieval=true
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-cats}
+      MYSQL_USER: ${DB_USERNAME:?DB_USERNAME is required}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD for bundled MySQL}
+    volumes:
+      - cats_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 45s
+volumes:
+  cats_mysql_data:

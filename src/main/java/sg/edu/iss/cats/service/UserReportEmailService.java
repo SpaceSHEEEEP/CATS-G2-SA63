@@ -7,6 +7,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.ObjectProvider;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -17,13 +18,13 @@ import jakarta.mail.internet.MimeMessage;
  */
 @Service
 public class UserReportEmailService {
-    private final JavaMailSender mailSender;
+    private final ObjectProvider<JavaMailSender> mailProvider;
     private final UserCsvService csvService;
     private final String senderAddress;
 
-    public UserReportEmailService(JavaMailSender mailSender, UserCsvService csvService,
+    public UserReportEmailService(ObjectProvider<JavaMailSender> mailProvider, UserCsvService csvService,
             @Value("${spring.mail.username:}") String senderAddress) {
-        this.mailSender = mailSender;
+        this.mailProvider = mailProvider;
         this.csvService = csvService;
         this.senderAddress = senderAddress;
     }
@@ -33,6 +34,8 @@ public class UserReportEmailService {
             throw new IllegalStateException("SMTP sender is not configured");
         }
 
+        JavaMailSender mailSender = mailProvider.getIfAvailable();
+        if (mailSender == null) throw new IllegalStateException("SMTP is not configured");
         byte[] csv = csvService.generateCsv();
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());

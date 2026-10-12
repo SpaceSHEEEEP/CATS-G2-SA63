@@ -13,7 +13,7 @@
     <a th:href="@{courselist(type='EXTERNAL')}">EXTERNAL</a>
     <a th:href="@{courselist(type='PROFESSIONAL')}">PROFESSIONAL</a>
 
-    <h1>Course catalogue</h1>
+    <div class="cats-page-heading"><img th:src="@{/images/cats/confident.png}" alt="" /><h1>Course catalogue</h1></div>
     <p th:if="${courses.isEmpty()}">No courses available.</p>
     <th:block th:unless="${courses.isEmpty()}">
         <div th:replace="~{fragments/courselist :: courseList(courses=${courses})}" />

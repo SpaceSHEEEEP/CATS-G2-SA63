@@ -14,9 +14,14 @@ public class AdminStaffService {
     private final UserRepository users;
     private final TrainingAccountService accounts;
     private final PasswordEncoder encoder;
+    private final AppRepo applications;
+    private final FeeClaimRepository claims;
+    private final TrainingYearRepository years;
 
-    public AdminStaffService(UserRepository users, TrainingAccountService accounts, PasswordEncoder encoder) {
+    public AdminStaffService(UserRepository users, TrainingAccountService accounts, PasswordEncoder encoder,
+            AppRepo applications, FeeClaimRepository claims, TrainingYearRepository years) {
         this.users = users; this.accounts = accounts; this.encoder = encoder;
+        this.applications = applications; this.claims = claims; this.years = years;
     }
 
     public List<User> eligibleManagers() {
@@ -113,4 +118,21 @@ public class AdminStaffService {
         user.setActive(false);
         users.save(user);
     }
+
+    /** Genuine deletion is safe only for accounts without training/claim history or subordinates.
+     * Otherwise use reversible deactivation to preserve the audit trail and referential integrity. */
+    @Transactional
+    public void deleteUnused(Integer userId, Integer adminId) {
+        if (userId.equals(adminId)) throw new IllegalArgumentException("You cannot delete your own account");
+        User employee = users.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+        if (users.existsByManager_UserId(userId))
+            throw new IllegalArgumentException("Reassign subordinates before deletion");
+        if (applications.existsByUser_UserId(userId) || claims.existsByEmployee_UserId(userId))
+            throw new IllegalArgumentException("Training history exists; deactivate this employee instead");
+        years.deleteByUser_UserId(userId); // Allocation-only rows have no audit value without an account.
+        users.delete(employee);
+        users.flush(); // Fail and roll back atomically on unexpected foreign-key references.
+    }
+
 }

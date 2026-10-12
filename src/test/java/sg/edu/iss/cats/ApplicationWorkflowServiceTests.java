@@ -14,8 +14,10 @@ class ApplicationWorkflowServiceTests {
     private final UserRepository users = mock(UserRepository.class);
     private final CommentRepository comments = mock(CommentRepository.class);
     private final TrainingAccountService accounts = mock(TrainingAccountService.class);
+    private final CourseReferenceService references = mock(CourseReferenceService.class);
+    private final NotificationOutboxService notifications = mock(NotificationOutboxService.class);
     private final ApplicationWorkflowService workflow =
-        new ApplicationWorkflowService(apps, courses, users, comments, accounts);
+        new ApplicationWorkflowService(apps, courses, users, comments, accounts, references, notifications);
 
     private User user(int id, Role role) {
         User u = new User(); u.setUserId(id); u.setRole(role); return u;

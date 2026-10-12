@@ -3,12 +3,13 @@
 <head>
     <title>Administration</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
+    <script th:src="@{/js/captcha.js}" defer></script>
 </head>
 <body>
 
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <h1>Administration</h1>
+    <div class="cats-page-heading"><img th:src="@{/images/cats/unimpressed.png}" alt="" /><h1>Administration</h1></div>
     <p th:text="${'Welcome Admin ' + user.name + '!'}"></p>
 	
     <!-- display success message for every application made or deleted -->
@@ -45,16 +46,26 @@
                 <td th:text="${staff.manager == null} ? '-' : ${staff.manager.name}"></td>
                 <td th:text="${staff.actualAllowance == null} ? 'Not set' : ${#numbers.formatDecimal(staff.actualAllowance, 1, 2)}"></td>
 	            <td th:text="${staff.actualDays}"></td>
-                <td><a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a></td>
+                <td><a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a>
+                  <form th:action="@{/admin/mfa/reset}" method="post" th:if="${staff.userId != user.userId}">
+                    <input type="hidden" name="userId" th:value="${staff.userId}"/>
+                    <input name="confirmation" type="text" placeholder="RESET MFA" aria-label="Type RESET MFA for staff member" required/>
+                    <button type="submit">Reset MFA</button>
+                  </form>
+                </td>
                 <td>
-                    <form th:action="@{/admin/deleteuser(userId=${staff.userId})}" method="POST">
-                        <button type="submit">X</button>
+                    <form th:if="${staff.enabled}" th:action="@{/admin/deleteuser(userId=${staff.userId})}" method="POST">
+                        <button type="submit" onclick="return confirm('Deactivate account and preserve its history?')">Deactivate</button>
+                    </form>
+                    <form th:action="@{/admin/purgeuser(userId=${staff.userId})}" method="POST">
+                        <button type="submit" onclick="return confirm('PERMANENTLY delete this unused account? Cannot be undone.')">Delete unused</button>
                     </form>
                 </td>
 	        </tr>
 	    </tbody>
 	</table>
 
+    <p th:if="${param.captchaError}" role="alert">Verification failed. Try a new challenge.</p>
     <h2>User directory report</h2>
     <p>Contains staff names, email addresses, account status, admin roles and managers. Handle as confidential.</p>
     <p><a th:href="@{/admin/users.csv}">Download all users (CSV)</a></p>
@@ -62,9 +73,11 @@
         <label for="reportRecipient">Email report to:</label>
         <input type="email" id="reportRecipient" name="recipient" maxlength="254"
                placeholder="recipient@example.com" autocomplete="email" required />
+        <div th:replace="~{fragments/captcha :: widget('admin-mail')}"></div>
         <button type="submit">Email user report</button>
     </form>
 
+    <p><a th:href="@{/admin/references}">Manage course categories, training providers and public holidays</a></p>
     <h2>Courses</h2>
     <p><a th:href="@{/admin/course/new}">Add catalogue course</a></p>
     <p th:if="${#lists.isEmpty(courseSummaries.content)}">No courses recorded.</p>
@@ -105,7 +118,7 @@
             <a th:if="${pageNum < pageNumLast - 1}" th:href="@{/admin/index(pageNum=${pageNum+1})}">Next page</a>
             </div>
             
-            <th:block th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
+            <th:block th:if="${pageNumLast > 0}" th:each="i : ${#numbers.sequence(0, pageNumLast - 1)}">
                 <a th:href="@{/admin/index(pageNum=${i})}" th:text="${i + 1}"></a>
             </th:block>
         </div>

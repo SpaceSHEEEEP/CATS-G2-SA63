@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface HolidayRepository extends JpaRepository<Holiday, Integer>{
 
     public boolean existsByHolidayDate(LocalDate date);
+    public boolean existsByHolidayDateAndHolidayIdNot(LocalDate date, int holidayId);
     
     List<Holiday> findByHolidayDateBetweenOrderByHolidayDateAsc(
             LocalDate startDate, LocalDate endDate);

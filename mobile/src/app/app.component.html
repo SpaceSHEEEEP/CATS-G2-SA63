@@ -1,0 +1,269 @@
+<div class="app-shell">
+  <header class="hero">
+    <img
+      class="mascot"
+      src="assets/cats/celebrate.png"
+      alt="CATS party mascot welcoming you"
+    />
+    <div>
+      <p class="eyebrow">NUS-ISS · CATS</p>
+      <h1>Training at your paws</h1>
+      <p>
+        My courses, training plans and secure sign-in codes — wherever you are.
+      </p>
+    </div>
+  </header>
+  <section class="sync-row">
+    <span class="connection">{{
+      snapshot() ? "Offline snapshot ready" : "Not yet synced"
+    }}</span>
+    <button [disabled]="busy()" (click)="sync()">
+      {{ busy() ? "Working…" : "↻ Sync now" }}
+    </button>
+  </section>
+  <p class="status" role="status" aria-live="polite">{{ status() }}</p>
+  <nav class="tabs" aria-label="Mobile screens">
+    <button
+      [class.active]="currentTab() === 'courses'"
+      (click)="open('courses')"
+    >
+      Courses
+    </button>
+    <button
+      [class.active]="currentTab() === 'history'"
+      (click)="open('history')"
+    >
+      My training
+    </button>
+    <button
+      [class.active]="currentTab() === 'planner'"
+      (click)="open('planner')"
+    >
+      Planner
+    </button>
+    <button [class.active]="currentTab() === 'notes'" (click)="open('notes')">
+      Notes
+    </button>
+    <button
+      [class.active]="currentTab() === 'authenticator'"
+      (click)="open('authenticator')"
+    >
+      MFA code
+    </button>
+    <button
+      [class.active]="currentTab() === 'settings'"
+      (click)="open('settings')"
+    >
+      Connect
+    </button>
+  </nav>
+  <main>
+    <section *ngIf="currentTab() === 'courses'">
+      <div class="screen-title">
+        <img src="assets/cats/confident.png" alt="" aria-hidden="true" />
+        <h2>Course catalogue</h2>
+      </div>
+      <p class="muted">Last saved data. Refresh online when available.</p>
+      <label class="field"
+        >Search course or provider
+        <input [(ngModel)]="search" placeholder="Search courses"
+      /></label>
+      <p *ngIf="!courses.length" class="empty illustrated-empty">
+        <img src="assets/cats/tearful.png" alt="" aria-hidden="true" />No saved
+        courses. Pair your device and sync in the Connect tab.
+      </p>
+      <p *ngIf="courses.length" class="discovery-prompt">
+        <img src="assets/cats/excited.png" alt="" aria-hidden="true" />Ready to
+        explore your saved courses?
+      </p>
+      <article *ngFor="let course of courses" class="course-card">
+        <div class="card-top">
+          <h3>{{ course.title }}</h3>
+          <span class="category">{{ course.category }}</span>
+        </div>
+        <p>{{ course.start }} to {{ course.end }} · {{ course.duration }}</p>
+        <p class="muted">{{ course.provider }} · {{ course.location }}</p>
+        <strong>SGD {{ course.fee }}</strong>
+      </article>
+    </section>
+    <section *ngIf="currentTab() === 'history'">
+      <div class="screen-title">
+        <img src="assets/cats/thoughtful.png" alt="" aria-hidden="true" />
+        <h2>My training</h2>
+      </div>
+      <p *ngIf="snapshot()" class="muted">
+        {{ snapshot()?.employee }} · {{ snapshot()?.year }} ·
+        {{ snapshot()?.syncedAt | date: "medium" }}
+      </p>
+      <div *ngIf="snapshot()" class="metrics">
+        <div>
+          <small>Days remaining</small
+          ><strong>{{ snapshot()?.remainingDays }}</strong>
+        </div>
+        <div>
+          <small>Budget remaining</small
+          ><strong>SGD {{ snapshot()?.remainingBudget }}</strong>
+        </div>
+      </div>
+      <p *ngIf="applications.length === 0" class="empty">
+        No saved applications. Connect to sync your personal records.
+      </p>
+      <article *ngFor="let app of applications" class="course-card">
+        <div class="card-top">
+          <h3>{{ app.course }}</h3>
+          <span class="status-chip">{{ app.status }}</span>
+        </div>
+        <p>{{ app.start }} – {{ app.end }} · SGD {{ app.fee }}</p>
+        <p *ngIf="app.managerReason">Manager: {{ app.managerReason }}</p>
+      </article>
+      <h3 *ngIf="snapshot()?.ledger?.length">Annual financial ledger</h3>
+      <article *ngFor="let item of snapshot()?.ledger" class="ledger-row">
+        <strong>{{ item.date }} · {{ item.category }}</strong>
+        <p>{{ item.description }}</p>
+        <p>
+          Approved SGD {{ item.approvedFee }} · Reimbursed SGD
+          {{ item.reimbursement }}
+        </p>
+      </article>
+      <p class="muted">
+        Read-only cache. Approvals, fees and applications must be submitted in
+        the website when online.
+      </p>
+    </section>
+    <section *ngIf="currentTab() === 'planner'">
+      <div class="screen-title">
+        <img src="assets/cats/curious.png" alt="" aria-hidden="true" />
+        <h2>Offline training-day planner</h2>
+      </div>
+      <p class="muted">
+        Weekends and holidays saved from the server are excluded.
+      </p>
+      <label class="field"
+        >Start date <input type="date" [(ngModel)]="plannerStart"
+      /></label>
+      <label class="field"
+        >End date <input type="date" [(ngModel)]="plannerEnd"
+      /></label>
+      <label class="check"
+        ><input type="checkbox" [(ngModel)]="plannerHalf" /> Half-day internal
+        session (single date)</label
+      >
+      <button (click)="calculate()">Estimate training days</button>
+      <p class="estimate" *ngIf="plannerResult">{{ plannerResult }}</p>
+      <h3>Saved holidays</h3>
+      <p *ngIf="!holidays.length" class="muted">
+        No holiday dates are cached yet.
+      </p>
+      <ul class="holidays">
+        <li *ngFor="let holiday of holidays">
+          {{ holiday.date }} — {{ holiday.name }}
+        </li>
+      </ul>
+    </section>
+    <section *ngIf="currentTab() === 'notes'">
+      <div class="screen-title">
+        <img src="assets/cats/unimpressed.png" alt="" aria-hidden="true" />
+        <h2>My private notes</h2>
+      </div>
+      <p class="muted">
+        Only this device stores them. They are never uploaded to CATS.
+      </p>
+      <label class="field"
+        >Notes
+        <textarea
+          [(ngModel)]="note"
+          rows="9"
+          maxlength="10000"
+          placeholder="Training ideas, follow-up actions, reminders…"
+        ></textarea>
+      </label>
+      <button (click)="storeNote()">Save encrypted note</button>
+    </section>
+    <section *ngIf="currentTab() === 'authenticator'">
+      <div class="screen-title">
+        <img src="assets/cats/surprised.png" alt="" aria-hidden="true" />
+        <h2>Authenticator · works offline</h2>
+      </div>
+      <div class="otp-panel" *ngIf="otp() !== '••••••'">
+        <span class="otp">{{ otp() }}</span>
+        <p>New code in {{ seconds() }} seconds</p>
+        <button (click)="copyOtp()">Copy code</button>
+      </div>
+      <p *ngIf="otp() === '••••••'" class="empty">
+        No authenticator configured. Open CATS in a browser, sign in, and enter
+        the Base32 key shown on MFA setup.
+      </p>
+      <label class="field"
+        >Enter the CATS Base32 authenticator key
+        <input
+          [(ngModel)]="secretInput"
+          autocomplete="off"
+          autocapitalize="characters"
+          placeholder="32-character setup key"
+      /></label>
+      <button (click)="saveAuthenticator()">Save authenticator securely</button>
+      <button
+        class="danger ghost"
+        *ngIf="otp() !== '••••••'"
+        (click)="eraseAuthenticator()"
+      >
+        Remove local MFA key
+      </button>
+      <p class="muted">
+        The shared TOTP seed is encrypted locally using Android Keystore. It is
+        not sent over the mobile sync API. The server checks your code after
+        username and password. Keep a backup authenticator for recovery.
+      </p>
+    </section>
+    <section *ngIf="currentTab() === 'settings'">
+      <div class="screen-title">
+        <img src="assets/cats/adventure.png" alt="" aria-hidden="true" />
+        <h2>Pair your device</h2>
+      </div>
+      <p class="muted">
+        First sign in and complete MFA on the CATS website. Open
+        <strong>Mobile / MFA</strong>, generate a pairing code, and enter it
+        here within five minutes.
+      </p>
+      <label class="field"
+        >Server HTTPS URL
+        <input
+          type="url"
+          [(ngModel)]="serverUrl"
+          placeholder="https://cats.example.org"
+      /></label>
+      <label class="field"
+        >One-time pairing code
+        <input
+          [(ngModel)]="pairingCode"
+          autocapitalize="off"
+          autocomplete="off"
+          placeholder="Copy from the CATS website"
+      /></label>
+      <button [disabled]="busy()" (click)="pair()">Pair and sync</button>
+      <button class="ghost" (click)="sync()">Sync existing pairing</button>
+      <hr />
+      <p class="muted">
+        Native secure vault:
+        {{
+          isNative
+            ? "Android Keystore"
+            : "Browser preview (session storage only)"
+        }}
+      </p>
+      <button class="ghost" (click)="disconnect()">
+        Forget server token on this device
+      </button>
+      <button class="danger ghost" (click)="clearOffline()">
+        Delete downloaded personal data
+      </button>
+      <p class="muted">
+        Never enter your normal CATS password in this app. A paired device can
+        only download its owner's read-only snapshot.
+      </p>
+    </section>
+  </main>
+  <footer>
+    CATS Mobile · Offline by design · Online changes require the CATS website.
+  </footer>
+</div>

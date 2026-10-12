@@ -8,13 +8,15 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
 
-//Uses sample users from data.sql and the test-profile MySQL database.
+//Synthetic fixtures, isolated in an H2/Flyway test database.
 @DataJpaTest
 @ActiveProfiles("test")
+@Sql("/repository-fixtures.sql")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class UserRepositoryTests {
 	

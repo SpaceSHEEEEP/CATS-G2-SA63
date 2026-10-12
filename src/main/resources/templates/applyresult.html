@@ -13,7 +13,13 @@
     <!-- display error message if managerReason is not filled -->
     <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
 
-    <h1>Application Details</h1>
+    <div class="cats-page-heading">
+      <img th:if="${applicationResult.status.name() == 'COMPLETED'}" th:src="@{/images/cats/adventure.png}" alt="" />
+      <img th:if="${applicationResult.status.name() == 'APPROVED'}" th:src="@{/images/cats/excited.png}" alt="" />
+      <img th:if="${applicationResult.status.name() == 'REJECTED' or applicationResult.status.name() == 'CANCELLED'}" th:src="@{/images/cats/tearful.png}" alt="" />
+      <img th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}" th:src="@{/images/cats/curious.png}" alt="" />
+      <h1>Application Details</h1>
+    </div>
 
     <div class="details-card">
         

@@ -22,10 +22,11 @@ public class AdminManagementController {
     private final AdminStaffService staff;
     private final CourseCatalogueService catalogue;
     private final CourseRepository courses;
+    private final CourseReferenceService references;
 
     public AdminManagementController(AdminStaffService staff,
-            CourseCatalogueService catalogue, CourseRepository courses) {
-        this.staff = staff; this.catalogue = catalogue; this.courses = courses;
+            CourseCatalogueService catalogue, CourseRepository courses, CourseReferenceService references) {
+        this.staff = staff; this.catalogue = catalogue; this.courses = courses; this.references = references;
     }
 
     private void setupStaffForm(Model model) { model.addAttribute("managers", staff.eligibleManagers()); }
@@ -78,31 +79,50 @@ public class AdminManagementController {
         return "redirect:/admin/index";
     }
 
+    private void setupCourseForm(Model model) {
+        model.addAttribute("categoryOptions", references.enabledCategories());
+        model.addAttribute("providerOptions", references.enabledProviders());
+    }
+
+    @PostMapping("/purgeuser")
+    public String permanentlyDeleteUser(@AuthenticationPrincipal User admin,
+            @RequestParam Integer userId, RedirectAttributes ra) {
+        try { staff.deleteUnused(userId, admin.getUserId());
+            ra.addFlashAttribute("successmsg", "Unused employee permanently deleted"); }
+        catch (RuntimeException ex) { ra.addFlashAttribute("errormsg", ex.getMessage()); }
+        return "redirect:/admin/index";
+    }
+
     @GetMapping("/course/new")
     public String newCourse(Model model) {
         Course course = new Course(); course.setDuration(CourseDuration.FULLDAY);
         course.setFee(BigDecimal.ZERO);
         model.addAttribute("courseForm", course);
+        setupCourseForm(model);
         return "courseform";
     }
 
     @GetMapping("/course/edit")
     public String editCourse(@RequestParam Integer courseId, Model model) {
-        model.addAttribute("courseForm", courses.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found")));
+        Course course = courses.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+        course.setProviderId(course.getProvider() == null ? null : course.getProvider().getId());
+        model.addAttribute("courseForm", course);
+        setupCourseForm(model);
         return "courseform";
     }
 
     @PostMapping("/course/save")
     public String saveCourse(@Valid @ModelAttribute("courseForm") Course course,
                              BindingResult result, Model model, RedirectAttributes ra) {
-        if (result.hasErrors()) return "courseform";
+        if (result.hasErrors()) { setupCourseForm(model); return "courseform"; }
         try {
             catalogue.save(course);
             ra.addFlashAttribute("successmsg", "Course catalogue updated");
             return "redirect:/admin/index";
         } catch (RuntimeException ex) {
             model.addAttribute("error", ex.getMessage());
+            setupCourseForm(model);
             return "courseform";
         }
     }

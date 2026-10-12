@@ -9,6 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
+import sg.edu.iss.cats.service.ReportCsvService;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -21,7 +27,10 @@ import sg.edu.iss.cats.service.TrainingReportService;
 @RequestMapping("/manager/reports")
 public class ReportController {
     private final TrainingReportService reports;
-    public ReportController(TrainingReportService reports) { this.reports = reports; }
+    private final ReportCsvService exports;
+    public ReportController(TrainingReportService reports, ReportCsvService exports) {
+        this.reports = reports; this.exports = exports;
+    }
 
     @GetMapping
     public String reports(@AuthenticationPrincipal User manager,
@@ -117,4 +126,42 @@ public class ReportController {
         model.addAttribute("year", selectedYear);
         return "printreports";
     }
+
+    private ResponseEntity<byte[]> download(String filename, byte[] csv) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+            .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+            .body(csv);
+    }
+
+    @GetMapping("/attendance.csv")
+    public ResponseEntity<byte[]> attendanceCsv(@AuthenticationPrincipal User manager,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) CourseType category,
+            @RequestParam(required = false) Integer employeeId) {
+        if (manager == null || manager.getRole() != Role.ROLE_MANAGER)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        if (endDate.isBefore(startDate)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date range");
+        return download("training-attendance.csv", exports.attendance(startDate, endDate, category, employeeId));
+    }
+
+    @GetMapping("/budget.csv")
+    public ResponseEntity<byte[]> budgetCsv(@AuthenticationPrincipal User manager,
+            @RequestParam int year, @RequestParam(required = false) Integer employeeId) {
+        if (manager == null || manager.getRole() != Role.ROLE_MANAGER)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        if (year < 2000 || year > 9999) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        return download("training-budget.csv", exports.budgets(year, employeeId));
+    }
+
+    @GetMapping("/claims.csv")
+    public ResponseEntity<byte[]> claimsCsv(@AuthenticationPrincipal User manager,
+            @RequestParam int year, @RequestParam(required = false) Integer employeeId) {
+        if (manager == null || manager.getRole() != Role.ROLE_MANAGER)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        if (year < 2000 || year > 9999) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        return download("training-claims.csv", exports.claims(year, employeeId));
+    }
+
 }

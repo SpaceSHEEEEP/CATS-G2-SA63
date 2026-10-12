@@ -185,7 +185,7 @@ function showTrainingDetails(event, attendees = null) {
 
 	// Offer future approved courses that the logged-in user has not applied for.
 	const canApply = (allStaff || teamTraining)
-	  && event.status === "APPROVED"
+	  && (event.status === "APPROVED" || event.status === "COMPLETED")
 	  && event.courseStartDate > today
 	  && !event.alreadyApplied;
 
@@ -215,7 +215,7 @@ function groupCourses(events, selectedMonth, sharedView) {
       continue;
     }
 
-    if (sharedView && event.status !== "APPROVED") {
+    if (sharedView && !["APPROVED", "COMPLETED"].includes(event.status)) {
       continue;
     }
 
@@ -317,7 +317,7 @@ function buildCalendarBars(events, sharedView) {
   const groups = new Map();
 
   for (const event of events) {
-    if (sharedView && event.status !== "APPROVED") {
+    if (sharedView && !["APPROVED", "COMPLETED"].includes(event.status)) {
       continue;
     }
 

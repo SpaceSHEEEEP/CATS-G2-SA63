@@ -1,0 +1,33 @@
+{
+  "name": "cats-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CATS Angular / Capacitor Android client",
+  "scripts": {
+    "start": "ng serve --host 127.0.0.1",
+    "build": "ng build --configuration production",
+    "android:init": "node scripts/prepare-android.mjs",
+    "android:debug": "npm run build && npm run android:init && cd android && ./gradlew assembleDebug",
+    "android:release": "npm run build && npm run android:init && cd android && ./gradlew assembleRelease",
+    "build:web": "ng build --configuration production --base-href /mobile/app/"
+  },
+  "dependencies": {
+    "@angular/common": "^20.3.0",
+    "@angular/compiler": "^20.3.0",
+    "@angular/core": "^20.3.0",
+    "@angular/forms": "^20.3.0",
+    "@angular/platform-browser": "^20.3.0",
+    "@capacitor/core": "^7.4.0",
+    "rxjs": "~7.8.2",
+    "tslib": "^2.8.1",
+    "zone.js": "~0.15.1"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.3.0",
+    "@angular/cli": "^20.3.0",
+    "@angular/compiler-cli": "^20.3.0",
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/cli": "^7.4.0",
+    "typescript": "~5.9.2"
+  }
+}

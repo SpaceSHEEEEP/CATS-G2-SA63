@@ -12,6 +12,7 @@ import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.ObjectProvider;
 
 import jakarta.mail.Message;
 import jakarta.mail.Multipart;
@@ -23,6 +24,7 @@ import sg.edu.iss.cats.service.UserReportEmailService;
 class UserReportEmailServiceTests {
     private final JavaMailSender mailSender = mock(JavaMailSender.class);
     private final UserCsvService csvService = mock(UserCsvService.class);
+    private final ObjectProvider<JavaMailSender> provider = mock(ObjectProvider.class);
 
     @Test
     void usesConfiguredSenderAndAttachesTheCsvBytes() throws Exception {
@@ -31,7 +33,8 @@ class UserReportEmailServiceTests {
         when(mailSender.createMimeMessage()).thenReturn(message);
         when(csvService.generateCsv()).thenReturn(bytes);
 
-        new UserReportEmailService(mailSender, csvService, "reports@example.org")
+        when(provider.getIfAvailable()).thenReturn(mailSender);
+        new UserReportEmailService(provider, csvService, "reports@example.org")
                 .sendReport("recipient@example.org");
 
         verify(mailSender).send(message);
@@ -47,7 +50,7 @@ class UserReportEmailServiceTests {
 
     @Test
     void refusesToSendWhenSenderIsNotConfigured() {
-        UserReportEmailService service = new UserReportEmailService(mailSender, csvService, " ");
+        UserReportEmailService service = new UserReportEmailService(provider, csvService, " ");
         assertThatThrownBy(() -> service.sendReport("recipient@example.org"))
                 .isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(mailSender, csvService);

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head><title>Course fee claim</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
+<head><title>Course fee claim</title><link rel="stylesheet" th:href="@{/style.css}" /><script th:src="@{/js/captcha.js}" defer></script></head>
 <body><div th:replace="~{fragments/header :: header}"></div>
 <h1>Submit course-fee reimbursement claim</h1>
 <p th:text="${application.course.courseName}"></p>
@@ -9,6 +9,7 @@
   <input type="hidden" name="applicationId" th:value="${application.id}" />
   <label>Receipt <input type="file" name="receipt" accept="application/pdf,image/png,image/jpeg" required /></label>
   <label>Completion certificate <input type="file" name="certificate" accept="application/pdf,image/png,image/jpeg" required /></label>
+  <div th:replace="~{fragments/captcha :: widget('fee-claim')}"></div>
   <button type="submit">Submit claim for manager approval</button>
 </form>
 </body></html>

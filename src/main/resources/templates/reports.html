@@ -1,65 +1,216 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><title>Manager Training Reports</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
-<body>
-  <div th:replace="~{fragments/header :: header}"></div>
-  <h1>Organisation-wide manager training reports</h1>
-  <p><a th:href="@{/manager/claims}">Decide direct-subordinate fee claims</a> ·
-     <a th:href="@{/manager/reports/print(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year})}"
-        target="_blank" rel="noopener">Print complete consolidated reports</a></p>
-  <p th:if="${error}" th:text="${error}" role="alert"></p>
-  <form method="get" th:action="@{/manager/reports}">
-    <label>From <input type="date" name="startDate" th:value="${from}" /></label>
-    <label>To <input type="date" name="endDate" th:value="${to}" /></label>
-    <label>Category <select name="category"><option value="">All</option>
-      <option th:each="type : ${T(sg.edu.iss.cats.model.CourseType).values()}"
-        th:value="${type}" th:text="${type}" th:selected="${type == category}"></option></select></label>
-    <label>Employee ID <input type="number" name="employeeId" th:value="${employeeId}" /></label>
-    <label>Budget/claims year <input type="number" name="year" min="2000" max="9999" th:value="${year}" /></label>
-    <label>Rows per section <select name="pageSize">
-      <option value="10" th:selected="${pageSize == 10}">10</option>
-      <option value="20" th:selected="${pageSize == 20}">20</option>
-      <option value="25" th:selected="${pageSize == 25}">25</option>
-    </select></label>
-    <button type="submit">Generate reports</button>
-  </form>
-  <h2>Approved/completed training attendance</h2>
-  <table><thead><tr><th>Employee</th><th>Course</th><th>Category</th><th>Start</th><th>End</th><th>Status</th><th>Fee</th></tr></thead>
-  <tbody><tr th:each="application : ${attendees}">
-    <td th:text="${application.user.name}"></td><td th:text="${application.course.courseName}"></td>
-    <td th:text="${application.course.courseType}"></td><td th:text="${application.course.startDate}"></td>
-    <td th:text="${application.course.endDate}"></td><td th:text="${application.status}"></td>
-    <td th:text="${application.course.fee}"></td></tr></tbody></table>
-  <nav aria-label="Attendance pages">
-    <a th:if="${attendancePage > 0}" th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage-1},claimsPage=${claimsPage},budgetPage=${budgetPage})}">Previous</a>
-    <span th:text="|Attendance page ${attendancePage+1} / ${attendanceTotal == 0 ? 1 : attendanceTotal}|"></span>
-    <a th:if="${attendancePage+1 < attendanceTotal}" th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage+1},claimsPage=${claimsPage},budgetPage=${budgetPage})}">Next</a>
-  </nav>
-  <h2>Employee annual budget and days utilisation</h2>
-  <table><thead><tr><th>Employee</th><th>Days limit</th><th>Days committed</th><th>Days completed</th><th>Days remaining</th><th>Fee limit</th><th>Fees committed</th><th>Fees completed</th><th>Budget remaining</th><th>Claims paid</th><th>Approved awaiting payment</th><th>Claims pending</th></tr></thead>
-  <tbody><tr th:each="row : ${budgets}"><td th:text="${row.employee.name}"></td>
-    <td th:text="${row.summary.dayLimit}"></td><td th:text="${row.summary.daysCommitted}"></td>
-    <td th:text="${row.summary.daysCompleted}"></td><td th:text="${row.summary.daysRemaining}"></td>
-    <td th:text="${row.summary.feeLimit}"></td><td th:text="${row.summary.feesCommitted}"></td>
-    <td th:text="${row.summary.feesCompleted}"></td><td th:text="${row.summary.budgetRemaining}"></td>
-    <td th:text="${row.claimsReimbursed}"></td><td th:text="${row.claimsApprovedAwaitingPayment}"></td>
-    <td th:text="${row.claimsPending}"></td></tr></tbody></table>
-  <nav aria-label="Budget pages">
-    <a th:if="${budgetPage > 0}" th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage},budgetPage=${budgetPage-1})}">Previous</a>
-    <span th:text="|Budget page ${budgetPage+1} / ${budgetTotal == 0 ? 1 : budgetTotal}|"></span>
-    <a th:if="${budgetPage+1 < budgetTotal}" th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage},budgetPage=${budgetPage+1})}">Next</a>
-  </nav>
-  <h2>Course-fee reimbursement claims</h2>
-  <p>APPROVED means authorised but not yet paid; PAID is confirmed disbursement.</p>
-  <table><thead><tr><th>Employee</th><th>Course</th><th>Submitted</th><th>Amount</th><th>Status</th><th>Decision reason</th><th>Paid on</th><th>Payment reference</th></tr></thead>
-  <tbody><tr th:each="claim : ${claims}"><td th:text="${claim.employee.name}"></td>
-    <td th:text="${claim.application.course.courseName}"></td><td th:text="${claim.submittedOn}"></td>
-    <td th:text="${claim.amount}"></td><td th:text="${claim.status}"></td>
-    <td th:text="${claim.managerReason}"></td><td th:text="${claim.paidOn}"></td>
-    <td th:text="${claim.paymentReference}"></td></tr></tbody></table>
-  <nav aria-label="Claim pages">
-    <a th:if="${claimsPage > 0}" th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage-1},budgetPage=${budgetPage})}">Previous</a>
-    <span th:text="|Claims page ${claimsPage+1} / ${claimsTotal == 0 ? 1 : claimsTotal}|"></span>
-    <a th:if="${claimsPage+1 < claimsTotal}" th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage+1},budgetPage=${budgetPage})}">Next</a>
-  </nav>
-</body></html>
+  <head>
+    <title>Manager Training Reports</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="cats-page-heading">
+      <img th:src="@{/images/cats/thoughtful.png}" alt="" />
+      <h1>Organisation-wide manager training reports</h1>
+    </div>
+    <p>
+      <a th:href="@{/manager/claims}">Decide direct-subordinate fee claims</a> ·
+      <a
+        th:href="@{/manager/reports/print(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year})}"
+        target="_blank"
+        rel="noopener"
+        >Print complete consolidated reports</a
+      >
+    </p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+    <p>Download the complete filtered datasets as spreadsheet-safe CSV:</p>
+    <p>
+      <a
+        th:href="@{/manager/reports/attendance.csv(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId})}"
+        >Attendance CSV</a
+      >
+      ·
+      <a
+        th:href="@{/manager/reports/budget.csv(year=${year},employeeId=${employeeId})}"
+        >Budget CSV</a
+      >
+      ·
+      <a
+        th:href="@{/manager/reports/claims.csv(year=${year},employeeId=${employeeId})}"
+        >Claim CSV</a
+      >
+    </p>
+    <form method="get" th:action="@{/manager/reports}">
+      <label
+        >From <input type="date" name="startDate" th:value="${from}"
+      /></label>
+      <label>To <input type="date" name="endDate" th:value="${to}" /></label>
+      <label
+        >Category
+        <select name="category">
+          <option value="">All</option>
+          <option
+            th:each="type : ${T(sg.edu.iss.cats.model.CourseType).values()}"
+            th:value="${type}"
+            th:text="${type}"
+            th:selected="${type == category}"
+          ></option></select
+      ></label>
+      <label
+        >Employee ID
+        <input type="number" name="employeeId" th:value="${employeeId}"
+      /></label>
+      <label
+        >Budget/claims year
+        <input
+          type="number"
+          name="year"
+          min="2000"
+          max="9999"
+          th:value="${year}"
+      /></label>
+      <label
+        >Rows per section
+        <select name="pageSize">
+          <option value="10" th:selected="${pageSize == 10}">10</option>
+          <option value="20" th:selected="${pageSize == 20}">20</option>
+          <option value="25" th:selected="${pageSize == 25}">25</option>
+        </select></label
+      >
+      <button type="submit">Generate reports</button>
+    </form>
+    <h2>Approved/completed training attendance</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Course</th>
+          <th>Category</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Status</th>
+          <th>Fee</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="application : ${attendees}">
+          <td th:text="${application.user.name}"></td>
+          <td th:text="${application.course.courseName}"></td>
+          <td th:text="${application.course.courseType}"></td>
+          <td th:text="${application.course.startDate}"></td>
+          <td th:text="${application.course.endDate}"></td>
+          <td th:text="${application.status}"></td>
+          <td th:text="${application.course.fee}"></td>
+        </tr>
+      </tbody>
+    </table>
+    <nav aria-label="Attendance pages">
+      <a
+        th:if="${attendancePage > 0}"
+        th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage-1},claimsPage=${claimsPage},budgetPage=${budgetPage})}"
+        >Previous</a
+      >
+      <span
+        th:text="|Attendance page ${attendancePage+1} / ${attendanceTotal == 0 ? 1 : attendanceTotal}|"
+      ></span>
+      <a
+        th:if="${attendancePage+1 < attendanceTotal}"
+        th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage+1},claimsPage=${claimsPage},budgetPage=${budgetPage})}"
+        >Next</a
+      >
+    </nav>
+    <h2>Employee annual budget and days utilisation</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Days limit</th>
+          <th>Days committed</th>
+          <th>Days completed</th>
+          <th>Days remaining</th>
+          <th>Fee limit</th>
+          <th>Fees committed</th>
+          <th>Fees completed</th>
+          <th>Budget remaining</th>
+          <th>Claims paid</th>
+          <th>Approved awaiting payment</th>
+          <th>Claims pending</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="row : ${budgets}">
+          <td th:text="${row.employee.name}"></td>
+          <td th:text="${row.summary.dayLimit}"></td>
+          <td th:text="${row.summary.daysCommitted}"></td>
+          <td th:text="${row.summary.daysCompleted}"></td>
+          <td th:text="${row.summary.daysRemaining}"></td>
+          <td th:text="${row.summary.feeLimit}"></td>
+          <td th:text="${row.summary.feesCommitted}"></td>
+          <td th:text="${row.summary.feesCompleted}"></td>
+          <td th:text="${row.summary.budgetRemaining}"></td>
+          <td th:text="${row.claimsReimbursed}"></td>
+          <td th:text="${row.claimsApprovedAwaitingPayment}"></td>
+          <td th:text="${row.claimsPending}"></td>
+        </tr>
+      </tbody>
+    </table>
+    <nav aria-label="Budget pages">
+      <a
+        th:if="${budgetPage > 0}"
+        th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage},budgetPage=${budgetPage-1})}"
+        >Previous</a
+      >
+      <span
+        th:text="|Budget page ${budgetPage+1} / ${budgetTotal == 0 ? 1 : budgetTotal}|"
+      ></span>
+      <a
+        th:if="${budgetPage+1 < budgetTotal}"
+        th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage},budgetPage=${budgetPage+1})}"
+        >Next</a
+      >
+    </nav>
+    <h2>Course-fee reimbursement claims</h2>
+    <p>
+      APPROVED means authorised but not yet paid; PAID is confirmed
+      disbursement.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Course</th>
+          <th>Submitted</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Decision reason</th>
+          <th>Paid on</th>
+          <th>Payment reference</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="claim : ${claims}">
+          <td th:text="${claim.employee.name}"></td>
+          <td th:text="${claim.application.course.courseName}"></td>
+          <td th:text="${claim.submittedOn}"></td>
+          <td th:text="${claim.amount}"></td>
+          <td th:text="${claim.status}"></td>
+          <td th:text="${claim.managerReason}"></td>
+          <td th:text="${claim.paidOn}"></td>
+          <td th:text="${claim.paymentReference}"></td>
+        </tr>
+      </tbody>
+    </table>
+    <nav aria-label="Claim pages">
+      <a
+        th:if="${claimsPage > 0}"
+        th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage-1},budgetPage=${budgetPage})}"
+        >Previous</a
+      >
+      <span
+        th:text="|Claims page ${claimsPage+1} / ${claimsTotal == 0 ? 1 : claimsTotal}|"
+      ></span>
+      <a
+        th:if="${claimsPage+1 < claimsTotal}"
+        th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage},claimsPage=${claimsPage+1},budgetPage=${budgetPage})}"
+        >Next</a
+      >
+    </nav>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify MFA - CATS</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+    <script th:src="@{/js/captcha.js}" defer></script>
+  </head>
+  <body class="auth-page">
+    <main class="auth-card">
+      <img
+        class="cats-login-art"
+        th:src="@{/images/cats/surprised.png}"
+        alt="Surprised CATS verification mascot"
+      />
+      <h1>Verify it's you</h1>
+      <p>
+        Enter the current six-digit code from your CATS mobile authenticator. It
+        works offline.
+      </p>
+      <p th:if="${mfaError}" th:text="${mfaError}" role="alert"></p>
+      <p th:if="${param.captchaError}" role="alert">
+        Verification puzzle expired or incorrect. Try a new one.
+      </p>
+      <form method="post" th:action="@{/mfa/challenge}">
+        <label
+          >Authenticator code
+          <input
+            name="code"
+            inputmode="numeric"
+            pattern="[0-9]{6}"
+            autocomplete="one-time-code"
+            autofocus
+            required
+        /></label>
+        <div th:replace="~{fragments/captcha :: widget('mfa-challenge')}"></div>
+        <button type="submit">Verify and continue</button>
+      </form>
+      <p>
+        If you lose your device, ask an administrator to reset MFA only after
+        identity verification.
+      </p>
+      <form method="post" th:action="@{/logout}">
+        <button type="submit">Sign out</button>
+      </form>
+    </main>
+  </body>
+</html>
