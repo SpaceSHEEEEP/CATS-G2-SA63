@@ -24,8 +24,7 @@
           <th>Status</th>
           <th>Paid on</th>
           <th>Payment reference</th>
-          <th>Evidence</th>
-          <th>Record paid</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -33,38 +32,31 @@
           <td th:text="${claim.employee.name}"></td>
           <td th:text="${claim.application.course.courseName}"></td>
           <td th:text="${claim.amount}"></td>
-          <td
-            class="status-text"
-            th:attr="data-status=${claim.status}"
-            th:text="${claim.status}"
-          ></td>
+          <td><span class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></span></td>
           <td th:text="${claim.paidOn}"></td>
           <td th:text="${claim.paymentReference}"></td>
-          <td>
-            <a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}"
-              >Receipt</a
-            >
-            ·
-            <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}"
-              >Certificate</a
-            >
-          </td>
-          <td>
-            <form
-              th:if="${claim.status.name() == 'APPROVED'}"
-              method="post"
-              th:action="@{/admin/claims/pay}"
-            >
-              <input type="hidden" name="claimId" th:value="${claim.id}" />
-              <input
-                name="paymentReference"
-                required
-                maxlength="120"
-                placeholder="Bank / payout reference"
-              />
-              <button type="submit">Confirm paid</button>
-            </form>
-          </td>
+          <td class="row-actions-cell">
+              <div class="row-actions">
+              <th:block th:if="${claim.status.name() == 'APPROVED'}">
+              <button type="button" class="js-confirm-action row-action-icon" aria-label="Record payment" title="Record payment" data-confirm-phrase="PAID" data-confirm-title="Record external reimbursement as paid" data-confirm-message="Only proceed after payment has actually cleared. This records payment; it does not transfer funds." data-confirm-button="Record paid" th:attr="data-confirm-action=@{/admin/claims/pay(claimId=${claim.id})},data-confirm-subject=${claim.application.course.courseName}" data-confirm-extra="paymentReference" data-confirm-extra-label="Bank / payment reference" data-confirm-extra-max="120" data-confirm-danger="false">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#card">
+              </use>
+              </svg>
+              </button>
+              </th:block>
+              <button class="row-action-icon " type="button" title="Claim details and evidence" aria-label="Claim details and evidence" th:attr="popovertarget=|admin-claim-${claim.id}|">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#more">
+              </use>
+              </svg>
+              </button>
+              <div class="row-action-menu" popover="auto" th:id="|admin-claim-${claim.id}|">
+              <a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}">View receipt</a>
+              <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}">View certificate</a>
+              </div>
+              </div>
+            </td>
         </tr>
       </tbody>
     </table>

@@ -76,8 +76,7 @@
           <th>Reports To</th>
           <th>Remaining Budget (SGD)</th>
           <th>Days Remaining</th>
-          <th>Modify</th>
-          <th>Remove</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -94,57 +93,36 @@
             th:text="${staff.actualAllowance == null} ? 'Not set' : ${#numbers.formatDecimal(staff.actualAllowance, 1, 2)}"
           ></td>
           <td th:text="${staff.actualDays}"></td>
-          <td>
-            <a th:href="@{/admin/edituser(userId=${staff.userId})}">Edit</a>
-            <form
-              th:action="@{/admin/mfa/reset}"
-              method="post"
-              th:if="${staff.userId != user.userId}"
-            >
-              <input type="hidden" name="userId" th:value="${staff.userId}" />
-              <input
-                name="confirmation"
-                type="text"
-                placeholder="RESET MFA"
-                aria-label="Type RESET MFA for staff member"
-                required
-              />
-              <button type="submit">Reset MFA</button>
-            </form>
-          </td>
-          <td>
-            <form
-              th:if="${staff.enabled}"
-              th:action="@{/admin/deleteuser(userId=${staff.userId})}"
-              method="POST"
-            >
-              <button
-                type="submit"
-                onclick="
-                  return confirm(
-                    'Deactivate account and preserve its history?',
-                  );
-                "
-              >
-                Deactivate
+          <td class="row-actions-cell">
+              <div class="row-actions">
+              <a class="row-action-icon" title="Edit user" aria-label="Edit user" th:href="@{/admin/edituser(userId=${staff.userId})}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#pen">
+              </use>
+              </svg>
+              </a>
+              <button type="button" class="js-confirm-action row-action-icon row-action-danger" aria-label="Permanently delete unused account" title="Permanently delete unused account" data-confirm-phrase="DELETE" data-confirm-title="Permanently delete unused account" data-confirm-message="Permanent deletion cannot be undone. Accounts with linked history will be rejected by the server." data-confirm-button="Delete permanently" th:attr="data-confirm-action=@{/admin/purgeuser(userId=${staff.userId})},data-confirm-subject=${staff.username}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#trash">
+              </use>
+              </svg>
               </button>
-            </form>
-            <form
-              th:action="@{/admin/purgeuser(userId=${staff.userId})}"
-              method="POST"
-            >
-              <button
-                type="submit"
-                onclick="
-                  return confirm(
-                    'PERMANENTLY delete this unused account? Cannot be undone.',
-                  );
-                "
-              >
-                Delete unused
+              <button class="row-action-icon " type="button" title="More actions" aria-label="More actions" th:attr="popovertarget=|user-actions-${staff.userId}|">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#more">
+              </use>
+              </svg>
               </button>
-            </form>
-          </td>
+              <div class="row-action-menu" popover="auto" th:id="|user-actions-${staff.userId}|">
+              <th:block th:if="${staff.enabled}">
+              <button type="button" class="js-confirm-action row-action-menu-item row-action-menu-danger" aria-label="Deactivate account" title="Deactivate account" data-confirm-phrase="DEACTIVATE" data-confirm-title="Deactivate account" data-confirm-message="This disables login but preserves applications and records." data-confirm-button="Deactivate" th:attr="data-confirm-action=@{/admin/deleteuser(userId=${staff.userId})},data-confirm-subject=${staff.username}">Deactivate account</button>
+              </th:block>
+              <th:block th:if="${staff.userId != user.userId}">
+              <button type="button" class="js-confirm-action row-action-menu-item row-action-menu-danger" aria-label="Reset MFA" title="Reset MFA" data-confirm-phrase="RESET MFA" data-confirm-title="Reset multi-factor authentication" data-confirm-message="Verify the user identity independently. This clears MFA enrollment and revokes paired mobile access." data-confirm-button="Reset MFA" th:attr="data-confirm-action=@{/admin/mfa/reset(userId=${staff.userId})},data-confirm-subject=${staff.username}">Reset MFA</button>
+              </th:block>
+              </div>
+              </div>
+            </td>
         </tr>
       </tbody>
     </table>
@@ -206,8 +184,7 @@
           <th>Location</th>
           <th>Training Provider</th>
           <th>Fee (SGD)</th>
-          <th>Modify</th>
-          <th>Archive</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -226,22 +203,27 @@
           <td
             th:text="${summary.course.fee == null} ? 'Not set' : ${#numbers.formatDecimal(summary.course.fee, 1, 2)}"
           ></td>
-          <td>
-            <a
-              th:href="@{/admin/course/edit(courseId=${summary.course.courseId})}"
-              >Edit</a
-            >
-          </td>
-          <td>
-            <form
-              th:action="@{/admin/course/archive(courseId=${summary.course.courseId})}"
-              method="post"
-            >
-              <button type="submit" th:disabled="${summary.course.archived}">
-                Archive
+          <td class="row-actions-cell">
+              <div class="row-actions">
+              <a class="row-action-icon" title="Edit course" aria-label="Edit course" th:href="@{/admin/course/edit(courseId=${summary.course.courseId})}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#pen">
+              </use>
+              </svg>
+              </a>
+              <button class="row-action-icon " type="button" title="More actions" aria-label="More actions" th:attr="popovertarget=|course-actions-${summary.course.courseId}|">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#more">
+              </use>
+              </svg>
               </button>
-            </form>
-          </td>
+              <div class="row-action-menu" popover="auto" th:id="|course-actions-${summary.course.courseId}|">
+              <th:block th:unless="${summary.course.archived}">
+              <button type="button" class="js-confirm-action row-action-menu-item" aria-label="Archive course" title="Archive course" data-confirm-phrase="ARCHIVE" data-confirm-title="Archive course" data-confirm-message="This removes the course from the active catalogue but preserves historic applications." data-confirm-button="Archive course" th:attr="data-confirm-action=@{/admin/course/archive(courseId=${summary.course.courseId})},data-confirm-subject=${summary.course.courseName}" data-confirm-danger="false">Archive course</button>
+              </th:block>
+              </div>
+              </div>
+            </td>
         </tr>
       </tbody>
     </table>

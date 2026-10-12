@@ -39,29 +39,28 @@
         
 
         <th:block th:fragment="editOrDelete(app)">
-            <div class="actions application-actions">
-                <a th:href="@{/staff/edit(id=${app.id})}" class="btn btn-primary">Edit Application</a>
-                <button type="button" class="btn btn-danger"
-                        th:attr="popovertarget=|delete-confirmation-${app.id}|">Delete Application</button>
-            </div>
-            <div class="cats-confirmation" popover="auto" role="dialog"
-                 th:id="|delete-confirmation-${app.id}|"
-                 th:attr="aria-labelledby=|delete-heading-${app.id}|">
-                <h2 th:id="|delete-heading-${app.id}|">Delete this application?</h2>
-                <p><strong th:text="${app.course.courseName}"></strong> will be marked as deleted.</p>
-                <div class="actions">
-                    <button type="button" class="confirmation-cancel"
-                            th:attr="popovertarget=|delete-confirmation-${app.id}|"
-                            popovertargetaction="hide">Keep Application</button>
-                    <form th:action="@{/staff/delete(id=${app.id})}" method="post">
-                        <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Delete this course application?')">Yes, Delete</button>
-                    </form>
-                </div>
+            <div class="row-actions application-actions">
+                <a class="row-action-icon" title="Edit application" aria-label="Edit application" th:href="@{/staff/edit(id=${app.id})}">
+                    <svg class="row-action-svg" aria-hidden="true">
+                        <use href="/images/icons/action-icons.svg#pen"></use>
+                    </svg>
+                </a>
+                <button type="button"
+                    class="js-confirm-action row-action-icon row-action-danger"
+                    aria-label="Delete application"
+                    title="Delete application"
+                    data-confirm-phrase="DELETE"
+                    data-confirm-title="Delete training application"
+                    data-confirm-message="The application will be marked deleted and will no longer appear as an active request."
+                    data-confirm-button="Delete application"
+                    th:attr="data-confirm-action=@{/staff/delete(id=${app.id})},data-confirm-subject=${app.course.courseName}">
+                    <svg class="row-action-svg" aria-hidden="true">
+                        <use href="/images/icons/action-icons.svg#trash"></use>
+                    </svg>
+                </button>
             </div>
         </th:block>
 
-        
         <th:block th:fragment="cancelOrComplete(app, comment)">
             <div class="actions">
               <form th:action="@{/staff/cancel(id=${app.id})}" method="post">

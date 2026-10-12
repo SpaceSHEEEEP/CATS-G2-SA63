@@ -1,5 +1,7 @@
 package sg.edu.iss.cats.mobile;
 
+import sg.edu.iss.cats.security.ActionConfirmation;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,8 +41,10 @@ public class MobileWebController {
     }
 
     @PostMapping("/staff/mobile/revoke")
-    public String revoke(@AuthenticationPrincipal User user, @RequestParam Long id, RedirectAttributes ra) {
-        try { access.revoke(user.getUserId(), id); ra.addFlashAttribute("notice", "Device access revoked"); }
+    public String revoke(@AuthenticationPrincipal User user, @RequestParam Long id,
+            @RequestParam String confirmation, RedirectAttributes ra) {
+        try { ActionConfirmation.require(confirmation, "REVOKE");
+            access.revoke(user.getUserId(), id); ra.addFlashAttribute("notice", "Device access revoked"); }
         catch (RuntimeException ex) { ra.addFlashAttribute("notice", "Could not revoke that device"); }
         return "redirect:/staff/mobile";
     }

@@ -67,9 +67,68 @@ p {
   outline: 3px solid #6977d2;
   outline-offset: 2px;
 }
-button { background: var(--mobile-primary); border: 1px solid var(--mobile-primary); }
-button:hover:not(:disabled) { background: var(--mobile-primary-hover); border-color: var(--mobile-primary-hover); }
-button.ghost { color: var(--mobile-primary); background: #f6f7fd; border-color: #b7c0e3; }
-button.ghost:hover:not(:disabled) { color: var(--mobile-primary-hover); background: #e7ebf8; }
-button.danger { color: #991b1b; }
-button.danger:hover:not(:disabled) { background: #fee2e2; border-color: #efb4b4; }
+button {
+  background: var(--mobile-primary);
+  border: 1px solid var(--mobile-primary);
+}
+button:hover:not(:disabled) {
+  background: var(--mobile-primary-hover);
+  border-color: var(--mobile-primary-hover);
+}
+button.ghost {
+  color: var(--mobile-primary);
+  background: #f6f7fd;
+  border-color: #b7c0e3;
+}
+button.ghost:hover:not(:disabled) {
+  color: var(--mobile-primary-hover);
+  background: #e7ebf8;
+}
+button.danger {
+  color: #991b1b;
+}
+button.danger:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #efb4b4;
+}
+
+progress,
+meter {
+  width: min(100%, 22rem);
+  height: 0.85rem;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: #e1e6f6;
+  overflow: hidden;
+  accent-color: #283586;
+}
+progress::-webkit-progress-bar {
+  background: #e1e6f6;
+  border-radius: 999px;
+}
+progress::-webkit-progress-value {
+  background: #283586;
+  border-radius: 999px;
+}
+progress::-moz-progress-bar {
+  background: #283586;
+  border-radius: 999px;
+}
+meter::-webkit-meter-bar {
+  border: 0;
+  background: #e1e6f6;
+  border-radius: 999px;
+}
+meter::-webkit-meter-optimum-value {
+  background: #166534;
+  border-radius: 999px;
+}
+meter::-webkit-meter-suboptimum-value {
+  background: #b45309;
+  border-radius: 999px;
+}
+meter::-webkit-meter-even-less-good-value {
+  background: #991b1b;
+  border-radius: 999px;
+}

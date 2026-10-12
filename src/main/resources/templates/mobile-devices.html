@@ -57,7 +57,7 @@
             <th>Device</th>
             <th>Expires (UTC)</th>
             <th>Revoked</th>
-            <th>Action</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -65,18 +65,18 @@
             <td th:text="${d.deviceName}"></td>
             <td th:text="${d.expiresAt}"></td>
             <td th:text="${d.revoked}"></td>
-            <td>
-              <form
-                th:unless="${d.revoked}"
-                method="post"
-                th:action="@{/staff/mobile/revoke}"
-              >
-                <input name="id" type="hidden" th:value="${d.id}" /><button
-                  type="submit"
-                >
-                  Revoke
-                </button>
-              </form>
+            <td class="row-actions-cell">
+              <div class="row-actions">
+              <th:block th:unless="${d.revoked}">
+              <button type="button" class="js-confirm-action row-action-icon row-action-danger" aria-label="Revoke mobile device" title="Revoke mobile device" data-confirm-phrase="REVOKE" data-confirm-title="Revoke device access" data-confirm-message="Revoking this token immediately prevents the device from syncing new personal data. Already cached data remains on the device." data-confirm-button="Revoke access" th:attr="data-confirm-action=@{/staff/mobile/revoke(id=${d.id})},data-confirm-subject=${d.deviceName}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#trash">
+              </use>
+              </svg>
+              </button>
+              </th:block>
+              <span th:if="${d.revoked}">Revoked</span>
+              </div>
             </td>
           </tr>
         </tbody>

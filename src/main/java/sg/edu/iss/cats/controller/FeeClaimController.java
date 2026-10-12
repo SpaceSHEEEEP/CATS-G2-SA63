@@ -1,5 +1,7 @@
 package sg.edu.iss.cats.controller;
 
+import sg.edu.iss.cats.security.ActionConfirmation;
+
 import java.io.IOException;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -67,8 +69,9 @@ public class FeeClaimController {
     @PostMapping("/admin/claims/pay")
     public String recordPaid(@AuthenticationPrincipal User admin,
             @RequestParam Integer claimId, @RequestParam String paymentReference,
-            RedirectAttributes ra) {
+            @RequestParam String confirmation, RedirectAttributes ra) {
         try {
+            ActionConfirmation.require(confirmation, "PAID");
             service.recordPayment(admin.getUserId(), claimId, paymentReference);
             ra.addFlashAttribute("successmsg", "External reimbursement marked paid");
         } catch (SecurityException ex) {
@@ -111,8 +114,10 @@ public class FeeClaimController {
 
     @PostMapping("/manager/claims/decision")
     public String decide(@AuthenticationPrincipal User manager, @RequestParam Integer claimId,
-            @RequestParam String status, @RequestParam String reason, RedirectAttributes ra) {
+            @RequestParam String status, @RequestParam String reason,
+            @RequestParam String confirmation, RedirectAttributes ra) {
         try {
+            ActionConfirmation.require(confirmation, "REJECTED".equals(status) ? "REJECT" : "APPROVE");
             service.decide(manager.getUserId(), claimId, FeeClaim.ClaimStatus.valueOf(status), reason);
             ra.addFlashAttribute("successmsg", "Claim decision saved");
         } catch (SecurityException ex) {

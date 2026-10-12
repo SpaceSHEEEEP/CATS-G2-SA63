@@ -1,5 +1,7 @@
 package sg.edu.iss.cats.controller;
 
+import sg.edu.iss.cats.security.ActionConfirmation;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -56,8 +58,9 @@ public class AdminReferenceController {
     }
 
     @PostMapping("/provider/delete")
-    public String deleteProvider(@RequestParam Integer id, RedirectAttributes ra) {
-        try { references.deleteProvider(id); ra.addFlashAttribute("successmsg", "Provider deleted"); }
+    public String deleteProvider(@RequestParam Integer id, @RequestParam String confirmation, RedirectAttributes ra) {
+        try { ActionConfirmation.require(confirmation, "DELETE");
+            references.deleteProvider(id); ra.addFlashAttribute("successmsg", "Provider deleted"); }
         catch (RuntimeException ex) { ra.addFlashAttribute("errormsg", ex.getMessage()); }
         return "redirect:/admin/references";
     }
@@ -73,8 +76,10 @@ public class AdminReferenceController {
     }
 
     @PostMapping("/holiday/delete")
-    public String deleteHoliday(@RequestParam Integer id, @RequestParam int year, RedirectAttributes ra) {
-        try { holidayService.delete(id); ra.addFlashAttribute("successmsg", "Holiday deleted"); }
+    public String deleteHoliday(@RequestParam Integer id, @RequestParam int year,
+            @RequestParam String confirmation, RedirectAttributes ra) {
+        try { ActionConfirmation.require(confirmation, "DELETE");
+            holidayService.delete(id); ra.addFlashAttribute("successmsg", "Holiday deleted"); }
         catch (RuntimeException ex) { ra.addFlashAttribute("errormsg", ex.getMessage()); }
         return "redirect:/admin/references?year=" + year;
     }

@@ -22,7 +22,7 @@
           <th>Status</th>
           <th>Manager decision reason</th>
           <th>Paid on / reference</th>
-          <th>Evidence</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -30,20 +30,30 @@
           <td class="course-name" th:text="${claim.application.course.courseName}"></td>
           <td th:text="${claim.submittedOn}"></td>
           <td th:text="${claim.amount}"></td>
-          <td class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></td>
+          <td><span class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></span></td>
           <td th:text="${claim.managerReason}"></td>
           <td
             th:text="${claim.paidOn == null ? '-' : (claim.paidOn + ' / ' + claim.paymentReference)}"
           ></td>
-          <td>
-            <a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}"
-              >Receipt</a
-            >
-            ·
-            <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}"
-              >Certificate</a
-            >
-          </td>
+          <td class="row-actions-cell">
+              <div class="row-actions">
+              <a class="row-action-icon" title="View receipt" aria-label="View receipt" th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#eye">
+              </use>
+              </svg>
+              </a>
+              <button class="row-action-icon " type="button" title="Other claim evidence" aria-label="Other claim evidence" th:attr="popovertarget=|staff-claim-${claim.id}|">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#more">
+              </use>
+              </svg>
+              </button>
+              <div class="row-action-menu" popover="auto" th:id="|staff-claim-${claim.id}|">
+              <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}">View certificate</a>
+              </div>
+              </div>
+            </td>
         </tr>
       </tbody>
     </table>

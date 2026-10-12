@@ -13,7 +13,7 @@
                 <th>Course Duration</th>
                 <th>Training Provider</th>
                 <th>Location</th>
-                <th>Interested?</th>
+                <th>Actions</th>
             </thead>
             <tbody>
 
@@ -25,7 +25,16 @@
                 <td th:text="${course.duration}"></td>
                 <td th:text="${course.trainingProvider}"></td>
                 <td th:text="${course.location}"></td>
-                <td><a th:href="@{/staff/apply(courseId=${course.courseId})}">Apply</a></td>
+                <td class="row-actions-cell">
+              <div class="row-actions">
+              <a class="row-action-icon" title="Apply for course" aria-label="Apply for course" th:href="@{/staff/apply(courseId=${course.courseId})}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#plus">
+              </use>
+              </svg>
+              </a>
+              </div>
+            </td>
 
             </tbody>
 

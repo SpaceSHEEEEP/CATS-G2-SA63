@@ -1,5 +1,7 @@
 package sg.edu.iss.cats.controller;
 
+import sg.edu.iss.cats.security.ActionConfirmation;
+
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDate;
@@ -194,10 +196,13 @@ public class ApplicationController {
     public String deleteApplication(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "id", required = true) Integer id,
-            Model model,
-            RedirectAttributes ra) {
+            @RequestParam String confirmation, Model model, RedirectAttributes ra) {
 
         if (user == null) return "redirect:/staff/login";
+        if (!"DELETE".equals(confirmation)) {
+            ra.addFlashAttribute("errormsg", "Type DELETE to confirm application deletion.");
+            return "redirect:/staff/index";
+        }
 
         List<Application> applications = appRepo.findByUser_UserIdAndId(user.getUserId(), id);
         if (applications.isEmpty()) return "redirect:/staff/index";

@@ -1,5 +1,7 @@
 package sg.edu.iss.cats.controller;
 
+import sg.edu.iss.cats.security.ActionConfirmation;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Year;
@@ -69,8 +71,9 @@ public class AdminManagementController {
 
     @PostMapping("/deleteuser")
     public String deleteUser(@AuthenticationPrincipal User admin,
-            @RequestParam Integer userId, RedirectAttributes ra) {
+            @RequestParam Integer userId, @RequestParam String confirmation, RedirectAttributes ra) {
         try {
+            ActionConfirmation.require(confirmation, "DEACTIVATE");
             staff.deactivate(userId, admin.getUserId());
             ra.addFlashAttribute("successmsg", "Employee deactivated; application history preserved");
         } catch (RuntimeException ex) {
@@ -86,8 +89,9 @@ public class AdminManagementController {
 
     @PostMapping("/purgeuser")
     public String permanentlyDeleteUser(@AuthenticationPrincipal User admin,
-            @RequestParam Integer userId, RedirectAttributes ra) {
-        try { staff.deleteUnused(userId, admin.getUserId());
+            @RequestParam Integer userId, @RequestParam String confirmation, RedirectAttributes ra) {
+        try { ActionConfirmation.require(confirmation, "DELETE");
+            staff.deleteUnused(userId, admin.getUserId());
             ra.addFlashAttribute("successmsg", "Unused employee permanently deleted"); }
         catch (RuntimeException ex) { ra.addFlashAttribute("errormsg", ex.getMessage()); }
         return "redirect:/admin/index";
@@ -128,8 +132,9 @@ public class AdminManagementController {
     }
 
     @PostMapping("/course/archive")
-    public String archiveCourse(@RequestParam Integer courseId, RedirectAttributes ra) {
+    public String archiveCourse(@RequestParam Integer courseId, @RequestParam String confirmation, RedirectAttributes ra) {
         try {
+            ActionConfirmation.require(confirmation, "ARCHIVE");
             catalogue.archive(courseId);
             ra.addFlashAttribute("successmsg", "Course archived and retained for application history");
         } catch (RuntimeException ex) { ra.addFlashAttribute("errormsg", ex.getMessage()); }

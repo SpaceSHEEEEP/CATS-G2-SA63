@@ -14,7 +14,7 @@
                     <th scope="col">End Date</th>
                     <th scope="col">Fee (SGD)</th>
                     <th scope="col">Status</th>
-                    <th scope="col">View Details</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,8 +26,17 @@
                     <td th:text="${#temporals.format(app.course.startDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${#temporals.format(app.course.endDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${app.course.fee}"></td>
-                    <td class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></td>
-                    <td><a th:href="@{/staff/view(id=${app.id})}">View Details</a></td>
+                    <td><span class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></span></td>
+                    <td class="row-actions-cell">
+              <div class="row-actions">
+              <a class="row-action-icon" title="View application details" aria-label="View application details" th:href="@{/staff/view(id=${app.id})}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#eye">
+              </use>
+              </svg>
+              </a>
+              </div>
+            </td>
                 </tr>
             </tbody>
         </table>
@@ -46,7 +55,7 @@
                     <th scope="col">End Date</th>
                     <th scope="col">Fee (SGD)</th>
                     <th scope="col">Status</th>
-                    <th scope="col">View Details</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,8 +67,17 @@
                     <td th:text="${#temporals.format(app.course.startDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${#temporals.format(app.course.endDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${app.course.fee}"></td>
-                    <td class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></td>
-                    <td><a th:href="@{/staff/view(id=${app.id})}">View Details</a></td>
+                    <td><span class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></span></td>
+                    <td class="row-actions-cell">
+              <div class="row-actions">
+              <a class="row-action-icon" title="View application details" aria-label="View application details" th:href="@{/staff/view(id=${app.id})}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#eye">
+              </use>
+              </svg>
+              </a>
+              </div>
+            </td>
                 </tr>
             </tbody>
         </table>

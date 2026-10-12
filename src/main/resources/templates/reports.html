@@ -98,7 +98,7 @@
           <td th:text="${attendee.course.courseType}"></td>
           <td th:text="${attendee.course.startDate}"></td>
           <td th:text="${attendee.course.endDate}"></td>
-          <td class="status-text" th:attr="data-status=${attendee.status}" th:text="${attendee.status}"></td>
+          <td><span class="status-text" th:attr="data-status=${attendee.status}" th:text="${attendee.status}"></span></td>
           <td th:text="${attendee.course.fee}"></td>
         </tr>
       </tbody>
@@ -192,7 +192,7 @@
           <td class="course-name" th:text="${claim.application.course.courseName}"></td>
           <td th:text="${claim.submittedOn}"></td>
           <td th:text="${claim.amount}"></td>
-          <td class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></td>
+          <td><span class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></span></td>
           <td th:text="${claim.managerReason}"></td>
           <td th:text="${claim.paidOn}"></td>
           <td th:text="${claim.paymentReference}"></td>

@@ -21,8 +21,7 @@
           <th>Amount</th>
           <th>Status</th>
           <th>Decision reason</th>
-          <th>Evidence</th>
-          <th>Approve / reject</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -36,42 +35,33 @@
           <td th:text="${claim.application.course.courseName}"></td>
           <td th:text="${claim.submittedOn}"></td>
           <td th:text="${claim.amount}"></td>
-          <td
-            class="status-text"
-            th:attr="data-status=${claim.status}"
-            th:text="${claim.status}"
-          ></td>
+          <td><span class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></span></td>
           <td th:text="${claim.managerReason}"></td>
-          <td>
-            <a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}"
-              >Receipt</a
-            >
-            ·
-            <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}"
-              >Certificate</a
-            >
-          </td>
-          <td>
-            <form
-              th:if="${claim.status.name() == 'SUBMITTED'}"
-              method="post"
-              th:action="@{/manager/claims/decision}"
-            >
-              <input type="hidden" name="claimId" th:value="${claim.id}" />
-              <textarea
-                name="reason"
-                required
-                maxlength="1000"
-                placeholder="Decision reason"
-              ></textarea>
-              <button type="submit" name="status" value="APPROVED">
-                Approve
+          <td class="row-actions-cell">
+              <div class="row-actions">
+              <th:block th:if="${claim.status.name() == 'SUBMITTED'}">
+              <button type="button" class="js-confirm-action row-action-icon" aria-label="Approve claim" title="Approve claim" data-confirm-phrase="APPROVE" data-confirm-title="Approve reimbursement claim" data-confirm-message="Check the uploaded evidence and supply a decision reason before approving." data-confirm-button="Approve" th:attr="data-confirm-action=@{/manager/claims/decision(claimId=${claim.id},status=APPROVED)},data-confirm-subject=${claim.application.course.courseName}" data-confirm-extra="reason" data-confirm-extra-label="Decision reason" data-confirm-extra-max="1000" data-confirm-danger="false">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#check">
+              </use>
+              </svg>
               </button>
-              <button type="submit" name="status" value="REJECTED">
-                Reject
+              </th:block>
+              <button class="row-action-icon " type="button" title="Claim actions and evidence" aria-label="Claim actions and evidence" th:attr="popovertarget=|manager-claim-${claim.id}|">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#more">
+              </use>
+              </svg>
               </button>
-            </form>
-          </td>
+              <div class="row-action-menu" popover="auto" th:id="|manager-claim-${claim.id}|">
+              <th:block th:if="${claim.status.name() == 'SUBMITTED'}">
+              <button type="button" class="js-confirm-action row-action-menu-item row-action-menu-danger" aria-label="Reject claim" title="Reject claim" data-confirm-phrase="REJECT" data-confirm-title="Reject reimbursement claim" data-confirm-message="This rejects the reimbursement request. Review evidence and give the employee a meaningful reason." data-confirm-button="Reject" th:attr="data-confirm-action=@{/manager/claims/decision(claimId=${claim.id},status=REJECTED)},data-confirm-subject=${claim.application.course.courseName}" data-confirm-extra="reason" data-confirm-extra-label="Rejection reason" data-confirm-extra-max="1000">Reject claim</button>
+              </th:block>
+              <a th:href="@{/staff/claims/{id}/receipt(id=${claim.id})}">View receipt</a>
+              <a th:href="@{/staff/claims/{id}/certificate(id=${claim.id})}">View certificate</a>
+              </div>
+              </div>
+            </td>
         </tr>
       </tbody>
     </table>

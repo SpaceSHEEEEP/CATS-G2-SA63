@@ -76,6 +76,25 @@
           <button type="submit">Logout</button>
         </form>
       </header>
+      <dialog id="cats-action-confirm-dialog" class="cats-action-confirm" aria-labelledby="cats-action-confirm-title" aria-describedby="cats-action-confirm-message">
+        <form id="cats-action-confirm-form" action="/" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <h2 id="cats-action-confirm-title">Confirm action</h2>
+          <p class="cats-action-subject" id="cats-action-confirm-subject"></p>
+          <p class="cats-action-warning" id="cats-action-confirm-message" role="alert"></p>
+          <label for="cats-action-confirm-input">Type <strong id="cats-action-confirm-phrase"></strong> to proceed</label>
+          <input id="cats-action-confirm-input" name="confirmation" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required />
+          <div id="cats-action-extra-wrapper" hidden>
+            <label for="cats-action-extra-input" id="cats-action-extra-label">Additional details</label>
+            <input id="cats-action-extra-input" type="text" maxlength="255" disabled />
+          </div>
+          <div class="cats-action-dialog-buttons">
+            <button type="button" class="secondary" id="cats-action-confirm-cancel">Cancel</button>
+            <button type="submit" class="danger" id="cats-action-confirm-submit" disabled>Confirm</button>
+          </div>
+        </form>
+      </dialog>
+      <script th:src="@{/js/table-actions.js}" defer></script>
     </th:block>
   </body>
 </html>

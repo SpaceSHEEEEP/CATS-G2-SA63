@@ -20,39 +20,36 @@
     </p>
     <h2>Course categories</h2>
     <table>
-      <thead>
-        <tr>
-          <th>Code</th>
-          <th>Name / availability</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Code</th><th>Name</th><th>Accept new courses</th><th>Actions</th></tr></thead>
       <tbody>
         <tr th:each="c : ${categories}">
           <td th:text="${c.code}"></td>
-          <td>
-            <form method="post" th:action="@{/admin/references/category}">
-              <input type="hidden" name="code" th:value="${c.code}" />
-              <input
-                type="text"
-                name="displayName"
-                maxlength="100"
-                th:value="${c.displayName}"
-                required
-              />
-              <label
-                >Accept new courses
-                <input
-                  type="checkbox"
-                  name="enabled"
-                  value="true"
-                  th:checked="${c.enabled}"
-              /></label>
-              <button type="submit">Save category</button>
-            </form>
-          </td>
+          <td th:text="${c.displayName}"></td>
+          <td th:text="${c.enabled ? 'Yes' : 'No'}"></td>
+          <td class="row-actions-cell">
+              <div class="row-actions">
+              <button class="row-action-icon js-open-edit-dialog" type="button" aria-label="Edit category" title="Edit category" th:attr="data-dialog-target=|edit-category-${c.code}|">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#pen">
+              </use>
+              </svg>
+              </button>
+              </div>
+            </td>
         </tr>
       </tbody>
     </table>
+    <th:block th:each="c : ${categories}">
+      <dialog class="cats-edit-dialog" th:id="|edit-category-${c.code}|" th:attr="aria-labelledby=|edit-category-title-${c.code}|">
+        <form method="post" th:action="@{/admin/references/category}">
+          <h2 th:id="|edit-category-title-${c.code}|">Edit course category</h2>
+          <input type="hidden" name="code" th:value="${c.code}" />
+          <label>Display name<input type="text" name="displayName" maxlength="100" th:value="${c.displayName}" required /></label>
+          <label class="cats-check-label">Accept new courses<input type="checkbox" name="enabled" value="true" th:checked="${c.enabled}" /></label>
+          <div class="cats-action-dialog-buttons"><button type="button" class="secondary js-close-edit-dialog">Cancel</button><button type="submit">Save category</button></div>
+        </form>
+      </dialog>
+    </th:block>
     <h2>Training providers</h2>
     <p>
       Deactivate providers with courses to preserve their application history.
@@ -65,53 +62,39 @@
       <button type="submit">Create provider</button>
     </form>
     <table>
-      <thead>
-        <tr>
-          <th>Provider</th>
-          <th>Update</th>
-          <th>Delete unused</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="provider : ${providers}">
-          <td th:text="${provider.id}"></td>
-          <td>
-            <form method="post" th:action="@{/admin/references/provider}">
-              <input type="hidden" name="id" th:value="${provider.id}" />
-              <input
-                name="name"
-                th:value="${provider.name}"
-                maxlength="150"
-                required
-              />
-              <label
-                >Enabled
-                <input
-                  type="checkbox"
-                  name="enabled"
-                  value="true"
-                  th:checked="${provider.enabled}"
-              /></label>
-              <button type="submit">Update</button>
-            </form>
-          </td>
-          <td>
-            <form
-              method="post"
-              th:action="@{/admin/references/provider/delete}"
-            >
-              <input type="hidden" name="id" th:value="${provider.id}" />
-              <button
-                type="submit"
-                onclick="return confirm('Delete this unused provider?');"
-              >
-                Delete
+      <thead><tr><th>Provider</th><th>Enabled</th><th>Actions</th></tr></thead>
+      <tbody><tr th:each="provider : ${providers}">
+        <td th:text="${provider.name}"></td>
+        <td th:text="${provider.enabled ? 'Yes' : 'No'}"></td>
+        <td class="row-actions-cell">
+              <div class="row-actions">
+              <button class="row-action-icon js-open-edit-dialog" type="button" aria-label="Edit provider" title="Edit provider" th:attr="data-dialog-target=|edit-provider-${provider.id}|">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#pen">
+              </use>
+              </svg>
               </button>
-            </form>
-          </td>
-        </tr>
-      </tbody>
+              <button type="button" class="js-confirm-action row-action-icon row-action-danger" aria-label="Delete unused provider" title="Delete unused provider" data-confirm-phrase="DELETE" data-confirm-title="Delete unused provider" data-confirm-message="This permanently deletes the provider record; providers with course history cannot be deleted." data-confirm-button="Delete provider" th:attr="data-confirm-action=@{/admin/references/provider/delete(id=${provider.id})},data-confirm-subject=${provider.name}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#trash">
+              </use>
+              </svg>
+              </button>
+              </div>
+            </td>
+      </tr></tbody>
     </table>
+    <th:block th:each="provider : ${providers}">
+      <dialog class="cats-edit-dialog" th:id="|edit-provider-${provider.id}|" th:attr="aria-labelledby=|edit-provider-title-${provider.id}|">
+        <form method="post" th:action="@{/admin/references/provider}">
+          <h2 th:id="|edit-provider-title-${provider.id}|">Edit training provider</h2>
+          <input type="hidden" name="id" th:value="${provider.id}" />
+          <label>Provider name<input type="text" name="name" th:value="${provider.name}" maxlength="150" required /></label>
+          <label class="cats-check-label">Enabled<input type="checkbox" name="enabled" value="true" th:checked="${provider.enabled}" /></label>
+          <div class="cats-action-dialog-buttons"><button type="button" class="secondary js-close-edit-dialog">Cancel</button><button type="submit">Update provider</button></div>
+        </form>
+      </dialog>
+    </th:block>
     <h2>Public holidays</h2>
     <form method="get" th:action="@{/admin/references}">
       <label
@@ -132,48 +115,39 @@
       <button type="submit">Add holiday</button>
     </form>
     <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Name</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="holiday : ${holidays}">
-          <td colspan="2">
-            <form method="post" th:action="@{/admin/references/holiday}">
-              <input type="hidden" name="id" th:value="${holiday.holidayId}" />
-              <input
-                type="date"
-                name="holidayDate"
-                th:value="${holiday.holidayDate}"
-                required
-              />
-              <input
-                name="holidayName"
-                th:value="${holiday.holidayName}"
-                maxlength="255"
-                required
-              />
-              <button type="submit">Save holiday</button>
-            </form>
-          </td>
-          <td>
-            <form method="post" th:action="@{/admin/references/holiday/delete}">
-              <input type="hidden" name="id" th:value="${holiday.holidayId}" />
-              <input type="hidden" name="year" th:value="${year}" />
-              <button
-                type="submit"
-                onclick="return confirm('Delete this holiday?');"
-              >
-                Delete
+      <thead><tr><th>Date</th><th>Holiday</th><th>Actions</th></tr></thead>
+      <tbody><tr th:each="holiday : ${holidays}">
+        <td th:text="${holiday.holidayDate}"></td>
+        <td th:text="${holiday.holidayName}"></td>
+        <td class="row-actions-cell">
+              <div class="row-actions">
+              <button class="row-action-icon js-open-edit-dialog" type="button" aria-label="Edit holiday" title="Edit holiday" th:attr="data-dialog-target=|edit-holiday-${holiday.holidayId}|">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#pen">
+              </use>
+              </svg>
               </button>
-            </form>
-          </td>
-        </tr>
-      </tbody>
+              <button type="button" class="js-confirm-action row-action-icon row-action-danger" aria-label="Delete holiday" title="Delete holiday" data-confirm-phrase="DELETE" data-confirm-title="Delete holiday" data-confirm-message="This deletes the holiday record from the calendar and may affect training-day calculations." data-confirm-button="Delete holiday" th:attr="data-confirm-action=@{/admin/references/holiday/delete(id=${holiday.holidayId},year=${year})},data-confirm-subject=${holiday.holidayName}">
+              <svg class="row-action-svg" aria-hidden="true">
+              <use href="/images/icons/action-icons.svg#trash">
+              </use>
+              </svg>
+              </button>
+              </div>
+            </td>
+      </tr></tbody>
     </table>
+    <th:block th:each="holiday : ${holidays}">
+      <dialog class="cats-edit-dialog" th:id="|edit-holiday-${holiday.holidayId}|" th:attr="aria-labelledby=|edit-holiday-title-${holiday.holidayId}|">
+        <form method="post" th:action="@{/admin/references/holiday}">
+          <h2 th:id="|edit-holiday-title-${holiday.holidayId}|">Edit public holiday</h2>
+          <input type="hidden" name="id" th:value="${holiday.holidayId}" />
+          <label>Date<input type="date" name="holidayDate" th:value="${holiday.holidayDate}" required /></label>
+          <label>Holiday name<input name="holidayName" th:value="${holiday.holidayName}" maxlength="255" required /></label>
+          <div class="cats-action-dialog-buttons"><button type="button" class="secondary js-close-edit-dialog">Cancel</button><button type="submit">Save holiday</button></div>
+        </form>
+      </dialog>
+    </th:block>
     <p><a th:href="@{/admin/index}">Back to administration</a></p>
   </body>
 </html>
