@@ -725,3 +725,7 @@ body.cats-error { display: flex; flex-direction: column; min-height: 100vh; min-
 .cats-confirmation .confirmation-cancel { background: var(--color-surface-muted); border-color: var(--color-input-border); color: var(--color-text); }
 
 .course-type-filters > a[aria-current="page"] { background: var(--color-primary); border-color: var(--color-primary); color: white; }
+
+.report-actions > a:first-child { background: #137c70; border-color: #137c70; color: white; }
+.report-actions > a:first-child:hover { background: #0f655b; border-color: #0f655b; }
+.report-actions > a:last-child { margin-left: auto; }

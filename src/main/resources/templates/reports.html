@@ -5,9 +5,9 @@
 <body>
   <div th:replace="~{fragments/header :: header}"></div>
   <h1>Organisation-wide manager training reports</h1>
-  <p><a th:href="@{/manager/claims}">Decide direct-subordinate fee claims</a> ·
+  <div class="actions report-actions"><a th:href="@{/manager/claims}">Decide direct-subordinate fee claims</a>
      <a th:href="@{/manager/reports/print(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year})}"
-        target="_blank" rel="noopener">Print complete consolidated reports</a></p>
+        target="_blank" rel="noopener">Print complete consolidated reports</a></div>
   <p th:if="${error}" th:text="${error}" role="alert"></p>
   <form method="get" th:action="@{/manager/reports}">
     <label>From <input type="date" name="startDate" th:value="${from}" /></label>
@@ -26,11 +26,11 @@
   </form>
   <h2>Approved/completed training attendance</h2>
   <table><thead><tr><th>Employee</th><th>Course</th><th>Category</th><th>Start</th><th>End</th><th>Status</th><th>Fee</th></tr></thead>
-  <tbody><tr th:each="application : ${attendees}">
-    <td th:text="${application.user.name}"></td><td class="course-name" th:text="${application.course.courseName}"></td>
-    <td th:text="${application.course.courseType}"></td><td th:text="${application.course.startDate}"></td>
-    <td th:text="${application.course.endDate}"></td><td class="status-text" th:attr="data-status=${application.status}" th:text="${application.status}"></td>
-    <td th:text="${application.course.fee}"></td></tr></tbody></table>
+  <tbody><tr th:each="app : ${attendees}">
+    <td th:text="${app.user.name}"></td><td class="course-name" th:text="${app.course.courseName}"></td>
+    <td th:text="${app.course.courseType}"></td><td th:text="${app.course.startDate}"></td>
+    <td th:text="${app.course.endDate}"></td><td class="status-text" th:attr="data-status=${app.status}" th:text="${app.status}"></td>
+    <td th:text="${app.course.fee}"></td></tr></tbody></table>
   <nav class="pagination" aria-label="Attendance pages">
     <a th:if="${attendancePage > 0}" th:href="@{/manager/reports(startDate=${from},endDate=${to},category=${category},employeeId=${employeeId},year=${year},pageSize=${pageSize},attendancePage=${attendancePage-1},claimsPage=${claimsPage},budgetPage=${budgetPage})}">Previous</a><span class="pagination-placeholder" aria-hidden="true" th:unless="${attendancePage > 0}">Previous</span>
     <span th:text="|Attendance page ${attendancePage+1} / ${attendanceTotal == 0 ? 1 : attendanceTotal}|"></span>

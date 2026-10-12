@@ -4,10 +4,10 @@
     <link rel="icon" type="image/svg+xml" th:href="@{/images/cats-logo.svg}" /><title>Course fee claim</title><link rel="stylesheet" th:href="@{/style.css}" /></head>
 <body><div th:replace="~{fragments/header :: header}"></div>
 <h1>Submit course-fee reimbursement claim</h1>
-<p class="course-name" th:text="${application.course.courseName}"></p>
+<p class="course-name" th:text="${claimApplication.course.courseName}"></p>
 <p>Attach both a receipt proving personal payment and a certificate of completion (PDF, PNG or JPEG, each under 5 MB).</p>
 <form th:action="@{/staff/claim}" method="post" enctype="multipart/form-data">
-  <input type="hidden" name="applicationId" th:value="${application.id}" />
+  <input type="hidden" name="applicationId" th:value="${claimApplication.id}" />
   <label>Receipt <input type="file" name="receipt" accept="application/pdf,image/png,image/jpeg" required /></label>
   <label>Completion certificate <input type="file" name="certificate" accept="application/pdf,image/png,image/jpeg" required /></label>
   <button type="submit">Submit claim for manager approval</button>
