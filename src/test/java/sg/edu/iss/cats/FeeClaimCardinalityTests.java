@@ -20,10 +20,13 @@ class FeeClaimCardinalityTests {
     @Autowired private JdbcTemplate jdbc;
 
     @Test void rejectedClaimAlsoOccupiesUniqueApplicationSlot() {
+        Integer courseId = jdbc.queryForObject(
+                "SELECT course_id FROM course WHERE course_name = ?",
+                Integer.class, "Fixture Internal Course");
         jdbc.update("""
                 INSERT INTO application (id, status, user_reason, course_course_id, user_id)
-                VALUES (98, 'COMPLETED', 'Fixture completed training', 1, 3)
-                """);
+                VALUES (98, 'COMPLETED', 'Fixture completed training', ?, 3)
+                """, courseId);
         jdbc.update("""
                 INSERT INTO fee_claim (application_id, employee_user_id, amount, status, submitted_on)
                 VALUES (98, 3, 450.00, 'REJECTED', '2026-10-08')

@@ -14,6 +14,7 @@ class CaptchaValidationFilterTests {
         for (String path : new String[] {"/staff/login", "/admin/login", "/mfa/challenge",
                 "/staff/mobile/pair", "/staff/claim", "/admin/users/email"}) {
             var request = new MockHttpServletRequest("POST", path);
+            request.setServletPath(path);
             var response = new MockHttpServletResponse();
             FilterChain downstream = mock(FilterChain.class);
             filter.doFilter(request, response, downstream);

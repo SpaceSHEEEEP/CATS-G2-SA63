@@ -18,6 +18,7 @@ import sg.edu.iss.cats.model.Status;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.model.Course;
 import sg.edu.iss.cats.repository.AppRepo;
+import sg.edu.iss.cats.repository.CourseRepository;
 
 //Synthetic fixtures, isolated in an H2/Flyway test database.
 @DataJpaTest
@@ -27,6 +28,8 @@ import sg.edu.iss.cats.repository.AppRepo;
 public class CatsApplicationTests {
 	@Autowired
 	private AppRepo appRepo;
+	@Autowired
+	private CourseRepository courseRepository;
 	
 	@Test
 	@DisplayName("Returns a list of applications with user id and application status")
@@ -40,9 +43,7 @@ public class CatsApplicationTests {
 		user.setUserId(1);
 		a.setUser(user);
 
-		Course course = new Course();
-		course.setCourseId(1);
-		a.setCourse(course);
+		a.setCourse(fixtureCourse());
 
 		appRepo.save(a);
 
@@ -71,14 +72,19 @@ public class CatsApplicationTests {
 		user.setUserId(1);
 		a.setUser(user);
 
-		Course course = new Course();
-		course.setCourseId(1);
-		a.setCourse(course);
+		a.setCourse(fixtureCourse());
 
 		appRepo.save(a);
 		List<Application> result = appRepo.findByUser_UserIdAndId(1, a.getId());
 		result.forEach(app -> System.out.println("***** " + app));
 		assertThat(result).isNotEmpty();
+	}
+
+	private Course fixtureCourse() {
+		return courseRepository.findAll().stream()
+				.filter(course -> "Fixture Internal Course".equals(course.getCourseName()))
+				.findFirst()
+				.orElseThrow(() -> new AssertionError("Missing fixture course"));
 	}
 
 	@Test

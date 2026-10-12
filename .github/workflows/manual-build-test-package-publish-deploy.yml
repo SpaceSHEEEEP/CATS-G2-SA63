@@ -67,6 +67,9 @@ jobs:
         with:
           node-version: '22'
       - uses: android-actions/setup-android@v3
+        with:
+          # The action's default includes the removed legacy Android SDK "tools" package.
+          packages: 'platform-tools'
       - name: Install Angular and Capacitor dependencies
         working-directory: mobile
         run: |
@@ -231,5 +234,10 @@ jobs:
             fi
             rm -f CATS-Mobile.previous.apk
             sed -i '/^CATS_IMAGE=/d' .env.production
+            # A hand-edited dotenv file may have no final newline. Ensure the
+            # image tag is a separate variable rather than part of the last value.
+            if [ "$(tail -c 1 .env.production | wc -l)" -eq 0 ]; then
+              printf '\n' >> .env.production
+            fi
             printf 'CATS_IMAGE=%s\n' "$CATS_IMAGE" >> .env.production
             echo 'Deployment healthy; immutable image tag recorded.'
