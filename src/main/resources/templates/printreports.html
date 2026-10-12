@@ -1,42 +1,229 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
+  <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" /><meta charset="UTF-8"/><title>Consolidated training reports</title>
-<style>
-body{font:11pt Arial,sans-serif;color:#111} table{width:100%;border-collapse:collapse;margin-bottom:1.5em;font-size:9pt}
-th,td{border:1px solid #777;padding:5px;text-align:left;overflow-wrap:anywhere}
-thead{display:table-header-group} tr{break-inside:avoid} h2{break-after:avoid}
-@page{size:A4 landscape;margin:12mm}
-@media print{.print-controls{display:none}}
-</style></head>
-<body>
-<div class="print-controls"><button type="button" onclick="window.print()">Print complete consolidated reports</button>
-<a th:href="@{/manager/reports}">Back to reports</a></div>
-<h1>Consolidated course training, budget and claims reports</h1>
-<p th:text="|Attendance period: ${from} to ${to} · Budget / claims year: ${year}|"></p>
-<h2>Approved / completed course attendance</h2>
-<table><thead><tr><th>Employee</th><th>Course</th><th>Category</th><th>From</th><th>To</th><th>Status</th><th>Fee</th></tr></thead>
-<tbody><tr th:each="app : ${attendees}"><td th:text="${app.user.name}"></td><td th:text="${app.course.courseName}"></td>
-<td th:text="${app.course.courseType}"></td><td th:text="${app.course.startDate}"></td>
-<td th:text="${app.course.endDate}"></td><td th:text="${app.status}"></td><td th:text="${app.course.fee}"></td></tr></tbody></table>
-<h2>Employee budget and training-day utilisation</h2>
-<table><thead><tr><th>Employee</th><th>Days allocated</th><th>Days committed</th><th>Days completed</th>
-<th>Fee allocation</th><th>Fees committed</th><th>Remaining budget</th>
-<th>Claims paid</th><th>Approved awaiting payment</th><th>Pending claims</th></tr></thead>
-<tbody><tr th:each="row : ${budgets}"><td th:text="${row.employee.name}"></td>
-<td th:text="${row.summary.dayLimit}"></td><td th:text="${row.summary.daysCommitted}"></td>
-<td th:text="${row.summary.daysCompleted}"></td><td th:text="${row.summary.feeLimit}"></td>
-<td th:text="${row.summary.feesCommitted}"></td><td th:text="${row.summary.budgetRemaining}"></td>
-<td th:text="${row.claimsReimbursed}"></td><td th:text="${row.claimsApprovedAwaitingPayment}"></td>
-<td th:text="${row.claimsPending}"></td></tr></tbody></table>
-<h2>Fee reimbursement claims (APPROVED is not yet paid)</h2>
-<table><thead><tr><th>Employee</th><th>Course</th><th>Submitted</th><th>Amount</th>
-<th>Status</th><th>Manager reason</th><th>Paid on</th><th>Payment reference</th></tr></thead>
-<tbody><tr th:each="claim : ${claims}"><td th:text="${claim.employee.name}"></td>
-<td th:text="${claim.application.course.courseName}"></td><td th:text="${claim.submittedOn}"></td>
-<td th:text="${claim.amount}"></td><td th:text="${claim.status}"></td>
-<td th:text="${claim.managerReason}"></td><td th:text="${claim.paidOn}"></td>
-<td th:text="${claim.paymentReference}"></td></tr></tbody></table>
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
+    <meta charset="UTF-8" />
+    <title>Consolidated training reports</title>
+    <style>
+      body {
+        font:
+          11pt Arial,
+          sans-serif;
+        color: #111;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5em;
+        font-size: 9pt;
+      }
+      th,
+      td {
+        border: 1px solid #777;
+        padding: 5px;
+        text-align: left;
+        overflow-wrap: anywhere;
+      }
+      thead {
+        display: table-header-group;
+      }
+      tr {
+        break-inside: avoid;
+      }
+      h2 {
+        break-after: avoid;
+      }
+      @page {
+        size: A4 landscape;
+        margin: 12mm;
+      }
+      @media print {
+        .print-controls {
+          display: none;
+        }
+      }
+      @media screen {
+        body {
+          margin: 0;
+          padding: 1.25rem;
+          background: #eef1fa;
+          color: #1e293b;
+          font:
+            1rem/1.5 system-ui,
+            sans-serif;
+        }
+        h1,
+        h2 {
+          color: #202b6d;
+        }
+        h1 {
+          font-size: 1.7rem;
+        }
+        h2 {
+          font-size: 1.25rem;
+          margin-top: 1.8rem;
+        }
+        .print-controls {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin: 0 0 1.5rem;
+          padding: 0.9rem 1rem;
+          background: #e4e8f8;
+          border: 1px solid #c1cbe8;
+          border-radius: 0.75rem;
+        }
+        .print-controls button {
+          padding: 0.65rem 1rem;
+          border: 1px solid #283586;
+          border-radius: 0.65rem;
+          background: #283586;
+          color: #fff;
+          font: inherit;
+          font-weight: 650;
+          cursor: pointer;
+        }
+        .print-controls button:hover {
+          background: #202b6d;
+        }
+        .print-controls a {
+          color: #283586;
+          font-weight: 650;
+        }
+        .print-controls :is(a, button):focus-visible {
+          outline: 3px solid #6977d2;
+          outline-offset: 2px;
+        }
+        table {
+          width: 100%;
+          max-width: 100%;
+          border-collapse: separate;
+          border-spacing: 0;
+          border: 1px solid #cbd5e1;
+          border-radius: 0.75rem;
+          overflow: hidden;
+          background: #fff;
+          box-shadow: 0 4px 14px #1e293b0e;
+          font-size: 0.88rem;
+        }
+        th,
+        td {
+          border: 0;
+          border-bottom: 1px solid #e3e8f1;
+          padding: 0.75rem 0.8rem;
+        }
+        thead th {
+          background: #e4e8f8;
+          color: #202b6d;
+        }
+        tbody tr:nth-child(even) {
+          background: #f3f5fc;
+        }
+        tbody tr:hover {
+          background: #e9edfa;
+        }
+        tbody tr:last-child td {
+          border-bottom: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="print-controls">
+      <button type="button" onclick="window.print()">
+        Print complete consolidated reports
+      </button>
+      <a th:href="@{/manager/reports}">Back to reports</a>
+    </div>
+    <h1>Consolidated course training, budget and claims reports</h1>
+    <p
+      th:text="|Attendance period: ${from} to ${to} · Budget / claims year: ${year}|"
+    ></p>
+    <h2>Approved / completed course attendance</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Course</th>
+          <th>Category</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Status</th>
+          <th>Fee</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="app : ${attendees}">
+          <td th:text="${app.user.name}"></td>
+          <td th:text="${app.course.courseName}"></td>
+          <td th:text="${app.course.courseType}"></td>
+          <td th:text="${app.course.startDate}"></td>
+          <td th:text="${app.course.endDate}"></td>
+          <td th:text="${app.status}"></td>
+          <td th:text="${app.course.fee}"></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Employee budget and training-day utilisation</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Days allocated</th>
+          <th>Days committed</th>
+          <th>Days completed</th>
+          <th>Fee allocation</th>
+          <th>Fees committed</th>
+          <th>Remaining budget</th>
+          <th>Claims paid</th>
+          <th>Approved awaiting payment</th>
+          <th>Pending claims</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="row : ${budgets}">
+          <td th:text="${row.employee.name}"></td>
+          <td th:text="${row.summary.dayLimit}"></td>
+          <td th:text="${row.summary.daysCommitted}"></td>
+          <td th:text="${row.summary.daysCompleted}"></td>
+          <td th:text="${row.summary.feeLimit}"></td>
+          <td th:text="${row.summary.feesCommitted}"></td>
+          <td th:text="${row.summary.budgetRemaining}"></td>
+          <td th:text="${row.claimsReimbursed}"></td>
+          <td th:text="${row.claimsApprovedAwaitingPayment}"></td>
+          <td th:text="${row.claimsPending}"></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Fee reimbursement claims (APPROVED is not yet paid)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Course</th>
+          <th>Submitted</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Manager reason</th>
+          <th>Paid on</th>
+          <th>Payment reference</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="claim : ${claims}">
+          <td th:text="${claim.employee.name}"></td>
+          <td th:text="${claim.application.course.courseName}"></td>
+          <td th:text="${claim.submittedOn}"></td>
+          <td th:text="${claim.amount}"></td>
+          <td th:text="${claim.status}"></td>
+          <td th:text="${claim.managerReason}"></td>
+          <td th:text="${claim.paidOn}"></td>
+          <td th:text="${claim.paymentReference}"></td>
+        </tr>
+      </tbody>
+    </table>
     <div th:replace="~{fragments/footer :: footer}"></div>
-</body></html>
+  </body>
+</html>

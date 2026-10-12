@@ -278,3 +278,53 @@ footer {
 }
 .sidebar-links button.active { background: #d4ecf4; color: #11465f; font-weight: 750; }
 .sidebar-links button:focus-visible, .nav-toggle:focus-visible { outline: 3px solid #ffcd71; outline-offset: 2px; }
+
+.app-shell {
+  padding-top: 0;
+  background: var(--mobile-surface);
+  box-shadow: 0 12px 34px rgb(30 41 59 / 9%);
+}
+.hero {
+  padding-top: calc(1.2rem + env(safe-area-inset-top, 0px));
+  background: linear-gradient(120deg, #202b6d, #35479d);
+}
+.hero .mascot { filter: drop-shadow(0 4px 8px rgb(13 20 69 / 35%)); }
+.eyebrow { color: #e1e6ff; }
+.sync-row { background: #eef0fa; border-bottom-color: #d5daf0; }
+.connection { color: #285344; }
+.status { background: #fafbff; color: #475569; border-bottom-color: #e1e5ee; }
+main h2 { color: var(--mobile-primary); }
+.muted { color: #64748b; }
+.field input, .field textarea {
+  border-color: #94a3b8;
+  border-radius: 0.65rem;
+  color: var(--mobile-text);
+  box-shadow: 0 1px 3px rgb(30 41 59 / 5%);
+}
+.field :is(input, textarea):focus { border-color: #6977d2; }
+.course-card, .ledger-row { border-color: #dce3ef; background: #fafbff; box-shadow: 0 2px 8px rgb(30 41 59 / 5%); }
+.category { background: #e7eafa; color: #293783; }
+.status-chip { background: #e4e9f7; color: #283586; }
+.metrics > div { background: #eef0fa; border: 1px solid #dde2f4; }
+.metrics small { color: #64748b; }
+.metrics strong { color: #283586; }
+.empty { background: #f1f5f9; color: #475569; }
+.discovery-prompt { color: #285344; }
+.estimate { background: #eef0fa; border-left-color: #4a5baa; }
+.otp-panel { background: #222e75; }
+.otp-panel p { color: #e2e8ff; }
+footer { background: #f3f5fc; color: #64748b; }
+.nav-toggle { background: rgb(255 255 255 / 16%); border-color: rgb(255 255 255 / 66%); }
+.nav-toggle:hover:not(:disabled) { background: rgb(255 255 255 / 26%); border-color: #fff; }
+.sidebar-backdrop { background: rgb(22 29 65 / 57%); }
+.mobile-sidebar { background: #fff; box-shadow: 6px 0 35px rgb(22 29 65 / 27%); }
+.sidebar-header strong { color: var(--mobile-primary); }
+.sidebar-links button { color: #334155; }
+.sidebar-links button:hover:not(:disabled) { background: #f0f2fb; color: #283586; }
+.sidebar-links button.active { background: #e3e8fa; color: #283586; }
+.sidebar-links :is(button, button.active):focus-visible { outline-color: #6977d2; }
+@media (max-width: 500px) {
+  .hero { gap: 0.75rem; }
+  .sync-row { flex-wrap: wrap; }
+  main { padding: 1rem 0.95rem 2rem; }
+}

@@ -51,3 +51,25 @@ h3 {
 p {
   line-height: 1.55;
 }
+
+:root {
+  --mobile-primary: #283586;
+  --mobile-primary-hover: #202b6d;
+  --mobile-surface: #fff;
+  --mobile-muted: #f1f5f9;
+  --mobile-background: #eef1fa;
+  --mobile-text: #1e293b;
+  --mobile-border: #cbd5e1;
+  color: var(--mobile-text);
+  background: var(--mobile-background);
+}
+:where(button, input, textarea, select):focus-visible {
+  outline: 3px solid #6977d2;
+  outline-offset: 2px;
+}
+button { background: var(--mobile-primary); border: 1px solid var(--mobile-primary); }
+button:hover:not(:disabled) { background: var(--mobile-primary-hover); border-color: var(--mobile-primary-hover); }
+button.ghost { color: var(--mobile-primary); background: #f6f7fd; border-color: #b7c0e3; }
+button.ghost:hover:not(:disabled) { color: var(--mobile-primary-hover); background: #e7ebf8; }
+button.danger { color: #991b1b; }
+button.danger:hover:not(:disabled) { background: #fee2e2; border-color: #efb4b4; }

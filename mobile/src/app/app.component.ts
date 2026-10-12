@@ -58,7 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
       // Keep WebView content below Android's system status bar.
       try {
         await StatusBar.setOverlaysWebView({ overlay: false });
-        await StatusBar.setBackgroundColor({ color: '#0d3b56' });
+        await StatusBar.setBackgroundColor({ color: '#283586' });
       } catch { /* CSS safe-area insets remain as a fallback. */ }
     }
     try {
