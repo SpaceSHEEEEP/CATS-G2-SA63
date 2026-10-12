@@ -1,83 +1,144 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="EN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" th:href="@{/style.css}" />
-  <title>Application Details</title>
-</head>
+  <head>
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" th:href="@{/style.css}" />
+    <title>Application Details</title>
+  </head>
 
-<body>
+  <body class="cats-application-details">
     <div th:replace="~{fragments/header :: header}"></div>
 
     <!-- display error message if managerReason is not filled -->
-    <div th:if="${errormsg}" th:text="${errormsg}" class="global-error-message"></div>
+    <div
+      th:if="${errormsg}"
+      th:text="${errormsg}"
+      class="global-error-message"
+    ></div>
 
     <div class="cats-page-heading">
-      <img th:if="${applicationResult.status.name() == 'COMPLETED'}" th:src="@{/images/cats/adventure.png}" alt="" />
-      <img th:if="${applicationResult.status.name() == 'APPROVED'}" th:src="@{/images/cats/excited.png}" alt="" />
-      <img th:if="${applicationResult.status.name() == 'REJECTED' or applicationResult.status.name() == 'CANCELLED'}" th:src="@{/images/cats/tearful.png}" alt="" />
-      <img th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}" th:src="@{/images/cats/curious.png}" alt="" />
+      <img
+        th:if="${applicationResult.status.name() == 'COMPLETED'}"
+        th:src="@{/images/cats/adventure.png}"
+        alt=""
+      />
+      <img
+        th:if="${applicationResult.status.name() == 'APPROVED'}"
+        th:src="@{/images/cats/excited.png}"
+        alt=""
+      />
+      <img
+        th:if="${applicationResult.status.name() == 'REJECTED' or applicationResult.status.name() == 'CANCELLED'}"
+        th:src="@{/images/cats/tearful.png}"
+        alt=""
+      />
+      <img
+        th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}"
+        th:src="@{/images/cats/curious.png}"
+        alt=""
+      />
       <h1>Application Details</h1>
     </div>
 
     <div class="details-card">
-        
-        <!-- TODO: replace below with applicationDetails -->
-        <th:block th:replace="~{fragments/applicationlist :: applicationDetails(app=${applicationResult})}"></th:block>
+      <!-- TODO: replace below with applicationDetails -->
+      <th:block
+        th:replace="~{fragments/applicationlist :: applicationDetails(app=${applicationResult})}"
+      ></th:block>
 
+      <th:block
+        th:unless="${#strings.isEmpty(#strings.trim(applicationResult.managerReason))}"
+      >
+        <div
+          th:replace="~{fragments/formactions :: showManagerReason(app=${applicationResult})}"
+        ></div>
+      </th:block>
 
-        <th:block th:unless="${#strings.isEmpty(#strings.trim(applicationResult.managerReason))}">
-            <div th:replace="~{fragments/formactions :: showManagerReason(app=${applicationResult})}"></div>
+      <!-- TODO: display comment! need to go to application controller and give completed comment to here -->
+      <th:block th:if="${comment}">
+        <th:block
+          th:unless="${#strings.isEmpty(#strings.trim(comment.commentText))}"
+        >
+          <div
+            th:replace="~{fragments/formactions :: showComment(comment=${comment})}"
+          ></div>
         </th:block>
+      </th:block>
 
-        <!-- TODO: display comment! need to go to application controller and give completed comment to here -->
-        <th:block th:if="${comment}">
-        <th:block th:unless="${#strings.isEmpty(#strings.trim(comment.commentText))}">
-            <div th:replace="~{fragments/formactions :: showComment(comment=${comment})}"></div>
-        </th:block>
-        </th:block>
-
-        <th:block th:unless="${applicationResult.status.name() == 'DELETED' or 
+      <th:block
+        th:unless="${applicationResult.status.name() == 'DELETED' or 
                                applicationResult.status.name() == 'REJECTED' or 
                                applicationResult.status.name() == 'CANCELLED' or 
-                               applicationResult.status.name() == 'COMPLETED'}">
+                               applicationResult.status.name() == 'COMPLETED'}"
+      >
+        <th:block th:if="${viewer == 'mine'}">
+          <th:block
+            th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}"
+          >
+            <div
+              th:replace="~{fragments/formactions :: editOrDelete(app=${applicationResult})}"
+            ></div>
+          </th:block>
 
-            <th:block th:if="${viewer == 'mine'}">
-                <th:block th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}">
-                    <div th:replace="~{fragments/formactions :: editOrDelete(app=${applicationResult})}"></div>
-                </th:block>
-
-                <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
-                    <div th:replace="~{fragments/formactions :: cancelOrComplete(app=${applicationResult}, comment=${comment})}"></div>
-                </th:block>
-            </th:block>
-
-            <th:block th:if="${viewer == 'manager'}">
-                <section th:if="${approvalBudget}">
-                    <h3>Subordinate annual training utilisation</h3>
-                    <p>Year <span th:text="${approvalBudget.year}"></span> — days committed:
-                    <span th:text="${approvalBudget.daysCommitted}"></span>, days completed:
-                    <span th:text="${approvalBudget.daysCompleted}"></span>, days remaining:
-                    <span th:text="${approvalBudget.daysRemaining}"></span>, fees committed:
-                    <span th:text="${approvalBudget.feesCommitted}"></span>, budget remaining:
-                    <span th:text="${approvalBudget.budgetRemaining}"></span>.</p>
-                </section>
-                <h3>Other subordinates' approved courses overlapping this period</h3>
-                <p th:if="${#lists.isEmpty(overlappingApprovedCourses)}">No overlapping approved courses.</p>
-                <ul><li th:each="other : ${overlappingApprovedCourses}"
-                    th:text="${other.user.name + ': ' + other.course.courseName + ' (' + other.course.startDate + ' to ' + other.course.endDate + ')'}"></li></ul>
-                <th:block th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}">
-                    <div th:replace="~{fragments/formactions :: approveOrReject(app=${applicationResult})}"></div>
-                </th:block>
-            </th:block>
-
+          <th:block th:if="${applicationResult.status.name() == 'APPROVED'}">
+            <div
+              th:replace="~{fragments/formactions :: cancelOrComplete(app=${applicationResult}, comment=${comment})}"
+            ></div>
+          </th:block>
         </th:block>
-        <p th:if="${viewer == 'mine' and applicationResult.status.name() == 'COMPLETED' and applicationResult.course.courseType.name() != 'INTERNAL' and applicationResult.course.fee.signum() > 0}">
-          <a th:if="${!hasFeeClaim}" th:href="@{/staff/claim(applicationId=${applicationResult.id})}">Claim course fee reimbursement</a>
-          <a th:if="${hasFeeClaim}" th:href="@{/staff/claims}">View my existing claim</a>
-        </p>
+
+        <th:block th:if="${viewer == 'manager'}">
+          <section th:if="${approvalBudget}">
+            <h3>Subordinate annual training utilisation</h3>
+            <p>
+              Year <span th:text="${approvalBudget.year}"></span> — days
+              committed:
+              <span th:text="${approvalBudget.daysCommitted}"></span>, days
+              completed:
+              <span th:text="${approvalBudget.daysCompleted}"></span>, days
+              remaining:
+              <span th:text="${approvalBudget.daysRemaining}"></span>, fees
+              committed:
+              <span th:text="${approvalBudget.feesCommitted}"></span>, budget
+              remaining:
+              <span th:text="${approvalBudget.budgetRemaining}"></span>.
+            </p>
+          </section>
+          <h3>Other subordinates' approved courses overlapping this period</h3>
+          <p th:if="${#lists.isEmpty(overlappingApprovedCourses)}">
+            No overlapping approved courses.
+          </p>
+          <ul>
+            <li
+              th:each="other : ${overlappingApprovedCourses}"
+              th:text="${other.user.name + ': ' + other.course.courseName + ' (' + other.course.startDate + ' to ' + other.course.endDate + ')'}"
+            ></li>
+          </ul>
+          <th:block
+            th:if="${applicationResult.status.name() == 'APPLIED' or applicationResult.status.name() == 'UPDATED'}"
+          >
+            <div
+              th:replace="~{fragments/formactions :: approveOrReject(app=${applicationResult})}"
+            ></div>
+          </th:block>
+        </th:block>
+      </th:block>
+      <p
+        th:if="${viewer == 'mine' and applicationResult.status.name() == 'COMPLETED' and applicationResult.course.courseType.name() != 'INTERNAL' and applicationResult.course.fee.signum() > 0}"
+      >
+        <a
+          th:if="${!hasFeeClaim}"
+          th:href="@{/staff/claim(applicationId=${applicationResult.id})}"
+          >Claim course fee reimbursement</a
+        >
+        <a th:if="${hasFeeClaim}" th:href="@{/staff/claims}"
+          >View my existing claim</a
+        >
+      </p>
     </div>
 
-</body>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
 </html>

@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.validation.Valid;
 import sg.edu.iss.cats.dto.CourseApplicantSummary;
 import sg.edu.iss.cats.model.Course;
+import sg.edu.iss.cats.model.CourseType;
 import sg.edu.iss.cats.model.LoginForm;
 import sg.edu.iss.cats.model.User;
 import sg.edu.iss.cats.repository.UserRepository;
@@ -49,6 +50,7 @@ public class AdminController {
 	public String showAdmin(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+            @RequestParam(name = "type", defaultValue = "ALL") String type,
             Model model) {
 
         if (user == null)                      return "redirect:/admin/login";
@@ -66,12 +68,25 @@ public class AdminController {
         model.addAttribute("holidays",
                 holidayRepository.findByHolidayDateBetweenOrderByHolidayDateAsc(firstDay, lastDay));
 
+        // Unknown category values fall back to ALL, not an invalid enum or 500.
+        CourseType selectedType = switch (type) {
+            case "INTERNAL" -> CourseType.INTERNAL;
+            case "EXTERNAL" -> CourseType.EXTERNAL;
+            case "PROFESSIONAL" -> CourseType.PROFESSIONAL;
+            default -> null;
+        };
+        pageNum = Math.max(0, pageNum);
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         // TODO: get pages WITH application count!! The one below doesn't have application count
         // Page<Course> courseSummaries = courseRepository.findAllByOrderByApplicationsSizeDesc(pageable);
         // model.addAttribute("courseSummaries", courseSummaries);
-        Page<CourseApplicantSummary> courseSummaries = courseRepository.findCoursesWithApplicantCounts(pageable);
+        Page<CourseApplicantSummary> courseSummaries = selectedType == null
+                ? courseRepository.findCoursesWithApplicantCounts(pageable)
+                : courseRepository.findCoursesWithApplicantCountsByType(selectedType, pageable);
         model.addAttribute("courseSummaries", courseSummaries);
+        model.addAttribute("selectedType", selectedType == null ? "ALL" : selectedType.name());
+        model.addAttribute("courseTypes", List.of("ALL", "INTERNAL", "EXTERNAL", "PROFESSIONAL"));
+        model.addAttribute("catalogueCourseCount", courseRepository.count());
         model.addAttribute("pageNum", pageNum);
         model.addAttribute("pageNumLast", courseSummaries.getTotalPages());
         model.addAttribute("user", userRepository.findById(user.getUserId()).orElseThrow());

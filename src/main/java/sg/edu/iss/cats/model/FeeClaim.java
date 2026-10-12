@@ -14,7 +14,9 @@ public class FeeClaim {
     public enum ClaimStatus { SUBMITTED, APPROVED, REJECTED, PAID }
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    /** One reimbursement claim per application, including a rejected claim. */
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "application_id", nullable = false, unique = true)
     private Application application;
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private User employee;

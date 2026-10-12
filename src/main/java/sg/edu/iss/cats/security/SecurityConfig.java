@@ -82,6 +82,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/staff/login", "/admin/login", "/style.css", "/error",
                         "/images/**", "/js/**", "/captcha/**", "/mobile/app/**", "/actuator/health").permitAll()
+                .requestMatchers(HttpMethod.GET, "/fonts/**").permitAll()
                 .requestMatchers("/manager/**").hasRole("MANAGER")
                 .requestMatchers("/staff/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
                 .requestMatchers("/api/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")

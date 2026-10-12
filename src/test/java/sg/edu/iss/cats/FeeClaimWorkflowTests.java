@@ -52,8 +52,24 @@ class FeeClaimWorkflowTests {
         when(claims.save(any(FeeClaim.class))).thenAnswer(inv -> inv.getArgument(0));
         FeeClaim c = service.submit(4, 8, pdf("receipt"), pdf("certificate"));
         assertThat(c.getStatus()).isEqualTo(FeeClaim.ClaimStatus.SUBMITTED);
+        assertThat(c.getPaidOn()).isNull();
+        // Submitting a receipt proves personal payment, not reimbursement.
+        verify(apps, never()).save(any(Application.class));
         assertThat(c.getReceiptReference()).isEqualTo("application/pdf");
         assertThat(c.getReceiptData()).startsWith("%PDF-".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+    }
+
+    @Test void previouslyRejectedClaimCannotBeSubmittedAgain() {
+        when(users.findLockedById(4)).thenReturn(Optional.of(user(4, Role.ROLE_EMPLOYEE)));
+        when(apps.findById(8)).thenReturn(Optional.of(completedCourse(4)));
+        // The existence test intentionally includes REJECTED claims.
+        when(claims.existsByApplication_Id(8)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.submit(4, 8, pdf("receipt"), pdf("certificate")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already has a claim");
+        verify(claims, never()).save(any(FeeClaim.class));
+        verify(apps, never()).save(any(Application.class));
     }
 
     @Test void managerMayOnlyDecideDirectSubordinatesClaims() {

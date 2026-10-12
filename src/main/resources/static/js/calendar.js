@@ -129,8 +129,9 @@ function showTrainingDetails(event, attendees = null) {
   document.getElementById("details-duration").textContent =
     durationLabels[event.duration] || "Not specified";
 
-  document.getElementById("details-status").textContent =
-    event.status;
+  const detailsStatus = document.getElementById("details-status");
+  detailsStatus.textContent = event.status;
+  detailsStatus.dataset.status = event.status;
 
   document.getElementById("details-location").textContent =
     event.location || "Not specified";

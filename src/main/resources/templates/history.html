@@ -1,31 +1,44 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
     <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
         <title>Subordinate History</title>
         <meta charset="UTF-8">
         <link rel="stylesheet" th:href="@{/style.css}" />
     </head>
-    <body>
+    <body class="cats-team-history">
 
         <div th:replace="~{fragments/header :: header}"></div>
 
         <div class="cats-page-heading"><img th:src="@{/images/cats/thoughtful.png}" alt="" /><h2>Subordinate course history (<span th:text="${year}"></span>)</h2></div>
-        <p th:if="${#maps.isEmpty(subordinateGroups)}">No applications this year.</p>
-        <details th:each="group : ${subordinateGroups}">
-          <summary th:text="${group.key}"></summary>
+        <div class="actions manager-navigation" role="navigation" aria-label="Team training pages">
+    <a th:href="@{/manager/applications}">Team Training</a>
+    <a aria-current="page" th:href="@{/manager/history}">Subordinate Course History</a>
+    <a th:href="@{/manager/reports}">Training and Budget Reports</a>
+</div>
+<p class="cats-site-description">Current-year applications for your direct subordinates, grouped by employee.</p>
+<p th:if="${#maps.isEmpty(subordinateGroups)}">No applications this year.</p>
+        <details class="history-group" th:each="group : ${subordinateGroups}">
+          <summary><span th:text="${group.key}"></span> <span class="badge" th:text="|${#lists.size(group.value)} applications|"></span></summary>
           <div th:replace="~{fragments/applicationlist :: applicationList(${group.value})}"></div>
         </details>
-        <form method="get" th:action="@{/manager/history}">
-          <label>Results per page <select name="pageSize" onchange="this.form.submit()">
-            <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
-          </select></label>
-        </form>
-        <nav aria-label="Subordinate history pages">
-          <a th:if="${pageNum > 0}" th:href="@{/manager/history(pageNum=${pageNum-1},pageSize=${pageSize})}">Previous</a>
-          <span th:text="|${pageNum+1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
-          <a th:if="${pageNum+1 < totalPages}" th:href="@{/manager/history(pageNum=${pageNum+1},pageSize=${pageSize})}">Next</a>
-        </nav>
-        
-    </body>
+
+    <form method="get" th:action="@{/manager/history}">
+    <label>Results per page
+        <select name="pageSize" onchange="this.form.submit()">
+            <option value="ALL" th:selected="${historyPageSize == 'ALL'}">All</option>
+            <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}"
+                    th:selected="${historyPageSize == n.toString()}"></option>
+        </select>
+    </label>
+</form>
+<nav class="pagination" aria-label="Subordinate history pages" th:if="${historyPageSize != 'ALL'}">
+    <a th:if="${historyPage > 0}" th:href="@{/manager/history(pageNum=${historyPage-1},pageSize=${historyPageSize})}">Previous</a>
+    <span th:text="|${historyPage+1} / ${historyTotalPages == 0 ? 1 : historyTotalPages}|"></span>
+    <a th:if="${historyPage+1 < historyTotalPages}" th:href="@{/manager/history(pageNum=${historyPage+1},pageSize=${historyPageSize})}">Next</a>
+</nav>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>
 

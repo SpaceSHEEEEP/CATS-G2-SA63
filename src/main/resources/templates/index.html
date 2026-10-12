@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <HTML lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> 
 	<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
         <title>My Training</title>
         <link rel="stylesheet" th:href="@{/style.css}"/>
 	</head>
-	<body>
+	<body class="cats-home">
         <div th:replace="~{fragments/header :: header}"></div>
 
-        <div class="cats-page-heading"><img src="/images/cats/excited.png" th:src="@{/images/cats/excited.png}" alt="" /><h1>My Training</h1></div>
+        <div class="cats-page-heading"><img src="/images/cats/excited.png" th:src="@{/images/cats/excited.png}" alt="" />    <div class="cats-site-intro">
+        <p class="cats-site-name"><strong>Course Application Tracking System (CATS)</strong></p>
+        <p class="cats-site-description">Apply for courses, track approvals and manage your training.</p>
+    </div>
+<h1>My Training</h1></div>
         <p th:text="${'Welcome ' + user.name + '!'}"></p>
 
-        <div class="actions">
+        <div class="actions home-actions">
             <a th:href="@{/staff/courselist}">View Courses</a>  
-            <a th:href="@{/staff/apply}">Apply for a Course</a>
+            <a class="home-apply" th:href="@{/staff/apply}">Apply for a Course</a>
             <a th:href="@{/staff/calendar}">View Calendar</a>
         </div>
 
@@ -47,11 +53,12 @@
               <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
             </select></label>
         </form>
-        <nav aria-label="Personal application pages">
+        <nav class="pagination" aria-label="Personal application pages">
             <a th:if="${pageNum > 0}" th:href="@{/staff/index(pageNum=${pageNum - 1},pageSize=${pageSize})}">Previous</a>
             <span th:text="|${pageNum + 1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
             <a th:if="${pageNum + 1 < totalPages}" th:href="@{/staff/index(pageNum=${pageNum + 1},pageSize=${pageSize})}">Next</a>
         </nav>
 
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>

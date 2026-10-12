@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
     <meta charset="UTF-8">
     <title>Team Training</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
@@ -13,7 +15,12 @@
 
     <div class="cats-page-heading"><img th:src="@{/images/cats/surprised.png}" alt="" /><h1>Team Training</h1></div>
 
-		<h2>Search Team Applications</h2>
+		<div class="actions manager-navigation" role="navigation" aria-label="Team training pages">
+    <a aria-current="page" th:href="@{/manager/applications}">Team Training</a>
+    <a th:href="@{/manager/history}">Subordinate Course History</a>
+    <a th:href="@{/manager/reports}">Training and Budget Reports</a>
+</div>
+<h2>Search Team Applications</h2>
 		<form th:action="@{/manager/applications/search}" method="get">
 
 			<label for="employeeName">Employee Name:</label>
@@ -49,7 +56,7 @@
         <option th:each="n : ${pageSizes}" th:value="${n}" th:text="${n}" th:selected="${n == pageSize}"></option>
       </select></label>
     </form>
-    <nav aria-label="Pending approval pages">
+    <nav class="pagination" aria-label="Pending approval pages">
       <a th:if="${pageNum > 0}" th:href="@{/manager/applications(pageNum=${pageNum - 1},pageSize=${pageSize})}">Previous</a>
       <span th:text="|${pageNum + 1} / ${totalPages == 0 ? 1 : totalPages}|"></span>
       <a th:if="${pageNum + 1 < totalPages}" th:href="@{/manager/applications(pageNum=${pageNum + 1},pageSize=${pageSize})}">Next</a>
@@ -57,5 +64,6 @@
     <p><a th:href="@{/manager/history}">Subordinate course history</a>
        · <a th:href="@{/manager/reports}">Training and budget reports</a></p>
 
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

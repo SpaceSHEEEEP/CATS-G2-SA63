@@ -42,7 +42,6 @@ public class Application {
     @Column(length = 1000)
     private String workDissemination;
     private String managerReason;
-    private Boolean hasBeenPaid;
 
     @ManyToOne(fetch=FetchType.EAGER)
     @Valid

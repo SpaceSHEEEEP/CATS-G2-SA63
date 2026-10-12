@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
     <title>My reimbursement claims</title>
     <link rel="stylesheet" th:href="@{/style.css}" />
   </head>
@@ -25,10 +27,10 @@
       </thead>
       <tbody>
         <tr th:each="claim : ${claims}">
-          <td th:text="${claim.application.course.courseName}"></td>
+          <td class="course-name" th:text="${claim.application.course.courseName}"></td>
           <td th:text="${claim.submittedOn}"></td>
           <td th:text="${claim.amount}"></td>
-          <td th:text="${claim.status}"></td>
+          <td class="status-text" th:attr="data-status=${claim.status}" th:text="${claim.status}"></td>
           <td th:text="${claim.managerReason}"></td>
           <td
             th:text="${claim.paidOn == null ? '-' : (claim.paidOn + ' / ' + claim.paymentReference)}"
@@ -45,7 +47,7 @@
         </tr>
       </tbody>
     </table>
-    <nav>
+    <nav class="pagination" aria-label="Fee claim pages">
       <a
         th:if="${page.hasPrevious()}"
         th:href="@{/staff/claims(page=${page.number - 1})}"
@@ -60,5 +62,6 @@
         >Next</a
       >
     </nav>
-  </body>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>

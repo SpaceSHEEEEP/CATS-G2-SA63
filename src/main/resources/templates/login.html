@@ -1,52 +1,109 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title th:text="${adminLogin} ? 'Administrator Login' : 'Staff Login'"></title>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" th:href="@{/images/cats/celebrate.png}" />
+    <title
+      th:text="${adminLogin} ? 'Administrator Login' : 'Staff Login'"
+    ></title>
     <link rel="stylesheet" th:href="@{/style.css}" />
     <script th:src="@{/js/captcha.js}" defer></script>
-</head>
-<body>
-    <div class="cats-login-brand"><img class="cats-login-art" th:src="@{/images/cats/excited.png}" alt="Excited CATS welcome mascot"/><h1 th:text="${adminLogin} ? 'Administrator Login' : 'Staff Login'">Staff Login</h1></div>
-    <p>Password login is followed by a six-digit code from CATS Mobile or another authenticator.</p>
+  </head>
+  <body class="cats-login">
+    <main
+      class="cats-login-card"
+      th:classappend="${adminLogin} ? 'cats-login-card--admin' : ''"
+    >
+      <div class="cats-login-brand">
+        <img
+          class="cats-login-art"
+          th:src="@{/images/cats/excited.png}"
+          alt="Excited CATS welcome mascot"
+        />
+        <h1 th:text="${adminLogin} ? 'Administrator Login' : 'Staff Login'">
+          Staff Login
+        </h1>
+      </div>
+      <p>
+        Password login is followed by a six-digit code from CATS Mobile or
+        another authenticator.
+      </p>
 
-    <!-- spring security? -->
-    <div th:if="${param.error}">Your username or password is incorrect</div>
-    <div th:if="${param.adminDenied}">You cannot log in via the admin login page. Please sign in via the staff login page</div>
-    <div th:if="${param.logout}">You have been logged out</div>
-    <p th:if="${param.captchaError}" role="alert">Verification failed or expired. Please try a new puzzle.</p>
+      <!-- spring security? -->
+      <div th:if="${param.error}">Your username or password is incorrect</div>
+      <div th:if="${param.adminDenied}">
+        You cannot log in via the admin login page. Please sign in via the staff
+        login page
+      </div>
+      <div th:if="${param.logout}">You have been logged out</div>
+      <p th:if="${param.captchaError}" role="alert">
+        Verification failed or expired. Please try a new puzzle.
+      </p>
 
-    <p th:if="${adminLogin}">Sign in with an administrator account to access admin features.</p>
-    <p th:unless="${adminLogin}">Sign in to manage your training applications.</p>
+      <p th:if="${adminLogin}">
+        Sign in with an administrator account to access admin features.
+      </p>
+      <p th:unless="${adminLogin}">
+        Sign in to manage your training applications.
+      </p>
 
-    <form th:object="${login}"
-          th:action="${adminLogin} ? @{/admin/login} : @{/staff/login}"
-          method="post">
-
+      <div class="cats-site-intro">
+        <p class="cats-site-name">
+          <strong>Course Application Tracking System (CATS)</strong>
+        </p>
+      </div>
+      <form
+        th:object="${login}"
+        th:action="${adminLogin} ? @{/admin/login} : @{/staff/login}"
+        method="post"
+      >
         <!-- REQUIRED FOR SPRING SECURITY POST REQUESTS -->
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <input
+          type="hidden"
+          th:name="${_csrf.parameterName}"
+          th:value="${_csrf.token}"
+        />
 
         <fieldset>
-            <label for="username">Username</label>
-            <input type="text" th:field="*{username}"
-                   autocomplete="username" required
-                   autofocus>
+          <label for="username">Username</label>
+          <input
+            type="text"
+            th:field="*{username}"
+            autocomplete="username"
+            required
+            autofocus
+          />
         </fieldset>
 
         <fieldset>
-            <label for="password">Password</label>
-            <input type="password" th:field="*{password}"
-                   autocomplete="current-password" required>
+          <label for="password">Password</label>
+          <input
+            type="password"
+            th:field="*{password}"
+            autocomplete="current-password"
+            required
+          />
         </fieldset>
 
-        <div th:if="${adminLogin}" th:replace="~{fragments/captcha :: widget('login-admin')}"></div>
-        <div th:unless="${adminLogin}" th:replace="~{fragments/captcha :: widget('login-staff')}"></div>
+        <div
+          th:if="${adminLogin}"
+          th:replace="~{fragments/captcha :: widget('login-admin')}"
+        ></div>
+        <div
+          th:unless="${adminLogin}"
+          th:replace="~{fragments/captcha :: widget('login-staff')}"
+        ></div>
         <button type="submit">Log in</button>
-    </form>
+      </form>
 
-    <!-- TODO: what does role do? -->
-    <p th:if="${msg}" th:text="${msg}" role="alert"></p>
+      <!-- TODO: what does role do? -->
+      <p th:if="${msg}" th:text="${msg}" role="alert"></p>
 
-    <a th:if="${adminLogin}" th:href="@{/staff/login}">Back to staff login</a>
-    <a th:unless="${adminLogin}" th:href="@{/admin/login}">Administrator login</a>
-</body>
+      <a th:if="${adminLogin}" th:href="@{/staff/login}">Back to staff login</a>
+      <a th:unless="${adminLogin}" th:href="@{/admin/login}"
+        >Administrator login</a
+      >
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
 </html>
