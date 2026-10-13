@@ -169,6 +169,37 @@ export class AppComponent implements OnInit, OnDestroy {
   }
   private message(error: unknown): string { return error instanceof Error ? error.message : 'An unexpected error occurred.'; }
 
+  async scanPairingQr(): Promise<void> {
+    if (!this.isNative) {
+      this.status.set('QR scanning is available in the installed Android application.');
+      return;
+    }
+    if (this.busy()) return;
+    this.busy.set(true);
+    try {
+      const result = await CapacitorBarcodeScanner.scanBarcode({
+        hint: 0, // QR_CODE
+        scanInstructions: 'Scan the pairing QR from the CATS website'
+      });
+      if (!result.ScanResult) return;
+      const link = new URL(result.ScanResult);
+      if (link.protocol !== 'catsmobile:' || link.hostname !== 'pair')
+        throw new Error('Scan a CATS pairing QR code.');
+      const rawServer = link.searchParams.get('server') || '';
+      const server = new URL(rawServer);
+      const code = link.searchParams.get('code') || '';
+      if (server.protocol !== 'https:' || server.username || server.password ||
+          server.pathname !== '/' || server.search || server.hash ||
+          !/^[A-Za-z0-9_-]{32}$/.test(code))
+        throw new Error('The pairing QR code is invalid.');
+      this.serverUrl = server.origin;
+      this.pairingCode = code;
+      this.open('settings');
+      this.status.set('Pairing details captured. Check the server URL, then choose Pair and sync.');
+    } catch (error) { this.status.set(this.message(error)); }
+    finally { this.busy.set(false); }
+  }
+
   async pair(): Promise<void> {
     this.busy.set(true);
     try {

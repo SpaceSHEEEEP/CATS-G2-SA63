@@ -18,6 +18,12 @@
                 </tr>
             </thead>
             <tbody>
+                <tr th:if="${#lists.isEmpty(applications)}" class="table-empty-row">
+                  <td colspan="9"><div class="table-empty-state">
+                    <img th:src="@{/images/cats/tearful.png}" alt="" />
+                    <p>No applications on this page yet.</p>
+                  </div></td>
+                </tr>
                 <tr th:each="app : ${applications}">
                     <!-- <td th:text="${app.user.name}"></td> -->
                     <td class="course-name" th:text="${app.course.courseName}"></td>
@@ -59,6 +65,12 @@
                 </tr>
             </thead>
             <tbody>
+                <tr th:if="${#lists.isEmpty(applications)}" class="table-empty-row">
+                  <td colspan="10"><div class="table-empty-state">
+                    <img th:src="@{/images/cats/tearful.png}" alt="" />
+                    <p>No applications on this page yet.</p>
+                  </div></td>
+                </tr>
                 <tr th:each="app : ${applications}">
                     <td th:text="${app.user.name}"></td>
                     <td class="course-name" th:text="${app.course.courseName}"></td>

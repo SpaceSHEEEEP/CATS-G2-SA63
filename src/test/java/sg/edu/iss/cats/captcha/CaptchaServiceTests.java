@@ -48,9 +48,15 @@ class CaptchaServiceTests {
         assertThat(answer).isNotEqualTo("0");
         clock.advance(450);
         assertThat(service.verify(session, "login-admin", puzzle.id(), answer)).isTrue();
-        var expired = service.issueForKind(session, "login-admin", CaptchaService.Kind.ROTATE_TO_FOOD);
+        var stillValid = service.issueForKind(session, "login-admin", CaptchaService.Kind.ROTATE_TO_FOOD);
+        String stillValidAnswer = expectedAnswer(session, "login-admin");
         clock.advance(200_000);
-        assertThat(service.verify(session, "login-admin", expired.id(), "1")).isFalse();
+        assertThat(service.verify(session, "login-admin", stillValid.id(), stillValidAnswer)).isTrue();
+        var expired = service.issueForKind(session, "login-admin", CaptchaService.Kind.ROTATE_TO_FOOD);
+        String expiredAnswer = expectedAnswer(session, "login-admin");
+        clock.advance(480_001);
+        assertThat(service.media(session, expired.id(), "board")).isNull();
+        assertThat(service.verify(session, "login-admin", expired.id(), expiredAnswer)).isFalse();
     }
 
     @Test void matchingCatChallengeHasOpaqueChoicesAndAcceptsAnySelectionOrder() throws Exception {

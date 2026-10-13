@@ -16,6 +16,12 @@
                 <th>Actions</th>
             </thead>
             <tbody>
+                <tr th:if="${#lists.isEmpty(courses.content)}" class="table-empty-row">
+                  <td colspan="8"><div class="table-empty-state">
+                    <img th:src="@{/images/cats/tearful.png}" alt="" />
+                    <p>No courses on this page yet.</p>
+                  </div></td>
+                </tr>
 
                 <tr th:each="course : ${courses.content}">
                 <td class="course-name" th:text="${course.courseName}"></td>

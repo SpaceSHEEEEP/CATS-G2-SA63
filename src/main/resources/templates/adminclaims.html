@@ -8,7 +8,10 @@
   </head>
   <body>
     <div th:replace="~{fragments/header :: header}"></div>
-    <h1>Confirmed reimbursement disbursements</h1>
+    <div class="cats-page-heading">
+      <img th:src="@{/images/cats/confident.png}" alt="" />
+      <h1>Reimbursement Disbursements</h1>
+    </div>
     <p>
       Record a payment only after the external payment has actually been made.
       This screen does not initiate a bank transfer.
@@ -28,6 +31,12 @@
         </tr>
       </thead>
       <tbody>
+        <tr th:if="${#lists.isEmpty(claims)}" class="table-empty-row">
+          <td colspan="7"><div class="table-empty-state">
+            <img th:src="@{/images/cats/tearful.png}" alt="" />
+            <p>No claims on this page yet.</p>
+          </div></td>
+        </tr>
         <tr th:each="claim : ${claims}">
           <td th:text="${claim.employee.name}"></td>
           <td th:text="${claim.application.course.courseName}"></td>

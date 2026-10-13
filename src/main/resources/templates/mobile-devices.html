@@ -9,12 +9,10 @@
   <body>
     <div th:replace="~{fragments/header :: header}"></div>
     <main class="mobile-hub">
-      <h1>CATS Mobile</h1>
-      <img
-        class="cats-mobile-art"
-        th:src="@{/images/cats/adventure.png}"
-        alt="CATS adventure mascot with a rocket"
-      />
+      <div class="cats-page-heading">
+        <img th:src="@{/images/cats/adventure.png}" alt="" />
+        <h1>CATS Mobile</h1>
+      </div>
       <p>
         Use the Android app to browse saved course information offline and
         generate TOTP login codes offline. Sync requires Internet.
@@ -45,10 +43,21 @@
         <div th:replace="~{fragments/captcha :: widget('pair-code')}"></div>
         <button type="submit">Generate pairing code</button>
       </form>
-      <p th:if="${pairCode}">
-        One-time pairing code (expires in five minutes):
-        <code th:text="${pairCode}"></code>
-      </p>
+      <section th:if="${pairCode}" class="cats-pairing-panel" aria-label="Pairing code">
+        <p>One-time pairing code (expires in five minutes):
+          <code th:text="${pairCode}"></code>
+        </p>
+        <div class="cats-pairing-qr">
+          <img th:src="@{/staff/mobile/pair-qr}"
+               alt="Scan with CATS Mobile to fill your device pairing details" />
+          <div>
+            <strong>Scan to pair</strong>
+            <p>In CATS Mobile, open <strong>Connect</strong> and choose
+               <strong>Scan pairing QR</strong>. Confirm the server URL, then pair.
+            </p>
+          </div>
+        </div>
+      </section>
       <p th:if="${notice}" th:text="${notice}" role="status"></p>
       <h2>Paired devices</h2>
       <table>
@@ -61,6 +70,12 @@
           </tr>
         </thead>
         <tbody>
+          <tr th:if="${#lists.isEmpty(devices)}" class="table-empty-row">
+            <td colspan="4"><div class="table-empty-state">
+              <img th:src="@{/images/cats/tearful.png}" alt="" />
+              <p>No paired devices on this page yet.</p>
+            </div></td>
+          </tr>
           <tr th:each="d : ${devices}">
             <td th:text="${d.deviceName}"></td>
             <td th:text="${d.expiresAt}"></td>

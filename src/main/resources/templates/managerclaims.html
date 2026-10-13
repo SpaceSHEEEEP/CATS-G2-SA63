@@ -8,7 +8,10 @@
   </head>
   <body>
     <div th:replace="~{fragments/header :: header}"></div>
-    <h1>Direct-subordinate reimbursement claims</h1>
+    <div class="cats-page-heading">
+      <img th:src="@{/images/cats/thoughtful.png}" alt="" />
+      <h1>Direct Subordinate Claims</h1>
+    </div>
     <p th:if="${successmsg}" th:text="${successmsg}"></p>
     <p th:if="${errormsg}" th:text="${errormsg}" role="alert"></p>
     <p>Only claims belonging to your direct subordinates are actionable.</p>
@@ -25,6 +28,12 @@
         </tr>
       </thead>
       <tbody>
+        <tr th:if="${#lists.isEmpty(claims)}" class="table-empty-row">
+          <td colspan="7"><div class="table-empty-state">
+            <img th:src="@{/images/cats/tearful.png}" alt="" />
+            <p>No claims on this page yet.</p>
+          </div></td>
+        </tr>
         <tr th:each="claim : ${claims}">
           <td>
             <a

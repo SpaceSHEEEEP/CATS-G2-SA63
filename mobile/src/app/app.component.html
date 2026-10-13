@@ -73,7 +73,7 @@
     <section *ngIf="currentTab() === 'courses'">
       <div class="screen-title">
         <img src="assets/cats/confident.png" alt="" aria-hidden="true" />
-        <h2>Course catalogue</h2>
+        <h2>Course Catalogue</h2>
       </div>
       <p class="muted">Last saved data. Refresh online when available.</p>
       <label class="field"
@@ -101,7 +101,7 @@
     <section *ngIf="currentTab() === 'history'">
       <div class="screen-title">
         <img src="assets/cats/thoughtful.png" alt="" aria-hidden="true" />
-        <h2>My training</h2>
+        <h2>My Training</h2>
       </div>
       <p *ngIf="snapshot()" class="muted">
         {{ snapshot()?.employee }} · {{ snapshot()?.year }} ·
@@ -145,7 +145,7 @@
     <section *ngIf="currentTab() === 'planner'">
       <div class="screen-title">
         <img src="assets/cats/curious.png" alt="" aria-hidden="true" />
-        <h2>Offline training-day planner</h2>
+        <h2>Training Day Planner</h2>
       </div>
       <p class="muted">
         Weekends and holidays saved from the server are excluded.
@@ -175,7 +175,7 @@
     <section *ngIf="currentTab() === 'notes'">
       <div class="screen-title">
         <img src="assets/cats/unimpressed.png" alt="" aria-hidden="true" />
-        <h2>My private notes</h2>
+        <h2>My Private Notes</h2>
       </div>
       <p class="muted">
         Only this device stores them. They are never uploaded to CATS.
@@ -194,7 +194,7 @@
     <section *ngIf="currentTab() === 'authenticator'">
       <div class="screen-title">
         <img src="assets/cats/surprised.png" alt="" aria-hidden="true" />
-        <h2>Authenticator · works offline</h2>
+        <h2>Authenticator</h2>
       </div>
       <div class="otp-panel" *ngIf="otp() !== '••••••'">
         <span class="otp">{{ otp() }}</span>
@@ -234,7 +234,7 @@
     <section *ngIf="currentTab() === 'settings'">
       <div class="screen-title">
         <img src="assets/cats/adventure.png" alt="" aria-hidden="true" />
-        <h2>Pair your device</h2>
+        <h2>Mobile Pairing</h2>
       </div>
       <p class="muted">
         MFA setup and offline code generation work before pairing. After web MFA
@@ -257,6 +257,9 @@
           placeholder="Copy from the CATS website"
       /></label>
       <button [disabled]="busy()" (click)="pair()">Pair and sync</button>
+      <button class="ghost" [disabled]="busy()" (click)="scanPairingQr()">
+        Scan pairing QR
+      </button>
       <button class="ghost" (click)="sync()">Sync existing pairing</button>
       <hr />
       <p class="muted">

@@ -215,9 +215,10 @@ footer {
 }
 
 /* Individual CATS mascots are visual cues for each offline task, not a collage. */
-.screen-title{display:flex;align-items:center;gap:.7rem;margin:0 0 .55rem}
-.screen-title img{width:68px;height:68px;object-fit:contain;flex-shrink:0}
-.screen-title h2{margin:0}
+.screen-title { display:flex; align-items:center; justify-content:flex-start; gap:.8rem; margin:0 0 .8rem;
+  padding-bottom:.55rem; border-bottom:1px solid #dce2ef; text-align:left; }
+.screen-title img { width:72px; height:72px; object-fit:contain; flex-shrink:0; }
+.screen-title h2 { margin:0; color:#283586; font-size:1.25rem; }
 .illustrated-empty{display:flex;gap:.8rem;align-items:center}
 .illustrated-empty img{width:72px;height:72px;object-fit:contain;flex-shrink:0}
 .discovery-prompt{display:flex;align-items:center;gap:.45rem;color:#247363;font-size:.83rem;margin:.45rem 0}

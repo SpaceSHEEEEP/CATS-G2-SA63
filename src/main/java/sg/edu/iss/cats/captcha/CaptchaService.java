@@ -23,7 +23,7 @@ public class CaptchaService {
     private static final int MAX_ISSUES_PER_MINUTE = 24;
 
     private record IssueWindow(long startedAt, int count) {}
-    private static final long MAX_AGE_MS = 180_000;
+    private static final long MAX_AGE_MS = 480_000;
     private static final long MIN_SOLVE_MS = 350;
     // MFA enrollment and TOTP verification intentionally have no CAPTCHA.
     private static final Set<String> SCOPES = Set.of("login-staff", "login-admin",

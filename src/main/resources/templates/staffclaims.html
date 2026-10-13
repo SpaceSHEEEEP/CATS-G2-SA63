@@ -8,11 +8,11 @@
   </head>
   <body>
     <div th:replace="~{fragments/header :: header}"></div>
-    <h1>My course fee reimbursement claims</h1><p th:if="${param.captchaError}" role="alert">Verification failed. Return to the claim form and try a new challenge.</p>
-    <p th:if="${#lists.isEmpty(claims)}" class="cats-empty-state">
-      <img th:src="@{/images/cats/tearful.png}" alt="" />No claims on this page
-      yet.
-    </p>
+    <div class="cats-page-heading">
+      <img th:src="@{/images/cats/curious.png}" alt="" />
+      <h1>My Claims</h1>
+    </div>
+    <p th:if="${param.captchaError}" role="alert">Verification failed. Return to the claim form and try a new challenge.</p>
     <table>
       <thead>
         <tr>
@@ -26,6 +26,12 @@
         </tr>
       </thead>
       <tbody>
+        <tr th:if="${#lists.isEmpty(claims)}" class="table-empty-row">
+          <td colspan="7"><div class="table-empty-state">
+            <img th:src="@{/images/cats/tearful.png}" alt="" />
+            <p>No claims on this page yet.</p>
+          </div></td>
+        </tr>
         <tr th:each="claim : ${claims}">
           <td class="course-name" th:text="${claim.application.course.courseName}"></td>
           <td th:text="${claim.submittedOn}"></td>
